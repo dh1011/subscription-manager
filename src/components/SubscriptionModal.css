@@ -1,0 +1,119 @@
+/* src/components/SubscriptionModal.css */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+  }
+  
+  .modal-container {
+    background: #1e1e1e;
+    padding: 30px;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 10px;
+    color: #fff;
+  }
+  
+  .modal-container h2 {
+    margin-top: 0;
+    font-size: 2em;
+    color: #fff;
+  }
+  
+  .modal-container p {
+    margin-bottom: 20px;
+    color: #ccc;
+  }
+  
+  .modal-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    font-size: 1em;
+    color: #ccc;
+    margin-bottom: 5px;
+    display: block;
+  }
+  
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #2c2c2c;
+    color: #fff;
+  }
+  
+  .modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .submit-button,
+  .cancel-button {
+    flex: 1;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+  }
+
+  .submit-button {
+    background: #45B7D1;
+    color: #000;
+    margin-right: 10px;
+  }
+  
+  .cancel-button {
+    background: #444;
+    color: #fff;
+  }
+  
+  .modal-actions button:hover {
+    opacity: 0.9;
+  }
+  
+  .icon-input-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .icon-input-container input {
+    flex-grow: 1;
+    margin-right: 10px;
+  }
+
+  .icon-preview {
+    font-size: 1.5em;
+    color: #03DAC6;
+  }
+
+  /* Responsive Styles */
+  @media (max-width: 480px) {
+    .modal-container {
+      padding: 20px;
+    }
+  
+    .submit-button,
+    .cancel-button {
+      width: 100%;
+      margin: 5px 0;
+    }
+  }

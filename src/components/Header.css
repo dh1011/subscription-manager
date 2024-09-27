@@ -1,0 +1,19 @@
+/* src/components/Header.css */
+.header {
+    padding: 20px;
+    color: #fff;
+    text-align: center;
+  }
+  
+  .header h1 {
+    margin: 0;
+    font-size: 2.5em;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 480px) {
+    .header h1 {
+      font-size: 2em;
+    }
+  }
+  

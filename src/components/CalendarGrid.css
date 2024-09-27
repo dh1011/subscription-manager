@@ -1,0 +1,94 @@
+/* src/components/CalendarGrid.css */
+.calendar-container {
+  max-width: 1000px;
+  margin: 0 auto 20px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.calendar-day-header {
+  text-align: center;
+  font-weight: bold;
+  padding: 10px 0;
+  color: #fff;
+  font-size: 1.2em;
+}
+
+.calendar-day {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 10px;
+  cursor: pointer;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+}
+
+.calendar-day:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.calendar-day.empty {
+  background: transparent;
+  cursor: default;
+}
+
+.date-number {
+  font-size: 1.2em;
+  margin-bottom: 5px;
+}
+
+.subscriptions {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.subscription-icon {
+  margin: 2px;
+  color: #03DAC6;
+  font-size: 1.5em; /* Increased size */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .calendar-grid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+
+  .calendar-day {
+    min-height: 80px;
+    padding: 5px;
+  }
+
+  .date-number {
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .calendar-day-header {
+    display: none; /* Hide day headers on very small screens */
+  }
+
+  .calendar-day {
+    min-height: 60px;
+    padding: 5px;
+  }
+
+  .date-number {
+    font-size: 0.9em;
+  }
+
+  .subscription-icon {
+    font-size: 1.2em;
+  }
+}

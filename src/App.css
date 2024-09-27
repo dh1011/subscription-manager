@@ -1,0 +1,24 @@
+/* src/App.css */
+.app {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #000000, #333333);
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+}
+
+.app h1,
+.app h2,
+.app h3 {
+  color: #fff;
+}
+
+.app h1 {
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+}

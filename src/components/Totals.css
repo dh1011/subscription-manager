@@ -1,0 +1,64 @@
+/* src/components/Totals.css */
+.totals {
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 800px;
+    border-radius: 10px;
+    color: #fff;
+  }
+  
+  .totals h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
+  }
+  
+  .totals-grid {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  .total-card {
+    flex: 1;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .total-card h3 {
+    font-size: 1.5em;
+    font-weight: thin;
+    margin-bottom: 10px;
+  }
+  
+  .total-card p {
+    font-size: 2em;
+    font-weight: bold;
+  }
+  
+  .total-card.weekly {
+    color: #FF6B6B; /* Coral Red */
+  }
+  
+  .total-card.monthly {
+    color: #4ECDC4; /* Medium Turquoise */
+  }
+  
+  .total-card.yearly {
+    color: #F7DC6F; /* Mellow Yellow */
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .totals-grid {
+      flex-direction: column;
+    }
+  
+    .total-card {
+      margin-bottom: 10px;
+    }
+  }
+  

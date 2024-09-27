@@ -1,0 +1,110 @@
+/* src/components/SubscriptionList.css */
+.subscription-list-container {
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 1000px;
+    color: #fff;
+  }
+  
+  .subscription-list-title {
+    font-size: 2em;
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  
+  .subscription-total {
+    text-align: center;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+  }
+  
+  .subscription-list-grid {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .subscription-card {
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+  }
+  
+  .subscription-card-content {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .subscription-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .subscription-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+  
+  .subscription-item-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .subscription-item-icon {
+    font-size: 1.5em;
+    margin-right: 10px;
+    color: #03DAC6;
+  }
+  
+  .subscription-item-name {
+    font-size: 1.2em;
+    margin: 0;
+  }
+  
+  .subscription-item-amount {
+    font-size: 0.8em;
+    color: #adadad;
+  }
+  
+  .subscription-item-actions button {
+    background: #2c2c2c;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    margin-left: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .subscription-item-actions .delete-button {
+    background: #E94560;
+  }
+  
+  .subscription-item-actions button:hover {
+    opacity: 0.9;
+  }
+  
+  @media (max-width: 768px) {
+    .subscription-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .subscription-item-actions {
+      margin-top: 10px;
+      display: flex;
+      width: 100%;
+      justify-content: flex-start;
+    }
+  
+    .subscription-item-actions button {
+      margin-left: 0;
+      margin-right: 10px;
+    }
+  }
+  

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=subscriptions
+      - DB_USER=username
+      - DB_PASSWORD=password
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_DB=subscriptions
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
+
+volumes:
+  postgres_data:
