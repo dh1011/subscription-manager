@@ -4,8 +4,6 @@
 
 </div>
 
-A simple web app to help you keep track of your subscriptions and manage your expenses.
-
 ![Demo](demo.gif)
 
 ## Features
