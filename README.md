@@ -1,12 +1,6 @@
-<div align="center">
-
 # Subscription Manager
 
-</div>
-
-A simple web app to help you keep track of your subscriptions and manage your expenses.
-
-https://github.com/dh1011/subscription-manager/demo.mov
+[![Subscription Manager Demo](https://img.youtube.com/vi/tAL8Gv35mKw/0.jpg)](https://www.youtube.com/watch?v=tAL8Gv35mKw)
 
 ## Features
 
