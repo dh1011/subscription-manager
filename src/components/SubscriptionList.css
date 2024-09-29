@@ -108,3 +108,39 @@
     }
   }
   
+  .subscription-item-details {
+    display: flex;
+    align-items: center;
+    font-size: 0.9em;
+    color: #ccc;
+    margin-top: 5px;
+  }
+  
+  .credit-card-icon {
+    margin-right: 5px;
+    color: #45B7D1;
+  }
+  
+  .autopay-indicator {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+    background-color: rgba(69, 183, 209, 0.2);
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+  
+  .autopay-icon {
+    margin-right: 3px;
+    color: #45B7D1;
+  }
+
+  .notify-indicator {
+    margin-left: 10px;
+    color: #fffd6b;
+  }
+  
+  .notify-icon {
+    margin-right: 3px;
+  }
+  

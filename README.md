@@ -6,14 +6,16 @@
 
 A simple web app to help you keep track of your subscriptions and manage your expenses.
 
-![Demo](demo.gif)
+https://github.com/dh1011/subscription-manager/demo.mov
 
 ## Features
 
 - Add, edit, and delete subscriptions
 - View subscriptions on a calendar
 - Calculate weekly, monthly, and yearly totals
+- Detailed summaries per payment account
 - Customizable icons and colors for each subscription
+- Notification system integration with NTFY
 
 ## Tech Stack
 
@@ -45,5 +47,15 @@ A simple web app to help you keep track of your subscriptions and manage your ex
 ## Adding Icons
 
 This app uses Font Awesome icons. To add an icon to your subscription, use the icon name from the [Font Awesome icon library](https://fontawesome.com/icons).
+
+## Notifications
+
+The app integrates with NTFY for sending notifications. To set up notifications:
+
+1. Click the bell icon next to the app title
+2. Enter your NTFY topic
+3. Save the settings
+
+You'll receive notifications for upcoming subscription payments.
 
 Enjoy!

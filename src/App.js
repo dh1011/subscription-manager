@@ -5,6 +5,9 @@ import CalendarGrid from './components/CalendarGrid';
 import SubscriptionList from './components/SubscriptionList';
 import SubscriptionModal from './components/SubscriptionModal';
 import Totals from './components/Totals';
+import NtfySettingsModal from './components/NtfySettingsModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBell } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
 
 function App() {
@@ -12,6 +15,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
+  const [isNtfyModalOpen, setIsNtfyModalOpen] = useState(false);
 
   useEffect(() => {
     fetchSubscriptions();
@@ -29,10 +33,8 @@ function App() {
   const addOrUpdateSubscription = async (subscription) => {
     try {
       if (subscription.id) {
-        // Update existing subscription
         await axios.put(`/api/subscriptions/${subscription.id}`, subscription);
       } else {
-        // Add new subscription
         await axios.post('/api/subscriptions', subscription);
       }
       fetchSubscriptions();
@@ -65,6 +67,17 @@ function App() {
 
   return (
     <div className="app">
+      <div className="app-header">
+        <h1>
+          Subscription Manager
+          <button 
+            className="ntfy-settings-button" 
+            onClick={() => setIsNtfyModalOpen(true)} 
+          >
+            <FontAwesomeIcon icon={faBell} />
+          </button>
+        </h1>
+      </div>
       <CalendarGrid
         subscriptions={subscriptions}
         onDateClick={handleDateClick}
@@ -90,6 +103,10 @@ function App() {
           selectedDate={selectedDate}
         />
       )}
+      <NtfySettingsModal
+        isOpen={isNtfyModalOpen}
+        onClose={() => setIsNtfyModalOpen(false)}
+      />
     </div>
   );
 }

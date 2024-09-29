@@ -19,7 +19,7 @@
 }
 
 .calendar-day {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
   padding: 10px;
   cursor: pointer;
@@ -27,15 +27,21 @@
   display: flex;
   flex-direction: column;
   border-radius: 10px;
+  transition: background-color 0.3s ease;
 }
 
 .calendar-day:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .calendar-day.empty {
   background: transparent;
   cursor: default;
+}
+
+.calendar-day.today {
+  background: rgba(187, 134, 252, 0.2);
+  border: 2px solid #BB86FC;
 }
 
 .date-number {
@@ -50,8 +56,7 @@
 
 .subscription-icon {
   margin: 2px;
-  color: #03DAC6;
-  font-size: 1.5em; /* Increased size */
+  font-size: 1.5em;
 }
 
 /* Responsive Styles */
@@ -72,11 +77,11 @@
 
 @media (max-width: 480px) {
   .calendar-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(7, 1fr);
   }
 
   .calendar-day-header {
-    display: none; /* Hide day headers on very small screens */
+    font-size: 0.8em;
   }
 
   .calendar-day {

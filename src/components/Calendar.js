@@ -92,32 +92,37 @@ function SubscriptionCalendar({ subscriptions, onDateClick }) {
   // Function to generate dates for recurring subscriptions
   const generateDates = (sub) => {
     const dates = [];
-    const startDate = new Date(sub.dueDate + 'T00:00:00');
+    const startDate = new Date(sub.due_date + 'T00:00:00');
     const endDate = new Date();
     endDate.setFullYear(endDate.getFullYear() + 1); // Generate dates for the next year
     let currentDate = new Date(startDate);
-
+  
+    const intervalValue = parseInt(sub.interval_value) || 1;
+    const intervalUnit = sub.interval_unit || 'months';
+  
     while (currentDate <= endDate) {
       dates.push(new Date(currentDate));
-      switch (sub.recurrence) {
-        case 'weekly':
-          currentDate.setDate(currentDate.getDate() + 7);
+      switch (intervalUnit) {
+        case 'days':
+          currentDate.setDate(currentDate.getDate() + intervalValue);
           break;
-        case 'monthly':
-          currentDate.setMonth(currentDate.getMonth() + 1);
+        case 'weeks':
+          currentDate.setDate(currentDate.getDate() + intervalValue * 7);
           break;
-        case 'yearly':
-          currentDate.setFullYear(currentDate.getFullYear() + 1);
+        case 'months':
+          currentDate.setMonth(currentDate.getMonth() + intervalValue);
+          break;
+        case 'years':
+          currentDate.setFullYear(currentDate.getFullYear() + intervalValue);
           break;
         default:
           currentDate = new Date(endDate.getTime() + 1); // Stop loop for non-recurring
           break;
       }
     }
-
+  
     return dates;
   };
-
   // Map dates to subscriptions
   const dateSubscriptions = {};
   subscriptions.forEach((sub) => {

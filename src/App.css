@@ -22,3 +22,30 @@ body {
   margin: 0;
   font-family: 'Montserrat', sans-serif;
 }
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.app-header h1 {
+  display: flex;
+  align-items: center;
+}
+
+.ntfy-settings-button {
+  background: none;
+  border: none;
+  color: #4a90e2;
+  font-size: 0.8em;
+  padding: 5px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.ntfy-settings-button:hover {
+  color: #6aa9f4;
+}

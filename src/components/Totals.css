@@ -50,6 +50,73 @@
   .total-card.yearly {
     color: #F7DC6F; /* Mellow Yellow */
   }
+
+  .account-totals-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .account-total-card {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    min-width: 150px;
+  }
+  
+  .account-total-card h3 {
+    font-size: 1.2em; /* Smaller font size */
+    font-weight: normal;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .credit-card-icon {
+    margin-right: 5px;
+  }
+  
+  .account-totals {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .account-total {
+    font-size: 0.9em; /* Smaller font size */
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .account-total p {
+    margin: 0;
+  }
+  
+  .account-total.weekly p,
+  .account-total.monthly p,
+  .account-total.yearly p {
+    color: #fff;
+  }
+  
+  .account-total.weekly {
+    color: #FF6B6B; /* Coral Red */
+  }
+  
+  .account-total.monthly {
+    color: #4ECDC4; /* Medium Turquoise */
+  }
+  
+  .account-total.yearly {
+    color: #F7DC6F; /* Mellow Yellow */
+  }
   
   /* Responsive Styles */
   @media (max-width: 768px) {
@@ -60,5 +127,38 @@
     .total-card {
       margin-bottom: 10px;
     }
+
+    .account-totals-grid {
+      flex-direction: column;
+    }
+  
+    .account-total-card {
+      margin-bottom: 10px;
+    }
   }
   
+.detail-summaries-title {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.account-totals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+@media (min-width: 768px) {
+  .account-totals-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .account-totals-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}

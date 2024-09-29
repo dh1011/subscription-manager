@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 function CalendarGrid({ subscriptions, onDateClick, currentDate }) {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
+  const today = new Date();
   const daysInMonth = getDaysInMonth(year, month);
   const firstDayOfMonth = getFirstDayOfMonth(year, month);
 
@@ -16,13 +17,11 @@ function CalendarGrid({ subscriptions, onDateClick, currentDate }) {
   const subscriptionsByDate = {};
   subscriptions.forEach((sub) => {
     if (sub.due_date) {
-      // Parse the due date string into a Date object
       const date = new Date(sub.due_date);
       const dateYear = date.getFullYear();
       const dateMonth = date.getMonth();
       const dateDay = date.getDate();
 
-      // Only include subscriptions that match the current month and year
       if (dateYear === year && dateMonth === month) {
         if (!subscriptionsByDate[dateDay]) {
           subscriptionsByDate[dateDay] = [];
@@ -48,10 +47,11 @@ function CalendarGrid({ subscriptions, onDateClick, currentDate }) {
         {Array.from({ length: daysInMonth }, (_, i) => {
           const day = i + 1;
           const subs = subscriptionsByDate[day] || [];
+          const isToday = year === today.getFullYear() && month === today.getMonth() && day === today.getDate();
           return (
             <div
               key={day}
-              className="calendar-day"
+              className={`calendar-day ${isToday ? 'today' : ''}`}
               onClick={() => onDateClick(new Date(year, month, day))}
             >
               <div className="date-number">{day}</div>

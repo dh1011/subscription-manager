@@ -11,58 +11,89 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [icon, setIcon] = useState('');
-  const [recurrence, setRecurrence] = useState('monthly');
   const [iconInput, setIconInput] = useState('');
   const [color, setColor] = useState('');
+  const [account, setAccount] = useState('');
+  const [autopay, setAutopay] = useState(false);
+  const [intervalValue, setIntervalValue] = useState(1);
+  const [intervalUnit, setIntervalUnit] = useState('months');
+  const [notify, setNotify] = useState(false);
 
   useEffect(() => {
     if (selectedSubscription) {
       setId(selectedSubscription.id || null);
       setName(selectedSubscription.name || '');
       setAmount(selectedSubscription.amount || '');
-      setDueDate(selectedSubscription.due_date ? new Date(selectedSubscription.due_date).toISOString().split('T')[0] : '');
+      setDueDate(
+        selectedSubscription.due_date
+          ? new Date(selectedSubscription.due_date).toISOString().split('T')[0]
+          : ''
+      );
       setIcon(selectedSubscription.icon || '');
       setIconInput(selectedSubscription.icon || '');
-      setRecurrence(selectedSubscription.recurrence || 'monthly');
       setColor(selectedSubscription.color || '');
+      setAccount(selectedSubscription.account || '');
+      setAutopay(selectedSubscription.autopay || false);
+      setIntervalValue(selectedSubscription.interval_value || 1);
+      setIntervalUnit(selectedSubscription.interval_unit || 'months');
+      setNotify(selectedSubscription.notify || false);
     } else {
       if (selectedDate) {
         setDueDate(selectedDate.toISOString().split('T')[0]);
       }
       setColor(getRandomColor());
+      setIntervalValue(1);
+      setIntervalUnit('months');
+      setAccount('');
     }
   }, [selectedSubscription, selectedDate]);
 
-  const getAmountLabel = () => {
-    switch (recurrence) {
-      case 'weekly':
-        return 'Weekly Amount';
-      case 'yearly':
-        return 'Yearly Amount';
+  const convertToMonthlyAmount = (amount, intervalValue, intervalUnit) => {
+    const amountFloat = parseFloat(amount);
+    if (isNaN(amountFloat) || amountFloat <= 0) return 0;
+    let paymentsPerMonth = 0;
+    const interval = parseInt(intervalValue) || 1;
+  
+    switch (intervalUnit) {
+      case 'days':
+        paymentsPerMonth = 30.44 / interval;
+        break;
+      case 'weeks':
+        paymentsPerMonth = 4.34524 / interval;
+        break;
+      case 'months':
+        paymentsPerMonth = 1 / interval;
+        break;
+      case 'years':
+        paymentsPerMonth = 1 / (interval * 12);
+        break;
       default:
-        return 'Monthly Amount';
+        paymentsPerMonth = 0;
+        break;
     }
-  };
-
-  const convertToMonthlyAmount = (amount, recurrence) => {
-    switch (recurrence) {
-      case 'weekly':
-        return (parseFloat(amount) * 52) / 12;
-      case 'yearly':
-        return parseFloat(amount) / 12;
-      default:
-        return parseFloat(amount);
-    }
+    return amountFloat * paymentsPerMonth;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (name && amount && dueDate && icon) {
-      const monthlyAmount = convertToMonthlyAmount(amount, recurrence);
-      onSave({ id, name, amount: monthlyAmount.toFixed(2), dueDate, icon, recurrence, color });
+      const monthlyAmount = convertToMonthlyAmount(amount, intervalValue, intervalUnit);
+      onSave({
+        id,
+        name,
+        amount: monthlyAmount.toFixed(2),
+        dueDate,
+        icon,
+        color,
+        account,
+        autopay,
+        interval_value: parseInt(intervalValue) || 1,
+        interval_unit: intervalUnit,
+        notify,
+      });
       onClose();
     } else {
-      alert('Please fill in all fields.');
+      alert('Please fill in all required fields.');
     }
   };
 
@@ -105,13 +136,13 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
             />
           </div>
           <div className="form-group">
-            <label htmlFor="amount">{getAmountLabel()}</label>
+            <label htmlFor="amount">Recurring Amount</label>
             <input
               id="amount"
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder={`Enter ${getAmountLabel().toLowerCase()}`}
+              placeholder={`Enter amount`}
               step="0.01"
             />
           </div>
@@ -138,17 +169,62 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
             </div>
           </div>
           <div className="form-group">
-            <label htmlFor="recurrence">Recurrence</label>
-            <select
-              id="recurrence"
-              value={recurrence}
-              onChange={(e) => setRecurrence(e.target.value)}
-            >
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-            </select>
+          <label htmlFor="interval">Recurrence Interval</label>
+            <div className="interval-input-container">
+              <input
+                id="intervalValue"
+                type="number"
+                value={intervalValue}
+                onChange={(e) => setIntervalValue(e.target.value)}
+                min="1"
+                placeholder="Interval"
+              />
+              <select
+                id="intervalUnit"
+                value={intervalUnit}
+                onChange={(e) => setIntervalUnit(e.target.value)}
+              >
+                <option value="days">Days</option>
+                <option value="weeks">Weeks</option>
+                <option value="months">Months</option>
+                <option value="years">Years</option>
+              </select>
+            </div>
           </div>
+          <div className="form-group">
+        <label htmlFor="account">Payment Account</label>
+        <input
+          id="account"
+          type="text"
+          value={account}
+          onChange={(e) => setAccount(e.target.value)}
+          placeholder="Enter account or card name"
+            />
+          </div>
+          <div className="form-group autopay-toggle">
+            <label htmlFor="autopay">Autopay</label>
+            <label className="switch">
+              <input
+                id="autopay"
+                type="checkbox"
+                checked={autopay}
+                onChange={(e) => setAutopay(e.target.checked)}
+              />
+              <span className="slider"></span>
+            </label>
+          </div>
+          <div className="form-group notify-toggle">
+          <label htmlFor="notify">Notify</label>
+          <label className="switch">
+            <input
+              id="notify"
+              type="checkbox"
+              checked={notify}
+              onChange={(e) => setNotify(e.target.checked)}
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
           <div className="modal-actions">
             <button type="submit" className="submit-button">
               {id ? 'Update Subscription' : 'Add Subscription'}
