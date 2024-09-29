@@ -12,30 +12,30 @@ This web application lets you keep track of and manage your subscriptions. You c
 
 ## Screenshots
 <p align="center">
-  <img src="img/main.png" alt="Main dashboard" width="50%">
+  <img src="img/main.png" alt="Main dashboard" width="70%">
 </p>
 <p align="center"><em>Main dashboard</em></p>
 
 <p align="center"><hr style="width:50%; border:none; border-top:0.5px solid #333333;"></p>
 
 <p align="center">
-  <img src="img/add_sub_form.png" alt="Add/Edit subscription form" width="50%">
+  <img src="img/add_sub_form.png" alt="Add/Edit subscription form" width="70%">
 </p>
 <p align="center"><em>Add/Edit subscription form</em></p>
 
 <p align="center"><hr style="width:50%; border:none; border-top:0.5px solid #333333;"></p>
 
 <p align="center">
-  <img src="img/notification_setting.png" alt="Notification settings" width="50%">
+  <img src="img/notification_setting.png" alt="Notification settings" width="70%">
 </p>
 <p align="center"><em>Notification settings</em></p>
 
 <p align="center"><hr style="width:50%; border:none; border-top:0.5px solid #333333;"></p>
 
 <p align="center">
-  <img src="img/mobile1.png" alt="Mobile Screenshot 1" width="18%">
-  <img src="img/mobile2.png" alt="Mobile Screenshot 2" width="18%">
-  <img src="img/mobile3.png" alt="Mobile Screenshot 3" width="18%">
+  <img src="img/mobile1.png" alt="Mobile Screenshot 1" width="25%">
+  <img src="img/mobile2.png" alt="Mobile Screenshot 2" width="25%">
+  <img src="img/mobile3.png" alt="Mobile Screenshot 3" width="25%">
 </p>
 <p align="center"><em>Mobile interface</em></p>
 
