@@ -1,6 +1,44 @@
 # Subscription Manager
 
-[![Subscription Manager Demo](https://img.youtube.com/vi/tAL8Gv35mKw/0.jpg)](https://www.youtube.com/watch?v=tAL8Gv35mKw)
+This web application lets you keep track of and manage your subscriptions. You can add, edit, delete, and view subscriptions. You can set up notifications for each subscription using NTFY. There is a general summary of all your subscriptions and a detailed summary for each payment account.
+
+## Video Demo
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=tAL8Gv35mKw">
+    <img src="https://img.youtube.com/vi/tAL8Gv35mKw/0.jpg" alt="Subscription Manager Demo">
+  </a>
+</p>
+
+## Screenshots
+<p align="center">
+  <img src="img/main.png" alt="Main dashboard" width="50%">
+</p>
+<p align="center"><em>Main dashboard</em></p>
+
+<p align="center"><hr style="width:50%; border:none; border-top:0.5px solid #333333;"></p>
+
+<p align="center">
+  <img src="img/add_sub_form.png" alt="Add/Edit subscription form" width="50%">
+</p>
+<p align="center"><em>Add/Edit subscription form</em></p>
+
+<p align="center"><hr style="width:50%; border:none; border-top:0.5px solid #333333;"></p>
+
+<p align="center">
+  <img src="img/notification_setting.png" alt="Notification settings" width="50%">
+</p>
+<p align="center"><em>Notification settings</em></p>
+
+<p align="center"><hr style="width:50%; border:none; border-top:0.5px solid #333333;"></p>
+
+<p align="center">
+  <img src="img/mobile1.png" alt="Mobile Screenshot 1" width="18%">
+  <img src="img/mobile2.png" alt="Mobile Screenshot 2" width="18%">
+  <img src="img/mobile3.png" alt="Mobile Screenshot 3" width="18%">
+</p>
+<p align="center"><em>Mobile interface</em></p>
+
 
 ## Features
 
@@ -52,4 +90,4 @@ The app integrates with NTFY for sending notifications. To set up notifications:
 
 You'll receive notifications for upcoming subscription payments.
 
-Enjoy!
+Enjoy 🎉!
