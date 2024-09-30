@@ -16,21 +16,15 @@ This web application lets you keep track of and manage your subscriptions. You c
 </p>
 <p align="center"><em>Main dashboard</em></p>
 
-<p align="center"><hr style="width:50%; border:none; border-top:0.5px solid #333333;"></p>
-
 <p align="center">
   <img src="img/add_sub_form.png" alt="Add/Edit subscription form" width="70%">
 </p>
 <p align="center"><em>Add/Edit subscription form</em></p>
 
-<p align="center"><hr style="width:50%; border:none; border-top:0.5px solid #333333;"></p>
-
 <p align="center">
   <img src="img/notification_setting.png" alt="Notification settings" width="70%">
 </p>
 <p align="center"><em>Notification settings</em></p>
-
-<p align="center"><hr style="width:50%; border:none; border-top:0.5px solid #333333;"></p>
 
 <p align="center">
   <img src="img/mobile1.png" alt="Mobile Screenshot 1" width="25%">
@@ -53,7 +47,7 @@ This web application lets you keep track of and manage your subscriptions. You c
 
 - React
 - Express
-- PostgreSQL
+- SQLite
 - Font Awesome
 
 ## Setup
@@ -72,9 +66,8 @@ This web application lets you keep track of and manage your subscriptions. You c
 
 1. Clone the repository
 2. Install dependencies: `npm install`
-3. Set up your PostgreSQL database
-4. Create a `.env` file with your database credentials
-5. Run the app: `npm run dev`
+3. Create `subscriptions.db` file in the `server` directory
+4. Run the app: `npm run dev`
 
 ## Adding Icons
 

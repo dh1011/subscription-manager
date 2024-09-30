@@ -1,5 +1,6 @@
 const express = require('express');
-const { Pool } = require('pg');
+const sqlite3 = require('sqlite3').verbose();
+const { open } = require('sqlite');
 require('dotenv').config();
 
 const app = express();
@@ -11,14 +12,32 @@ const axios = require('axios');
 app.use(express.json());
 
 // Database connection
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
-
+let db;
+(async () => {
+  db = await open({
+    filename: '../subscriptions.db',
+    driver: sqlite3.Database
+  });
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS subscriptions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      amount REAL NOT NULL,
+      due_date TEXT NOT NULL,
+      icon TEXT,
+      color TEXT,
+      account TEXT,
+      autopay INTEGER DEFAULT 0,
+      interval_value INTEGER DEFAULT 1,
+      interval_unit TEXT CHECK (interval_unit IN ('days', 'weeks', 'months', 'years')),
+      notify INTEGER DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS ntfy_settings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      topic TEXT NOT NULL
+    );
+  `);
+})();
 
 // Function to compute the next due date for a subscription
 const computeNextDueDate = (sub) => {
@@ -57,8 +76,8 @@ const computeNextDueDate = (sub) => {
 // Function to send notification via NTFY
 const sendNotification = async (sub) => {
   try {
-    const result = await pool.query('SELECT topic FROM ntfy_settings LIMIT 1');
-    const ntfyTopic = result.rows[0]?.topic;
+    const result = await db.get('SELECT topic FROM ntfy_settings LIMIT 1');
+    const ntfyTopic = result?.topic;
     
     if (!ntfyTopic) {
       console.error('NTFY topic not set');
@@ -78,8 +97,7 @@ const sendNotification = async (sub) => {
 cron.schedule('0 0 * * *', async () => {
   console.log('Running daily notification task');
   try {
-    const result = await pool.query('SELECT * FROM subscriptions WHERE notify = true');
-    const subscriptions = result.rows;
+    const subscriptions = await db.all('SELECT * FROM subscriptions WHERE notify = 1');
 
     subscriptions.forEach((sub) => {
       const nextDueDate = computeNextDueDate(sub);
@@ -101,8 +119,8 @@ cron.schedule('0 0 * * *', async () => {
 // Routes
 app.get('/api/subscriptions', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM subscriptions');
-    res.json(result.rows);
+    const result = await db.all('SELECT * FROM subscriptions');
+    res.json(result);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
@@ -124,11 +142,10 @@ app.post('/api/subscriptions', async (req, res) => {
   } = req.body;
 
   try {
-    const result = await pool.query(
+    const result = await db.run(
       `INSERT INTO subscriptions
         (name, amount, due_date, icon, color, account, autopay, interval_value, interval_unit, notify)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       RETURNING *`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name,
         amount,
@@ -136,13 +153,14 @@ app.post('/api/subscriptions', async (req, res) => {
         icon,
         color,
         account,
-        autopay,
+        autopay ? 1 : 0,
         interval_value || 1,
         interval_unit || 'months',
-        notify,
+        notify ? 1 : 0,
       ]
     );
-    res.status(201).json(result.rows[0]);
+    const newSubscription = await db.get('SELECT * FROM subscriptions WHERE id = ?', result.lastID);
+    res.status(201).json(newSubscription);
   } catch (err) {
     console.error('Error adding subscription:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -165,20 +183,19 @@ app.put('/api/subscriptions/:id', async (req, res) => {
   } = req.body;
 
   try {
-    const result = await pool.query(
+    await db.run(
       `UPDATE subscriptions SET
-        name = $1,
-        amount = $2,
-        due_date = $3,
-        icon = $4,
-        color = $5,
-        account = $6,
-        autopay = $7,
-        interval_value = $8,
-        interval_unit = $9,
-        notify = $10
-       WHERE id = $11
-       RETURNING *`,
+        name = ?,
+        amount = ?,
+        due_date = ?,
+        icon = ?,
+        color = ?,
+        account = ?,
+        autopay = ?,
+        interval_value = ?,
+        interval_unit = ?,
+        notify = ?
+       WHERE id = ?`,
       [
         name,
         amount,
@@ -186,17 +203,18 @@ app.put('/api/subscriptions/:id', async (req, res) => {
         icon,
         color,
         account,
-        autopay,
+        autopay ? 1 : 0,
         interval_value || 1,
         interval_unit || 'months',
-        notify,
+        notify ? 1 : 0,
         id,
       ]
     );
-    if (result.rows.length === 0) {
+    const updatedSubscription = await db.get('SELECT * FROM subscriptions WHERE id = ?', id);
+    if (!updatedSubscription) {
       res.status(404).json({ error: 'Subscription not found' });
     } else {
-      res.json(result.rows[0]);
+      res.json(updatedSubscription);
     }
   } catch (err) {
     console.error('Error updating subscription:', err);
@@ -208,8 +226,8 @@ app.put('/api/subscriptions/:id', async (req, res) => {
 app.delete('/api/subscriptions/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query('DELETE FROM subscriptions WHERE id = $1 RETURNING *', [id]);
-    if (result.rows.length === 0) {
+    const result = await db.run('DELETE FROM subscriptions WHERE id = ?', id);
+    if (result.changes === 0) {
       res.status(404).json({ error: 'Subscription not found' });
     } else {
       res.json({ message: 'Subscription deleted successfully' });
@@ -223,8 +241,8 @@ app.delete('/api/subscriptions/:id', async (req, res) => {
 // Get NTFY topic
 app.get('/api/ntfy-topic', async (req, res) => {
   try {
-    const result = await pool.query('SELECT topic FROM ntfy_settings LIMIT 1');
-    res.json({ topic: result.rows[0]?.topic || '' });
+    const result = await db.get('SELECT topic FROM ntfy_settings LIMIT 1');
+    res.json({ topic: result?.topic || '' });
   } catch (err) {
     console.error('Error fetching NTFY topic:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -235,8 +253,8 @@ app.get('/api/ntfy-topic', async (req, res) => {
 app.post('/api/ntfy-topic', async (req, res) => {
   const { topic } = req.body;
   try {
-    await pool.query('DELETE FROM ntfy_settings');
-    await pool.query('INSERT INTO ntfy_settings (topic) VALUES ($1)', [topic]);
+    await db.run('DELETE FROM ntfy_settings');
+    await db.run('INSERT INTO ntfy_settings (topic) VALUES (?)', [topic]);
     res.json({ message: 'NTFY topic saved successfully' });
   } catch (err) {
     console.error('Error saving NTFY topic:', err);

@@ -22,3 +22,5 @@ yarn-error.log*
 
 # secrets
 .env
+
+server/subscriptions.db
