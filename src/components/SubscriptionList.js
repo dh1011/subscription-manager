@@ -3,7 +3,7 @@ import React from 'react';
 import './SubscriptionList.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCreditCard, faRecycle, faBell } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard, faBell } from '@fortawesome/free-solid-svg-icons';
 
 function SubscriptionList({ subscriptions, onEdit, onDelete }) {
 
@@ -40,13 +40,13 @@ function SubscriptionList({ subscriptions, onEdit, onDelete }) {
                         </div>
                         <div className="subscription-item-details">
                           <FontAwesomeIcon icon={faCreditCard} className="credit-card-icon" />
-                          <span>{sub.account || 'N/A'}</span>
-                          {sub.autopay && (
+                          <span>{sub.account || 'Not Specified'}</span>
+                          {sub.autopay === 1 && (
                             <span className="autopay-indicator">
                               Autopay
                             </span>
                           )}
-                          {sub.notify && (
+                          {sub.notify === 1 && (
                             <span className="notify-indicator">
                               <FontAwesomeIcon icon={faBell} className="notify-icon" />
                             </span>

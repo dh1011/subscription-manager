@@ -1,6 +1,7 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -14,8 +15,9 @@ app.use(express.json());
 // Database connection
 let db;
 (async () => {
+  const dbPath = path.resolve(__dirname, '../subscriptions.db');
   db = await open({
-    filename: '../subscriptions.db',
+    filename: dbPath,
     driver: sqlite3.Database
   });
   await db.exec(`
@@ -37,16 +39,23 @@ let db;
       topic TEXT NOT NULL
     );
   `);
+  console.log('Database initialized successfully');
 })();
 
 // Function to compute the next due date for a subscription
-const computeNextDueDate = (sub) => {
+const computeNextDueDates = (sub) => {
   const now = new Date();
   const dueDate = new Date(sub.due_date);
   let nextDueDate = new Date(dueDate);
+  const dueDates = [];
+  const oneMonthLater = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
 
-  while (nextDueDate < now) {
-    const interval = parseInt(sub.interval) || 1;
+  while (nextDueDate <= oneMonthLater) {
+    if (nextDueDate >= now) {
+      dueDates.push(new Date(nextDueDate));
+    }
+
+    const interval = parseInt(sub.interval_value) || 1;
     const intervalUnit = sub.interval_unit || 'months';
 
     switch (intervalUnit) {
@@ -63,18 +72,16 @@ const computeNextDueDate = (sub) => {
         nextDueDate.setFullYear(nextDueDate.getFullYear() + interval);
         break;
       default:
-        nextDueDate = null;
+        nextDueDate = new Date(oneMonthLater.getTime() + 1);
         break;
     }
-
-    if (!nextDueDate) break;
   }
 
-  return nextDueDate;
+  return dueDates;
 };
 
 // Function to send notification via NTFY
-const sendNotification = async (sub) => {
+const sendNotification = async (sub, dueDate) => {
   try {
     const result = await db.get('SELECT topic FROM ntfy_settings LIMIT 1');
     const ntfyTopic = result?.topic;
@@ -84,10 +91,11 @@ const sendNotification = async (sub) => {
       return;
     }
 
-    const message = `Subscription due: ${sub.name} - Amount: ${sub.amount}`;
+    const formattedDate = dueDate.toISOString().split('T')[0];
+    const message = `Subscription due: ${sub.name} - Amount: ${sub.amount} - Due Date: ${formattedDate}`;
 
     await axios.post(`https://ntfy.sh/${ntfyTopic}`, message);
-    console.log(`Notification sent for subscription ${sub.name}`);
+    console.log(`Notification sent for subscription ${sub.name} due on ${formattedDate}`);
   } catch (error) {
     console.error(`Error sending notification for subscription ${sub.name}:`, error);
   }
@@ -99,18 +107,19 @@ cron.schedule('0 0 * * *', async () => {
   try {
     const subscriptions = await db.all('SELECT * FROM subscriptions WHERE notify = 1');
 
-    subscriptions.forEach((sub) => {
-      const nextDueDate = computeNextDueDate(sub);
-      if (nextDueDate) {
-        const today = new Date();
-        const tomorrow = new Date();
-        tomorrow.setDate(today.getDate() + 1);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-        if (nextDueDate >= today && nextDueDate <= tomorrow) {
-          sendNotification(sub);
+    for (const sub of subscriptions) {
+      const upcomingDueDates = computeNextDueDates(sub);
+      
+      for (const dueDate of upcomingDueDates) {
+        if (dueDate >= today && dueDate < tomorrow) {
+          await sendNotification(sub, dueDate);
         }
       }
-    });
+    }
   } catch (err) {
     console.error('Error in notification task:', err);
   }

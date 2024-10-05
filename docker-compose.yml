@@ -8,8 +8,6 @@ services:
     environment:
       - NODE_ENV=production
       - HOST=0.0.0.0
-    volumes:
-      - ./subscriptions.db:/app/subscriptions.db
 
 volumes:
   subscriptions_data:
