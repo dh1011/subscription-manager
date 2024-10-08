@@ -4,8 +4,42 @@ import './SubscriptionList.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard, faBell } from '@fortawesome/free-solid-svg-icons';
+import { parseISO, addDays, addWeeks, addMonths, addYears } from 'date-fns';
 
-function SubscriptionList({ subscriptions, onEdit, onDelete }) {
+function getNextDueDate(subscription) {
+  const today = new Date();
+  let dueDate = parseISO(subscription.due_date);
+  const intervalValue = parseInt(subscription.interval_value) || 1;
+  const intervalUnit = subscription.interval_unit || 'months';
+
+  while (dueDate <= today) {
+    switch (intervalUnit) {
+      case 'days':
+        dueDate = addDays(dueDate, intervalValue);
+        break;
+      case 'weeks':
+        dueDate = addWeeks(dueDate, intervalValue);
+        break;
+      case 'months':
+        dueDate = addMonths(dueDate, intervalValue);
+        break;
+      case 'years':
+        dueDate = addYears(dueDate, intervalValue);
+        break;
+      default:
+        return dueDate;
+    }
+  }
+
+  return dueDate;
+}
+
+function SubscriptionList({ subscriptions, onEdit, onDelete, onToggleInclude }) {
+  const sortedSubscriptions = [...subscriptions].sort((a, b) => {
+    const nextDueDateA = getNextDueDate(a);
+    const nextDueDateB = getNextDueDate(b);
+    return nextDueDateA.getTime() - nextDueDateB.getTime();
+  });
 
   return (
     <div className="subscription-list-container">
@@ -16,7 +50,7 @@ function SubscriptionList({ subscriptions, onEdit, onDelete }) {
             <div className="subscription-scroll-area">
               <ul className="subscription-list">
                 <AnimatePresence>
-                  {subscriptions.map((sub) => (
+                  {sortedSubscriptions.map((sub) => (
                     <motion.li
                       key={sub.id}
                       initial={{ opacity: 0, y: 20 }}
@@ -26,6 +60,14 @@ function SubscriptionList({ subscriptions, onEdit, onDelete }) {
                     >
                       <div className="subscription-item">
                         <div className="subscription-item-info">
+                          <label className="subscription-item-checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={sub.included}
+                              onChange={() => onToggleInclude(sub.id)}
+                              className="subscription-item-checkbox"
+                            />
+                          </label>
                           <FontAwesomeIcon
                             icon={['fa', sub.icon]}
                             className="subscription-item-icon"
