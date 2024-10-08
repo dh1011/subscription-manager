@@ -12,14 +12,16 @@ const axios = require('axios');
 // Middleware
 app.use(express.json());
 
-// Database connection
+// Database connection and initialization
 let db;
 (async () => {
   const dbPath = path.resolve(__dirname, '../subscriptions.db');
   db = await open({
     filename: dbPath,
-    driver: sqlite3.Database
+    driver: sqlite3.Database,
   });
+
+  // Create or migrate existing tables
   await db.exec(`
     CREATE TABLE IF NOT EXISTS subscriptions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,13 +36,56 @@ let db;
       interval_unit TEXT CHECK (interval_unit IN ('days', 'weeks', 'months', 'years')),
       notify INTEGER DEFAULT 0
     );
+    
     CREATE TABLE IF NOT EXISTS ntfy_settings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       topic TEXT NOT NULL
     );
   `);
-  console.log('Database initialized successfully');
+
+  // Create the new user_configuration table with default value 'dollar' for currency
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS user_configuration (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      currency TEXT DEFAULT 'dollar'
+    );
+  `);
+
+  console.log('Database initialized successfully with new table for user configuration.');
 })();
+
+// Get the user's currency configuration
+app.get('/api/user-configuration', async (req, res) => {
+  try {
+    const result = await db.get('SELECT currency FROM user_configuration LIMIT 1');
+    res.json({ currency: result?.currency || 'USD' });
+  } catch (err) {
+    console.error('Error fetching user configuration:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Set or update the user's currency configuration
+app.post('/api/user-configuration', async (req, res) => {
+  const { currency } = req.body;
+  try {
+    // Check if the configuration exists, if not, insert it, otherwise update it
+    const existingConfig = await db.get('SELECT id FROM user_configuration LIMIT 1');
+
+    if (existingConfig) {
+      // Update the existing record
+      await db.run('UPDATE user_configuration SET currency = ? WHERE id = ?', [currency, existingConfig.id]);
+    } else {
+      // Insert a new record
+      await db.run('INSERT INTO user_configuration (currency) VALUES (?)', [currency]);
+    }
+
+    res.json({ message: 'User configuration updated successfully' });
+  } catch (err) {
+    console.error('Error saving user configuration:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Function to compute the next due date for a subscription
 const computeNextDueDates = (sub) => {

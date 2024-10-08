@@ -12,6 +12,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
     "concurrently": "^9.0.1",
+    "currency-symbol-map": "^5.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",

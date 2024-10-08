@@ -3,22 +3,24 @@ import React from 'react';
 import './Totals.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
+import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
 
-function Totals({ subscriptions }) {
+function Totals({ subscriptions, currency }) {
   const calculateTotal = (period) => {
     const monthlyTotal = subscriptions.reduce(
       (acc, sub) => acc + parseFloat(sub.amount || 0),
       0
     );
+    const symbol = getSymbolFromCurrency(currency) || '$';
     switch (period) {
       case 'week':
-        return ((monthlyTotal * 12) / 52).toFixed(2);
+        return `${symbol}${((monthlyTotal * 12) / 52).toFixed(2)}`;
       case 'month':
-        return monthlyTotal.toFixed(2);
+        return `${symbol}${monthlyTotal.toFixed(2)}`;
       case 'year':
-        return (monthlyTotal * 12).toFixed(2);
+        return `${symbol}${(monthlyTotal * 12).toFixed(2)}`;
       default:
-        return '0.00';
+        return `${symbol}0.00`;
     }
   };
 
@@ -48,15 +50,15 @@ function Totals({ subscriptions }) {
       <div className="totals-grid">
         <div className="total-card weekly">
           <h3>Weekly</h3>
-          <p>${calculateTotal('week')}</p>
+          <p>{calculateTotal('week')}</p>
         </div>
         <div className="total-card monthly">
           <h3>Monthly</h3>
-          <p>${calculateTotal('month')}</p>
+          <p>{calculateTotal('month')}</p>
         </div>
         <div className="total-card yearly">
           <h3>Yearly</h3>
-          <p>${calculateTotal('year')}</p>
+          <p>{calculateTotal('year')}</p>
         </div>
       </div>
 
@@ -73,15 +75,15 @@ function Totals({ subscriptions }) {
                 <div className="account-totals">
                   <div className="account-total weekly">
                     <p>Weekly:</p>
-                    <p>${totals.week.toFixed(2)}</p>
+                    <p>{getSymbolFromCurrency(currency) || '$'}{totals.week.toFixed(2)}</p>
                   </div>
                   <div className="account-total monthly">
                     <p>Monthly:</p>
-                    <p>${totals.month.toFixed(2)}</p>
+                    <p>{getSymbolFromCurrency(currency) || '$'}{totals.month.toFixed(2)}</p>
                   </div>
                   <div className="account-total yearly">
                     <p>Yearly:</p>
-                    <p>${totals.year.toFixed(2)}</p>
+                    <p>{getSymbolFromCurrency(currency) || '$'}{totals.year.toFixed(2)}</p>
                   </div>
                 </div>
               </div>
