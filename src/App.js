@@ -109,6 +109,7 @@ function App() {
           subscriptions={subscriptions}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          currency={currency}
         />
       )}
       <Totals subscriptions={subscriptions} currency={currency} />

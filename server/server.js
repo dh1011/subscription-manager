@@ -47,7 +47,7 @@ let db;
   await db.exec(`
     CREATE TABLE IF NOT EXISTS user_configuration (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      currency TEXT DEFAULT 'dollar'
+      currency TEXT DEFAULT 'USD'
     );
   `);
 
