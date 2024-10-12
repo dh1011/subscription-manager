@@ -5,36 +5,38 @@ import './NtfySettingsModal.css';
 
 function NtfySettingsModal({ isOpen, onClose }) {
   const [ntfyTopic, setNtfyTopic] = useState('');
+  const [ntfyDomain, setNtfyDomain] = useState('https://ntfy.sh');
 
   useEffect(() => {
-    fetchNtfyTopic();
+    fetchNtfySettings();
   }, []);
 
-  const fetchNtfyTopic = async () => {
+  const fetchNtfySettings = async () => {
     try {
-      const response = await axios.get('/api/ntfy-topic');
+      const response = await axios.get('/api/ntfy-settings');
       setNtfyTopic(response.data.topic);
+      setNtfyDomain(response.data.domain);
     } catch (error) {
-      console.error('Error fetching NTFY topic:', error);
+      console.error('Error fetching NTFY settings:', error);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/ntfy-topic', { topic: ntfyTopic });
+      await axios.post('/api/ntfy-settings', { topic: ntfyTopic, domain: ntfyDomain });
       onClose();
     } catch (error) {
-      console.error('Error saving NTFY topic:', error);
+      console.error('Error saving NTFY settings:', error);
     }
   };
 
   const testNtfyTopic = async () => {
     try {
-      await axios.post(`https://ntfy.sh/${ntfyTopic}`, 'Test notification from Subscription Manager');
+      await axios.post(`${ntfyDomain}/${ntfyTopic}`, 'Test notification from Subscription Manager');
       alert('Test notification sent successfully!');
     } catch (error) {
-      alert('Failed to send test notification. Please check your NTFY topic.');
+      alert('Failed to send test notification. Please check your NTFY settings.');
     }
   };
 
@@ -50,7 +52,7 @@ function NtfySettingsModal({ isOpen, onClose }) {
         transition={{ duration: 0.3 }}
       >
         <h2>NTFY Settings</h2>
-        <p>Set your NTFY topic for notifications</p>
+        <p>Set your NTFY topic and domain for notifications</p>
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-group">
             <label htmlFor="ntfyTopic">NTFY Topic</label>
@@ -60,6 +62,16 @@ function NtfySettingsModal({ isOpen, onClose }) {
               value={ntfyTopic}
               onChange={(e) => setNtfyTopic(e.target.value)}
               placeholder="Enter your NTFY topic"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="ntfyDomain">NTFY Domain</label>
+            <input
+              id="ntfyDomain"
+              type="text"
+              value={ntfyDomain}
+              onChange={(e) => setNtfyDomain(e.target.value)}
+              placeholder="Enter your NTFY domain"
             />
           </div>
           <div className="modal-actions">

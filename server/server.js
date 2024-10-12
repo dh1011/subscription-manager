@@ -12,14 +12,16 @@ const axios = require('axios');
 // Middleware
 app.use(express.json());
 
-// Database connection
+// Database connection and initialization
 let db;
 (async () => {
   const dbPath = path.resolve(__dirname, '../subscriptions.db');
   db = await open({
     filename: dbPath,
-    driver: sqlite3.Database
+    driver: sqlite3.Database,
   });
+
+  // Create or migrate existing tables
   await db.exec(`
     CREATE TABLE IF NOT EXISTS subscriptions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,12 +36,30 @@ let db;
       interval_unit TEXT CHECK (interval_unit IN ('days', 'weeks', 'months', 'years')),
       notify INTEGER DEFAULT 0
     );
+    
     CREATE TABLE IF NOT EXISTS ntfy_settings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      topic TEXT NOT NULL
+      topic TEXT NOT NULL,
+      domain TEXT DEFAULT 'https://ntfy.sh'
     );
+
+    -- Migration: Add domain column to ntfy_settings if it doesn't exist
+    PRAGMA table_info(ntfy_settings);
   `);
-  console.log('Database initialized successfully');
+
+  // Check if the domain column exists in ntfy_settings
+  const ntfySettingsColumns = await db.all("PRAGMA table_info(ntfy_settings)");
+  const domainColumnExists = ntfySettingsColumns.some(column => column.name === 'domain');
+
+  if (!domainColumnExists) {
+    // Add the domain column with a default value
+    await db.exec(`
+      ALTER TABLE ntfy_settings ADD COLUMN domain TEXT DEFAULT 'https://ntfy.sh';
+    `);
+    console.log('Added domain column to ntfy_settings table');
+  }
+
+  console.log('Database initialized successfully with migration for ntfy_settings.');
 })();
 
 // Function to compute the next due date for a subscription
@@ -83,8 +103,9 @@ const computeNextDueDates = (sub) => {
 // Function to send notification via NTFY
 const sendNotification = async (sub, dueDate) => {
   try {
-    const result = await db.get('SELECT topic FROM ntfy_settings LIMIT 1');
+    const result = await db.get('SELECT topic, domain FROM ntfy_settings LIMIT 1');
     const ntfyTopic = result?.topic;
+    const ntfyDomain = result?.domain || 'https://ntfy.sh';
     
     if (!ntfyTopic) {
       console.error('NTFY topic not set');
@@ -94,7 +115,7 @@ const sendNotification = async (sub, dueDate) => {
     const formattedDate = dueDate.toISOString().split('T')[0];
     const message = `Subscription due: ${sub.name} - Amount: ${sub.amount} - Due Date: ${formattedDate}`;
 
-    await axios.post(`https://ntfy.sh/${ntfyTopic}`, message);
+    await axios.post(`${ntfyDomain}/${ntfyTopic}`, message);
     console.log(`Notification sent for subscription ${sub.name} due on ${formattedDate}`);
   } catch (error) {
     console.error(`Error sending notification for subscription ${sub.name}:`, error);
@@ -247,26 +268,26 @@ app.delete('/api/subscriptions/:id', async (req, res) => {
   }
 });
 
-// Get NTFY topic
-app.get('/api/ntfy-topic', async (req, res) => {
+// Get NTFY settings
+app.get('/api/ntfy-settings', async (req, res) => {
   try {
-    const result = await db.get('SELECT topic FROM ntfy_settings LIMIT 1');
-    res.json({ topic: result?.topic || '' });
+    const result = await db.get('SELECT topic, domain FROM ntfy_settings LIMIT 1');
+    res.json({ topic: result?.topic || '', domain: result?.domain || 'https://ntfy.sh' });
   } catch (err) {
-    console.error('Error fetching NTFY topic:', err);
+    console.error('Error fetching NTFY settings:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Set NTFY topic
-app.post('/api/ntfy-topic', async (req, res) => {
-  const { topic } = req.body;
+// Set NTFY settings
+app.post('/api/ntfy-settings', async (req, res) => {
+  const { topic, domain } = req.body;
   try {
     await db.run('DELETE FROM ntfy_settings');
-    await db.run('INSERT INTO ntfy_settings (topic) VALUES (?)', [topic]);
-    res.json({ message: 'NTFY topic saved successfully' });
+    await db.run('INSERT INTO ntfy_settings (topic, domain) VALUES (?, ?)', [topic, domain]);
+    res.json({ message: 'NTFY settings saved successfully' });
   } catch (err) {
-    console.error('Error saving NTFY topic:', err);
+    console.error('Error saving NTFY settings:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
