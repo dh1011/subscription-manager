@@ -116,9 +116,10 @@ function App() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onToggleInclude={handleToggleInclude}
+          currency={currency}
         />
       )}
-      <Totals subscriptions={subscriptions.filter(sub => sub.included)} />
+      <Totals subscriptions={subscriptions.filter(sub => sub.included)} currency={currency} />
       {isModalOpen && (
         <SubscriptionModal
           onClose={() => {

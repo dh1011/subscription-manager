@@ -91,13 +91,14 @@
   
   .subscription-item-icon {
     font-size: 1.5em;
-    margin-left: 0;
+    margin-right: 15px;
     color: #03DAC6;
   }
   
   .subscription-item-name {
     font-size: 1.2em;
     margin: 0;
+    flex: 1;
   }
   
   .subscription-item-amount {
@@ -178,4 +179,3 @@
   .notify-icon {
     margin-right: 3px;
   }
-  
