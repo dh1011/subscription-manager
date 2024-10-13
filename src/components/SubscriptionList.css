@@ -50,6 +50,40 @@
     border-radius: 5px;
   }
   
+  .subscription-item-checkbox {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    margin-right: 15px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
+    border: 2px solid #03DAC6;
+    border-radius: 4px;
+    background-color: transparent;
+    transition: all 0.3s ease;
+  }
+
+  .subscription-item-checkbox:checked {
+    background-color: #03DAC6;
+  }
+
+  .subscription-item-checkbox:checked::before {
+    content: '\2714';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    color: #121212;
+  }
+
+  .subscription-item-checkbox:hover {
+    border-color: #4ECDC4;
+  }
+
   .subscription-item-info {
     display: flex;
     align-items: center;
@@ -57,7 +91,7 @@
   
   .subscription-item-icon {
     font-size: 1.5em;
-    margin-right: 10px;
+    margin-left: 0;
     color: #03DAC6;
   }
   
@@ -93,6 +127,7 @@
     .subscription-item {
       flex-direction: column;
       align-items: flex-start;
+      padding-left: 10px;
     }
   
     .subscription-item-actions {
