@@ -18,7 +18,6 @@ function CurrencySettingsModal({ isOpen, onClose, currentCurrency, onSave }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Currency saved:', selectedCurrency);
       await axios.post('/api/user-configuration', { currency: selectedCurrency });
       onSave(selectedCurrency);
     } catch (error) {

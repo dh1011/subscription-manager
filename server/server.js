@@ -141,8 +141,9 @@ const computeNextDueDates = (sub) => {
 // Function to send notification via NTFY
 const sendNotification = async (sub, dueDate) => {
   try {
-    const result = await db.get('SELECT topic FROM ntfy_settings LIMIT 1');
+    const result = await db.get('SELECT topic, domain FROM ntfy_settings LIMIT 1');
     const ntfyTopic = result?.topic;
+    const ntfyDomain = result?.domain || 'https://ntfy.sh';
     
     if (!ntfyTopic) {
       console.error('NTFY topic not set');
@@ -152,7 +153,7 @@ const sendNotification = async (sub, dueDate) => {
     const formattedDate = dueDate.toISOString().split('T')[0];
     const message = `Subscription due: ${sub.name} - Amount: ${sub.amount} ${sub.currency} - Due Date: ${formattedDate}`;
 
-    await axios.post(`https://ntfy.sh/${ntfyTopic}`, message);
+    await axios.post(`${ntfyDomain}/${ntfyTopic}`, message);
     console.log(`Notification sent for subscription ${sub.name} due on ${formattedDate}`);
   } catch (error) {
     console.error(`Error sending notification for subscription ${sub.name}:`, error);
@@ -310,20 +311,20 @@ app.delete('/api/subscriptions/:id', async (req, res) => {
   }
 });
 
-// Get NTFY topic
-app.get('/api/ntfy-topic', async (req, res) => {
+// Get NTFY settings
+app.get('/api/ntfy-settings', async (req, res) => {
   try {
-    const result = await db.get('SELECT topic FROM ntfy_settings LIMIT 1');
-    res.json({ topic: result?.topic || '' });
+    const result = await db.get('SELECT topic, domain FROM ntfy_settings LIMIT 1');
+    res.json({ topic: result?.topic || '', domain: result?.domain || 'https://ntfy.sh' });
   } catch (err) {
-    console.error('Error fetching NTFY topic:', err);
+    console.error('Error fetching NTFY settings:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Set NTFY topic
-app.post('/api/ntfy-topic', async (req, res) => {
-  const { topic } = req.body;
+// Set NTFY settings
+app.post('/api/ntfy-settings', async (req, res) => {
+  const { topic, domain } = req.body;
   try {
     await db.run('DELETE FROM ntfy_settings');
     await db.run('INSERT INTO ntfy_settings (topic) VALUES (?)', [topic]);
@@ -383,3 +384,4 @@ app.post('/api/open-exchange-rates-key', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+

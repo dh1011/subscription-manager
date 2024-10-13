@@ -32,7 +32,7 @@ function App() {
   const fetchSubscriptions = async () => {
     try {
       const response = await axios.get('/api/subscriptions');
-      setSubscriptions(response.data);
+      setSubscriptions(response.data.map(sub => ({ ...sub, included: true })));
     } catch (error) {
       console.error('Error fetching subscriptions:', error);
     }
@@ -92,6 +92,12 @@ function App() {
     }
   };
 
+  const handleToggleInclude = (id) => {
+    setSubscriptions(subscriptions.map(sub =>
+      sub.id === id ? { ...sub, included: !sub.included } : sub
+    ));
+  };
+
   return (
     <div className="app">
       <div className="app-header">
@@ -127,9 +133,11 @@ function App() {
           subscriptions={subscriptions}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onToggleInclude={handleToggleInclude}
+          currency={currency}
         />
       )}
-      <Totals subscriptions={subscriptions} currency={currency} exchangeRates={exchangeRates} />
+      <Totals subscriptions={subscriptions.filter(sub => sub.included)} currency={currency} exchangeRates={exchangeRates}/>
       {isModalOpen && (
         <SubscriptionModal
           onClose={() => {
