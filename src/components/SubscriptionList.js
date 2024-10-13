@@ -4,8 +4,10 @@ import './SubscriptionList.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard, faBell } from '@fortawesome/free-solid-svg-icons';
+import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
 
-function SubscriptionList({ subscriptions, onEdit, onDelete }) {
+function SubscriptionList({ subscriptions, onEdit, onDelete, currency }) {
+  const currencySymbol = getSymbolFromCurrency(currency) || '$';
 
   return (
     <div className="subscription-list-container">
@@ -34,7 +36,7 @@ function SubscriptionList({ subscriptions, onEdit, onDelete }) {
                           <div>
                             <p className="subscription-item-name">{sub.name}</p>
                             <p className="subscription-item-amount">
-                              ${parseFloat(sub.amount).toFixed(2)}/month
+                              {currencySymbol}{parseFloat(sub.amount).toFixed(2)}/month
                             </p>
                           </div>
                         </div>

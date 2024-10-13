@@ -6,8 +6,10 @@ import SubscriptionList from './components/SubscriptionList';
 import SubscriptionModal from './components/SubscriptionModal';
 import Totals from './components/Totals';
 import NtfySettingsModal from './components/NtfySettingsModal';
+import CurrencySettingsModal from './components/CurrencySettingsModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
+import { faMoneyBill } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
 
 function App() {
@@ -16,9 +18,12 @@ function App() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
   const [isNtfyModalOpen, setIsNtfyModalOpen] = useState(false);
+  const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
+  const [currency, setCurrency] = useState('dollar');
 
   useEffect(() => {
     fetchSubscriptions();
+    fetchCurrency();
   }, []);
 
   const fetchSubscriptions = async () => {
@@ -27,6 +32,16 @@ function App() {
       setSubscriptions(response.data);
     } catch (error) {
       console.error('Error fetching subscriptions:', error);
+    }
+  };
+
+  const fetchCurrency = async () => {
+    try {
+      const response = await axios.get('/api/user-configuration');
+      setCurrency(response.data.currency);
+    } catch (error) {
+      console.error('Error fetching currency:', error);
+      setCurrency('USD');
     }
   };
 
@@ -76,6 +91,12 @@ function App() {
           >
             <FontAwesomeIcon icon={faBell} />
           </button>
+          <button 
+            className="currency-settings-button" 
+            onClick={() => setIsCurrencyModalOpen(true)} 
+          >
+            <FontAwesomeIcon icon={faMoneyBill} />
+          </button>
         </h1>
       </div>
       <CalendarGrid
@@ -88,9 +109,10 @@ function App() {
           subscriptions={subscriptions}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          currency={currency}
         />
       )}
-      <Totals subscriptions={subscriptions} />
+      <Totals subscriptions={subscriptions} currency={currency} />
       {isModalOpen && (
         <SubscriptionModal
           onClose={() => {
@@ -106,6 +128,15 @@ function App() {
       <NtfySettingsModal
         isOpen={isNtfyModalOpen}
         onClose={() => setIsNtfyModalOpen(false)}
+      />
+      <CurrencySettingsModal
+        isOpen={isCurrencyModalOpen}
+        onClose={() => setIsCurrencyModalOpen(false)}
+        currentCurrency={currency}
+        onSave={(newCurrency) => {
+          setCurrency(newCurrency);
+          setIsCurrencyModalOpen(false);
+        }}
       />
     </div>
   );
