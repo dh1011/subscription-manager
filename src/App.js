@@ -5,7 +5,7 @@ import CalendarGrid from './components/CalendarGrid';
 import SubscriptionList from './components/SubscriptionList';
 import SubscriptionModal from './components/SubscriptionModal';
 import Totals from './components/Totals';
-import NtfySettingsModal from './components/NtfySettingsModal';
+import NotificationSettingsModal from './components/NotificationSettingsModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
@@ -103,7 +103,7 @@ function App() {
           selectedDate={selectedDate}
         />
       )}
-      <NtfySettingsModal
+      <NotificationSettingsModal
         isOpen={isNtfyModalOpen}
         onClose={() => setIsNtfyModalOpen(false)}
       />

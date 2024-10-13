@@ -37,29 +37,34 @@ let db;
       notify INTEGER DEFAULT 0
     );
     
-    CREATE TABLE IF NOT EXISTS ntfy_settings (
+    CREATE TABLE IF NOT EXISTS notification_settings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      topic TEXT NOT NULL,
-      domain TEXT DEFAULT 'https://ntfy.sh'
+      service TEXT NOT NULL CHECK (service IN ('ntfy', 'gotify')),
+      ntfy_topic TEXT,
+      ntfy_domain TEXT DEFAULT 'https://ntfy.sh',
+      gotify_url TEXT,
+      gotify_token TEXT
     );
 
-    -- Migration: Add domain column to ntfy_settings if it doesn't exist
-    PRAGMA table_info(ntfy_settings);
+    -- Migration: Add new columns to notification_settings if they don't exist
+    PRAGMA table_info(notification_settings);
   `);
 
-  // Check if the domain column exists in ntfy_settings
-  const ntfySettingsColumns = await db.all("PRAGMA table_info(ntfy_settings)");
-  const domainColumnExists = ntfySettingsColumns.some(column => column.name === 'domain');
+  // Check if the new columns exist in notification_settings
+  const notificationSettingsColumns = await db.all("PRAGMA table_info(notification_settings)");
+  const serviceColumnExists = notificationSettingsColumns.some(column => column.name === 'service');
 
-  if (!domainColumnExists) {
-    // Add the domain column with a default value
+  if (!serviceColumnExists) {
+    // Add the new columns with default values
     await db.exec(`
-      ALTER TABLE ntfy_settings ADD COLUMN domain TEXT DEFAULT 'https://ntfy.sh';
+      ALTER TABLE notification_settings ADD COLUMN service TEXT NOT NULL DEFAULT 'ntfy' CHECK (service IN ('ntfy', 'gotify'));
+      ALTER TABLE notification_settings ADD COLUMN gotify_url TEXT;
+      ALTER TABLE notification_settings ADD COLUMN gotify_token TEXT;
     `);
-    console.log('Added domain column to ntfy_settings table');
+    console.log('Added new columns to notification_settings table');
   }
 
-  console.log('Database initialized successfully with migration for ntfy_settings.');
+  console.log('Database initialized successfully with migration for notification_settings.');
 })();
 
 // Function to compute the next due date for a subscription
@@ -103,19 +108,56 @@ const computeNextDueDates = (sub) => {
 // Function to send notification via NTFY
 const sendNotification = async (sub, dueDate) => {
   try {
-    const result = await db.get('SELECT topic, domain FROM ntfy_settings LIMIT 1');
-    const ntfyTopic = result?.topic;
-    const ntfyDomain = result?.domain || 'https://ntfy.sh';
-    
-    if (!ntfyTopic) {
-      console.error('NTFY topic not set');
+    const result = await db.get('SELECT * FROM notification_settings LIMIT 1');
+    if (!result) {
+      console.error('Notification settings not set');
       return;
     }
 
     const formattedDate = dueDate.toISOString().split('T')[0];
     const message = `Subscription due: ${sub.name} - Amount: ${sub.amount} - Due Date: ${formattedDate}`;
 
-    await axios.post(`${ntfyDomain}/${ntfyTopic}`, message);
+    if (result.service === 'ntfy') {
+      const ntfyTopic = result.ntfy_topic;
+      const ntfyDomain = result.ntfy_domain || 'https://ntfy.sh';
+      
+      if (!ntfyTopic) {
+        console.error('NTFY topic not set');
+        return;
+      }
+
+      await axios.post(`${ntfyDomain}/${ntfyTopic}`, message);
+    } else if (result.service === 'gotify') {
+      const gotifyUrl = result.gotify_url;
+      const gotifyToken = result.gotify_token;
+
+      if (!gotifyUrl || !gotifyToken) {
+        console.error('Gotify URL or token not set');
+        return;
+      }
+
+      const url = `${gotifyUrl}/message?token=${gotifyToken}`;
+      const bodyFormData = {
+        title: 'Subscription Due',
+        message: message,
+        priority: 5,
+      };
+
+      try {
+        const response = await axios({
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          url: url,
+          data: bodyFormData,
+        });
+        console.log(response.data);
+      } catch (err) {
+        console.log(err.response ? err.response.data : err);
+      }
+    }
+
     console.log(`Notification sent for subscription ${sub.name} due on ${formattedDate}`);
   } catch (error) {
     console.error(`Error sending notification for subscription ${sub.name}:`, error);
@@ -268,26 +310,29 @@ app.delete('/api/subscriptions/:id', async (req, res) => {
   }
 });
 
-// Get NTFY settings
-app.get('/api/ntfy-settings', async (req, res) => {
+// Get notification settings
+app.get('/api/notification-settings', async (req, res) => {
   try {
-    const result = await db.get('SELECT topic, domain FROM ntfy_settings LIMIT 1');
-    res.json({ topic: result?.topic || '', domain: result?.domain || 'https://ntfy.sh' });
+    const result = await db.get('SELECT * FROM notification_settings LIMIT 1');
+    res.json(result || { service: 'ntfy', ntfy_domain: 'https://ntfy.sh' });
   } catch (err) {
-    console.error('Error fetching NTFY settings:', err);
+    console.error('Error fetching notification settings:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Set NTFY settings
-app.post('/api/ntfy-settings', async (req, res) => {
-  const { topic, domain } = req.body;
+// Set notification settings
+app.post('/api/notification-settings', async (req, res) => {
+  const { service, ntfy_topic, ntfy_domain, gotify_url, gotify_token } = req.body;
   try {
-    await db.run('DELETE FROM ntfy_settings');
-    await db.run('INSERT INTO ntfy_settings (topic, domain) VALUES (?, ?)', [topic, domain]);
-    res.json({ message: 'NTFY settings saved successfully' });
+    await db.run('DELETE FROM notification_settings');
+    await db.run(
+      'INSERT INTO notification_settings (service, ntfy_topic, ntfy_domain, gotify_url, gotify_token) VALUES (?, ?, ?, ?, ?)',
+      [service, ntfy_topic, ntfy_domain, gotify_url, gotify_token]
+    );
+    res.json({ message: 'Notification settings saved successfully' });
   } catch (err) {
-    console.error('Error saving NTFY settings:', err);
+    console.error('Error saving notification settings:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
