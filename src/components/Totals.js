@@ -5,20 +5,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
 
-function Totals({ subscriptions, currency }) {
+function Totals({ subscriptions, currency, exchangeRates }) {
+  // console.log("subscriptions", subscriptions);
   const calculateTotal = (period) => {
-    const monthlyTotal = subscriptions.reduce(
-      (acc, sub) => acc + parseFloat(sub.amount || 0),
-      0
-    );
+    const total = subscriptions.reduce((acc, sub) => {
+      const amount = parseFloat(sub.amount || 0);
+      const rate = exchangeRates[currency] / exchangeRates[sub.currency];
+      return acc + (amount * rate);
+    }, 0);
+
     const symbol = getSymbolFromCurrency(currency) || '$';
     switch (period) {
       case 'week':
-        return `${symbol}${((monthlyTotal * 12) / 52).toFixed(2)}`;
+        return `${symbol}${((total * 12) / 52).toFixed(2)}`;
       case 'month':
-        return `${symbol}${monthlyTotal.toFixed(2)}`;
+        return `${symbol}${total.toFixed(2)}`;
       case 'year':
-        return `${symbol}${(monthlyTotal * 12).toFixed(2)}`;
+        return `${symbol}${(total * 12).toFixed(2)}`;
       default:
         return `${symbol}0.00`;
     }

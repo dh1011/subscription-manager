@@ -8,9 +8,9 @@ import Totals from './components/Totals';
 import NtfySettingsModal from './components/NtfySettingsModal';
 import CurrencySettingsModal from './components/CurrencySettingsModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell } from '@fortawesome/free-solid-svg-icons';
-import { faMoneyBill } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faMoneyBill, faExchangeAlt } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
+import OpenExchangeRatesModal from './components/OpenExchangeRatesModal';
 
 function App() {
   const [subscriptions, setSubscriptions] = useState([]);
@@ -19,11 +19,14 @@ function App() {
   const [selectedSubscription, setSelectedSubscription] = useState(null);
   const [isNtfyModalOpen, setIsNtfyModalOpen] = useState(false);
   const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
-  const [currency, setCurrency] = useState('dollar');
+  const [currency, setCurrency] = useState('USD');
+  const [exchangeRates, setExchangeRates] = useState({});
+  const [isOpenExchangeRatesModalOpen, setIsOpenExchangeRatesModalOpen] = useState(false);
 
   useEffect(() => {
     fetchSubscriptions();
     fetchCurrency();
+    fetchExchangeRates();
   }, []);
 
   const fetchSubscriptions = async () => {
@@ -42,6 +45,15 @@ function App() {
     } catch (error) {
       console.error('Error fetching currency:', error);
       setCurrency('USD');
+    }
+  };
+
+  const fetchExchangeRates = async () => {
+    try {
+      const response = await axios.get('/api/exchange-rates');
+      setExchangeRates(response.data.rates);
+    } catch (error) {
+      console.error('Error fetching exchange rates:', error);
     }
   };
 
@@ -97,6 +109,12 @@ function App() {
           >
             <FontAwesomeIcon icon={faMoneyBill} />
           </button>
+          <button 
+            className="open-exchange-rates-button" 
+            onClick={() => setIsOpenExchangeRatesModalOpen(true)} 
+          >
+            <FontAwesomeIcon icon={faExchangeAlt} />
+          </button>
         </h1>
       </div>
       <CalendarGrid
@@ -109,10 +127,9 @@ function App() {
           subscriptions={subscriptions}
           onEdit={handleEdit}
           onDelete={handleDelete}
-          currency={currency}
         />
       )}
-      <Totals subscriptions={subscriptions} currency={currency} />
+      <Totals subscriptions={subscriptions} currency={currency} exchangeRates={exchangeRates} />
       {isModalOpen && (
         <SubscriptionModal
           onClose={() => {
@@ -137,6 +154,15 @@ function App() {
           setCurrency(newCurrency);
           setIsCurrencyModalOpen(false);
         }}
+      />
+      <OpenExchangeRatesModal
+        isOpen={isOpenExchangeRatesModalOpen}
+        onClose={() => setIsOpenExchangeRatesModalOpen(false)}
+        onSave={() => {
+          setIsOpenExchangeRatesModalOpen(false);
+          fetchExchangeRates();
+        }}
+        fetchExchangeRates={fetchExchangeRates}
       />
     </div>
   );

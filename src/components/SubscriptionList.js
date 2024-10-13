@@ -6,9 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard, faBell } from '@fortawesome/free-solid-svg-icons';
 import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
 
-function SubscriptionList({ subscriptions, onEdit, onDelete, currency }) {
-  const currencySymbol = getSymbolFromCurrency(currency) || '$';
-
+function SubscriptionList({ subscriptions, onEdit, onDelete }) {
   return (
     <div className="subscription-list-container">
       <h2 className="subscription-list-title">Subscriptions List</h2>
@@ -36,7 +34,7 @@ function SubscriptionList({ subscriptions, onEdit, onDelete, currency }) {
                           <div>
                             <p className="subscription-item-name">{sub.name}</p>
                             <p className="subscription-item-amount">
-                              {currencySymbol}{parseFloat(sub.amount).toFixed(2)}/month
+                              {getSymbolFromCurrency(sub.currency) || '$'}{parseFloat(sub.amount).toFixed(2)}/month
                             </p>
                           </div>
                         </div>

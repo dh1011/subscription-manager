@@ -64,3 +64,20 @@ body {
 .currency-settings-button:hover {
   color: #6aa9f4;
 }
+
+.open-exchange-rates-button {
+  background: none;
+  border: none;
+  color: #4a90e2;
+  font-size: 0.8em;
+  padding: 5px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  transition: color 0.3s ease;
+}
+
+.open-exchange-rates-button:hover {
+  color: #6aa9f4;
+}
+

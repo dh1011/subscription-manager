@@ -4,6 +4,7 @@ import './SubscriptionModal.css';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getRandomColor } from './utils/colorUtils';
+import { supportedCurrencies } from '../currencyData';
 
 function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate }) {
   const [id, setId] = useState(null);
@@ -18,6 +19,7 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
   const [intervalValue, setIntervalValue] = useState(1);
   const [intervalUnit, setIntervalUnit] = useState('months');
   const [notify, setNotify] = useState(false);
+  const [currency, setCurrency] = useState('USD');
 
   useEffect(() => {
     if (selectedSubscription) {
@@ -37,6 +39,7 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
       setIntervalValue(selectedSubscription.interval_value || 1);
       setIntervalUnit(selectedSubscription.interval_unit || 'months');
       setNotify(selectedSubscription.notify || false);
+      setCurrency(selectedSubscription.currency || 'USD');
     } else {
       if (selectedDate) {
         setDueDate(selectedDate.toISOString().split('T')[0]);
@@ -45,6 +48,7 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
       setIntervalValue(1);
       setIntervalUnit('months');
       setAccount('');
+      setCurrency('USD');
     }
   }, [selectedSubscription, selectedDate]);
 
@@ -90,6 +94,7 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
         interval_value: parseInt(intervalValue) || 1,
         interval_unit: intervalUnit,
         notify,
+        currency,
       });
       onClose();
     } else {
@@ -225,6 +230,20 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
             <span className="slider"></span>
           </label>
         </div>
+          <div className="form-group">
+            <label htmlFor="currency">Currency</label>
+            <select
+              id="currency"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+            >
+              {Object.entries(supportedCurrencies).map(([code, name]) => (
+                <option key={code} value={code}>
+                  {code} - {name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="modal-actions">
             <button type="submit" className="submit-button">
               {id ? 'Update Subscription' : 'Add Subscription'}

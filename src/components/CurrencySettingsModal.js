@@ -3,14 +3,12 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import './CurrencySettingsModal.css';
 import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
-
-const currencyList = require('currency-symbol-map/map');
+import { supportedCurrencies } from '../currencyData';
 
 function CurrencySettingsModal({ isOpen, onClose, currentCurrency, onSave }) {
   const [selectedCurrency, setSelectedCurrency] = useState(currentCurrency);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Reset selectedCurrency when the modal opens
   useEffect(() => {
     if (isOpen) {
       setSelectedCurrency(currentCurrency);
@@ -28,8 +26,7 @@ function CurrencySettingsModal({ isOpen, onClose, currentCurrency, onSave }) {
     }
   };
 
-  // Filter currencies based on the search term
-  const filteredCurrencies = Object.entries(currencyList).filter(([code, name]) =>
+  const filteredCurrencies = Object.entries(supportedCurrencies).filter(([code, name]) =>
     `${code} ${name}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -37,8 +34,7 @@ function CurrencySettingsModal({ isOpen, onClose, currentCurrency, onSave }) {
     setSelectedCurrency(e.target.value);
   };
 
-  // Ensure selected currency is always visible in the list, even after search
-  const selectedCurrencyOption = Object.entries(currencyList).find(
+  const selectedCurrencyOption = Object.entries(supportedCurrencies).find(
     ([code]) => code === selectedCurrency
   );
 
@@ -74,14 +70,12 @@ function CurrencySettingsModal({ isOpen, onClose, currentCurrency, onSave }) {
               onChange={handleCurrencyChange}
               size={5}
             >
-              {/* Ensure the selected currency is always an option */}
               {selectedCurrencyOption && !filteredCurrencies.some(([code]) => code === selectedCurrency) && (
                 <option key={selectedCurrencyOption[0]} value={selectedCurrencyOption[0]}>
                   {selectedCurrencyOption[0]} - {selectedCurrencyOption[1]} ({getSymbolFromCurrency(selectedCurrencyOption[0]) || 'N/A'})
                 </option>
               )}
               
-              {/* Render filtered currency options */}
               {filteredCurrencies.map(([code, name]) => (
                 <option key={code} value={code}>
                   {code} - {name} ({getSymbolFromCurrency(code) || 'N/A'})

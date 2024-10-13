@@ -3,6 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
 const path = require('path');
 require('dotenv').config();
+const fs = require('fs').promises;
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -34,7 +35,8 @@ let db;
       autopay INTEGER DEFAULT 0,
       interval_value INTEGER DEFAULT 1,
       interval_unit TEXT CHECK (interval_unit IN ('days', 'weeks', 'months', 'years')),
-      notify INTEGER DEFAULT 0
+      notify INTEGER DEFAULT 0,
+      currency TEXT DEFAULT 'USD'
     );
     
     CREATE TABLE IF NOT EXISTS ntfy_settings (
@@ -43,15 +45,26 @@ let db;
     );
   `);
 
-  // Create the new user_configuration table with default value 'dollar' for currency
+  // Migration step: Check if 'currency' column exists
+  const columns = await db.all("PRAGMA table_info(subscriptions)");
+  const columnNames = columns.map(column => column.name);
+
+  if (!columnNames.includes('currency')) {
+    // Add the 'currency' column if it doesn't exist
+    await db.run("ALTER TABLE subscriptions ADD COLUMN currency TEXT DEFAULT 'USD'");
+    console.log("Added 'currency' column to 'subscriptions' table");
+  }
+
+  // Create the new user_configuration table with default value 'USD' for currency
   await db.exec(`
     CREATE TABLE IF NOT EXISTS user_configuration (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      currency TEXT DEFAULT 'USD'
+      currency TEXT DEFAULT 'USD',
+      summary_currency TEXT DEFAULT 'USD'
     );
   `);
 
-  console.log('Database initialized successfully with new table for user configuration.');
+  console.log('Database initialized successfully with updated schema.');
 })();
 
 // Get the user's currency configuration
@@ -137,7 +150,7 @@ const sendNotification = async (sub, dueDate) => {
     }
 
     const formattedDate = dueDate.toISOString().split('T')[0];
-    const message = `Subscription due: ${sub.name} - Amount: ${sub.amount} - Due Date: ${formattedDate}`;
+    const message = `Subscription due: ${sub.name} - Amount: ${sub.amount} ${sub.currency} - Due Date: ${formattedDate}`;
 
     await axios.post(`https://ntfy.sh/${ntfyTopic}`, message);
     console.log(`Notification sent for subscription ${sub.name} due on ${formattedDate}`);
@@ -193,13 +206,14 @@ app.post('/api/subscriptions', async (req, res) => {
     interval_value,
     interval_unit,
     notify,
+    currency,
   } = req.body;
 
   try {
     const result = await db.run(
       `INSERT INTO subscriptions
-        (name, amount, due_date, icon, color, account, autopay, interval_value, interval_unit, notify)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (name, amount, due_date, icon, color, account, autopay, interval_value, interval_unit, notify, currency)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name,
         amount,
@@ -211,6 +225,7 @@ app.post('/api/subscriptions', async (req, res) => {
         interval_value || 1,
         interval_unit || 'months',
         notify ? 1 : 0,
+        currency || 'USD',
       ]
     );
     const newSubscription = await db.get('SELECT * FROM subscriptions WHERE id = ?', result.lastID);
@@ -234,6 +249,7 @@ app.put('/api/subscriptions/:id', async (req, res) => {
     interval_value,
     interval_unit,
     notify,
+    currency,
   } = req.body;
 
   try {
@@ -248,7 +264,8 @@ app.put('/api/subscriptions/:id', async (req, res) => {
         autopay = ?,
         interval_value = ?,
         interval_unit = ?,
-        notify = ?
+        notify = ?,
+        currency = ?
        WHERE id = ?`,
       [
         name,
@@ -261,6 +278,7 @@ app.put('/api/subscriptions/:id', async (req, res) => {
         interval_value || 1,
         interval_unit || 'months',
         notify ? 1 : 0,
+        currency || 'USD',
         id,
       ]
     );
@@ -312,6 +330,52 @@ app.post('/api/ntfy-topic', async (req, res) => {
     res.json({ message: 'NTFY topic saved successfully' });
   } catch (err) {
     console.error('Error saving NTFY topic:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Add this new endpoint
+app.get('/api/exchange-rates', async (req, res) => {
+  try {
+    if (!openExchangeRatesKey) {
+      throw new Error('Open Exchange Rates API key not set');
+    }
+    const response = await axios.get(`https://openexchangerates.org/api/latest.json?app_id=${openExchangeRatesKey}`);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching exchange rates:', error);
+    res.status(500).json({ error: 'Error fetching exchange rates' });
+  }
+});
+
+// Get the Open Exchange Rates API key
+app.get('/api/open-exchange-rates-key', async (req, res) => {
+  try {
+    const data = await fs.readFile('.env', 'utf8');
+    const match = data.match(/OPEN_EXCHANGE_RATES_KEY=(.*)/);
+    const key = match ? match[1] : '';
+    res.json({ key });
+  } catch (err) {
+    console.error('Error fetching Open Exchange Rates API key:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Set the Open Exchange Rates API key
+app.post('/api/open-exchange-rates-key', async (req, res) => {
+  const { key } = req.body;
+  try {
+    let data = await fs.readFile('.env', 'utf8');
+    if (data.includes('OPEN_EXCHANGE_RATES_KEY=')) {
+      data = data.replace(/OPEN_EXCHANGE_RATES_KEY=.*/, `OPEN_EXCHANGE_RATES_KEY=${key}`);
+    } else {
+      data += `\nOPEN_EXCHANGE_RATES_KEY=${key}`;
+    }
+    await fs.writeFile('.env', data);
+    openExchangeRatesKey = key; // Update the in-memory key
+    res.json({ message: 'Open Exchange Rates API key saved successfully' });
+  } catch (err) {
+    console.error('Error saving Open Exchange Rates API key:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
