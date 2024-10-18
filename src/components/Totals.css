@@ -1,164 +1,185 @@
 /* src/components/Totals.css */
 .totals {
-    padding: 20px;
-    margin: 20px auto;
-    max-width: 800px;
-    border-radius: 10px;
-    color: #fff;
-  }
-  
-  .totals h2 {
-    font-size: 2em;
-    margin-bottom: 20px;
-    text-align: center;
-    font-weight: 600;
-  }
-  
-  .totals-grid {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-  }
-  
-  .total-card {
-    flex: 1;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  .total-card h3 {
-    font-size: 1.5em;
-    font-weight: thin;
-    margin-bottom: 10px;
-  }
-  
-  .total-card p {
-    font-size: 2em;
-    font-weight: bold;
-  }
-  
-  .total-card.weekly {
-    color: #FF6B6B; /* Coral Red */
-  }
-  
-  .total-card.monthly {
-    color: #4ECDC4; /* Medium Turquoise */
-  }
-  
-  .total-card.yearly {
-    color: #F7DC6F; /* Mellow Yellow */
-  }
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 800px;
+  border-radius: 10px;
+  color: #fff;
+}
 
-  .account-totals-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    margin-top: 20px;
-  }
-  
-  .account-total-card {
-    flex: 1;
-    padding: 10px;
-    border-radius: 10px;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    min-width: 150px;
-  }
-  
-  .account-total-card h3 {
-    font-size: 1.2em; /* Smaller font size */
-    font-weight: normal;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .credit-card-icon {
-    margin-right: 5px;
-  }
-  
-  .account-totals {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .account-total {
-    font-size: 0.9em; /* Smaller font size */
-    margin-bottom: 5px;
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-  }
-  
-  .account-total p {
-    margin: 0;
-  }
-  
-  .account-total.weekly p,
-  .account-total.monthly p,
-  .account-total.yearly p {
-    color: #fff;
-  }
-  
-  .account-total.weekly {
-    color: #FF6B6B; /* Coral Red */
-  }
-  
-  .account-total.monthly {
-    color: #4ECDC4; /* Medium Turquoise */
-  }
-  
-  .account-total.yearly {
-    color: #F7DC6F; /* Mellow Yellow */
-  }
-  
-  /* Responsive Styles */
-  @media (max-width: 768px) {
-    .totals-grid {
-      flex-direction: column;
-    }
-  
-    .total-card {
-      margin-bottom: 10px;
-    }
+.totals h2 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
+}
 
-    .account-totals-grid {
-      flex-direction: column;
-    }
-  
-    .account-total-card {
-      margin-bottom: 10px;
-    }
-  }
-  
-.detail-summaries-title {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+.summary-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.summary-section {
+  /* Removed background */
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.summary-section h3 {
+  font-size: 1.6em;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #F7DC6F; /* Mellow Yellow */
+}
+
+.period-cards {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.total-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+  min-width: 150px;
+  flex: 1;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align items to the left */
+}
+
+.total-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.total-card.selected {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.total-card h4 {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Align to the left */
+  width: 100%; /* Ensure full width */
+}
+
+.total-card p {
+  font-size: 1.2em;
+  font-weight: normal;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Align to the left */
+  width: 100%; /* Ensure full width */
+}
+
+.total-card.week h4 {
+  color: #FF6B6B; /* Coral Red */
+}
+
+.total-card.month h4 {
+  color: #4ECDC4; /* Medium Turquoise */
+}
+
+.total-card.year h4 {
+  color: #F7DC6F; /* Mellow Yellow */
+}
+
+.period-icon {
+  margin-right: 8px;
 }
 
 .account-totals-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
-  justify-content: center;
-  margin-top: 20px;
 }
 
-@media (min-width: 768px) {
+.account-total-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.account-total-card h4 {
+  font-size: 1.2em;
+  font-weight: normal;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.credit-card-icon {
+  margin-right: 5px;
+}
+
+.account-totals {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.account-total {
+  font-size: 1.1em;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+
+.account-total p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.account-total.weekly {
+  color: #FF6B6B; /* Coral Red */
+}
+
+.account-total.monthly {
+  color: #4ECDC4; /* Medium Turquoise */
+}
+
+.account-total.yearly {
+  color: #F7DC6F; /* Mellow Yellow */
+}
+
+.currency-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #069bc9; /* Coral Red, same as weekly text */
+  margin-right: 5px;
+  font-size: 0.9em;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
   .account-totals-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 600px) {
+  .period-cards {
+    flex-direction: column;
+  }
+
   .account-totals-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: 1fr;
   }
 }

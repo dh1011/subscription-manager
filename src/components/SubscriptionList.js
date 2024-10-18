@@ -78,7 +78,8 @@ function SubscriptionList({ subscriptions, onEdit, onDelete, currency, onToggleI
                           <div>
                             <p className="subscription-item-name">{sub.name}</p>
                             <p className="subscription-item-amount">
-                              {currencySymbol}{parseFloat(sub.amount).toFixed(2)}/month
+                              {getSymbolFromCurrency(sub.currency) || '$'}
+                              {parseFloat(sub.amount).toFixed(2)}/month
                             </p>
                           </div>
                         </div>

@@ -24,17 +24,18 @@ let db;
   // Create or migrate existing tables
   await db.exec(`
     CREATE TABLE IF NOT EXISTS subscriptions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      amount REAL NOT NULL,
-      due_date TEXT NOT NULL,
-      icon TEXT,
-      color TEXT,
-      account TEXT,
-      autopay INTEGER DEFAULT 0,
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      amount DECIMAL(10, 2) NOT NULL,
+      due_date DATE NOT NULL,
+      icon VARCHAR(50),
+      color VARCHAR(7),
+      account VARCHAR(100),
+      autopay BOOLEAN DEFAULT FALSE,
       interval_value INTEGER DEFAULT 1,
-      interval_unit TEXT CHECK (interval_unit IN ('days', 'weeks', 'months', 'years')),
-      notify INTEGER DEFAULT 0
+      interval_unit VARCHAR(20) CHECK (interval_unit IN ('days', 'weeks', 'months', 'years')),
+      notify BOOLEAN DEFAULT FALSE,
+      currency VARCHAR(10) DEFAULT 'USD'
     );
     
     CREATE TABLE IF NOT EXISTS ntfy_settings (
@@ -210,13 +211,14 @@ app.post('/api/subscriptions', async (req, res) => {
     interval_value,
     interval_unit,
     notify,
+    currency, // New field
   } = req.body;
 
   try {
     const result = await db.run(
       `INSERT INTO subscriptions
-        (name, amount, due_date, icon, color, account, autopay, interval_value, interval_unit, notify)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (name, amount, due_date, icon, color, account, autopay, interval_value, interval_unit, notify, currency)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name,
         amount,
@@ -228,6 +230,7 @@ app.post('/api/subscriptions', async (req, res) => {
         interval_value || 1,
         interval_unit || 'months',
         notify ? 1 : 0,
+        currency || 'USD', // Handle default currency
       ]
     );
     const newSubscription = await db.get('SELECT * FROM subscriptions WHERE id = ?', result.lastID);
@@ -251,6 +254,7 @@ app.put('/api/subscriptions/:id', async (req, res) => {
     interval_value,
     interval_unit,
     notify,
+    currency, // New field
   } = req.body;
 
   try {
@@ -265,7 +269,8 @@ app.put('/api/subscriptions/:id', async (req, res) => {
         autopay = ?,
         interval_value = ?,
         interval_unit = ?,
-        notify = ?
+        notify = ?,
+        currency = ?
        WHERE id = ?`,
       [
         name,
@@ -278,6 +283,7 @@ app.put('/api/subscriptions/:id', async (req, res) => {
         interval_value || 1,
         interval_unit || 'months',
         notify ? 1 : 0,
+        currency || 'USD', // Handle default currency
         id,
       ]
     );

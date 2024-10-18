@@ -2,95 +2,145 @@
 import React from 'react';
 import './Totals.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard, faCalendarWeek, faCalendarAlt, faCalendarDay } from '@fortawesome/free-solid-svg-icons';
 import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
 
 function Totals({ subscriptions, currency }) {
+  const [selectedPeriod, setSelectedPeriod] = React.useState('month');
+
   const calculateTotal = (period) => {
-    const monthlyTotal = subscriptions.reduce(
-      (acc, sub) => acc + parseFloat(sub.amount || 0),
-      0
-    );
-    const symbol = getSymbolFromCurrency(currency) || '$';
-    switch (period) {
-      case 'week':
-        return `${symbol}${((monthlyTotal * 12) / 52).toFixed(2)}`;
-      case 'month':
-        return `${symbol}${monthlyTotal.toFixed(2)}`;
-      case 'year':
-        return `${symbol}${(monthlyTotal * 12).toFixed(2)}`;
-      default:
-        return `${symbol}0.00`;
-    }
+    const totals = {};
+    subscriptions.forEach((sub) => {
+      const amount = parseFloat(sub.amount || 0);
+      if (!totals[sub.currency]) {
+        totals[sub.currency] = 0;
+      }
+      switch (period) {
+        case 'week':
+          totals[sub.currency] += (amount * 12) / 52;
+          break;
+        case 'month':
+          totals[sub.currency] += amount;
+          break;
+        case 'year':
+          totals[sub.currency] += amount * 12;
+          break;
+        default:
+          // Handle unexpected period
+          console.warn(`Unexpected period: ${period}`);
+          break;
+      }
+    });
+
+    return Object.entries(totals).map(([currency, total]) => {
+      const symbol = getSymbolFromCurrency(currency) || '$';
+      return `${symbol}${total.toFixed(2)} ${currency}`;
+    });
   };
 
-  // Calculate totals per account
+  const calculateAccountTotal = (account, subCurrency, period) => {
+    let total = 0;
+    subscriptions.forEach((sub) => {
+      if (sub.account === account && sub.currency === subCurrency) {
+        const amount = parseFloat(sub.amount || 0);
+        switch (period) {
+          case 'week':
+            total += (amount * 12) / 52;
+            break;
+          case 'month':
+            total += amount;
+            break;
+          case 'year':
+            total += amount * 12;
+            break;
+          default:
+            // Handle unexpected period
+            console.warn(`Unexpected period: ${period}`);
+            break;
+        }
+      }
+    });
+    return total;
+  };
+
+  // Calculate totals per account and currency
   const accountTotals = {};
 
   subscriptions.forEach((sub) => {
     const account = sub.account || 'Unspecified';
+    const subCurrency = sub.currency || currency;
     if (!accountTotals[account]) {
-      accountTotals[account] = { week: 0, month: 0, year: 0 };
+      accountTotals[account] = {};
+    }
+    if (!accountTotals[account][subCurrency]) {
+      accountTotals[account][subCurrency] = 0;
     }
 
     const amount = parseFloat(sub.amount || 0);
-
-    // Assuming amount is monthly, calculate weekly and yearly amounts
-    const weeklyAmount = (amount * 12) / 52;
-    const yearlyAmount = amount * 12;
-
-    accountTotals[account].week += weeklyAmount;
-    accountTotals[account].month += amount;
-    accountTotals[account].year += yearlyAmount;
+    accountTotals[account][subCurrency] += amount;
   });
 
   return (
     <div className="totals">
-      <h2>Summary</h2>
-      <div className="totals-grid">
-        <div className="total-card weekly">
-          <h3>Weekly</h3>
-          <p>{calculateTotal('week')}</p>
+      <div className="summary-grid">
+        <div className="summary-section period-summary">
+          <h2>Summary</h2>
+          <div className="period-cards">
+            {['week', 'month', 'year'].map((period) => (
+              <div
+                key={period}
+                className={`total-card ${period} ${selectedPeriod === period ? 'selected' : ''}`}
+                onClick={() => setSelectedPeriod(period)}
+              >
+                <h4>
+                  <FontAwesomeIcon
+                    icon={period === 'week' ? faCalendarWeek : period === 'month' ? faCalendarAlt : faCalendarDay}
+                    className="period-icon"
+                  />{' '}
+                  {period.charAt(0).toUpperCase() + period.slice(1)}ly
+                </h4>
+                {calculateTotal(period).map((total, index) => (
+                  <p key={index}>
+                    <span className="currency-symbol">
+                      {total.charAt(0)}
+                    </span>
+                    {total.slice(1)}
+                  </p>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="total-card monthly">
-          <h3>Monthly</h3>
-          <p>{calculateTotal('month')}</p>
-        </div>
-        <div className="total-card yearly">
-          <h3>Yearly</h3>
-          <p>{calculateTotal('year')}</p>
-        </div>
-      </div>
 
-      {subscriptions.length > 0 && (
-        <>
-          <h2 className="detail-summaries-title">Detail Summaries</h2>
+        <div className="summary-section account-summary">
+          <h3>Details Summary</h3>
           <div className="account-totals-grid">
-            {Object.entries(accountTotals).map(([account, totals], index) => (
+            {Object.entries(accountTotals).map(([account, currencies], index) => (
               <div key={index} className="account-total-card">
-                <h3>
+                <h4>
                   <FontAwesomeIcon icon={faCreditCard} className="credit-card-icon" />{' '}
                   {account}
-                </h3>
+                </h4>
                 <div className="account-totals">
-                  <div className="account-total weekly">
-                    <p>Weekly:</p>
-                    <p>{getSymbolFromCurrency(currency) || '$'}{totals.week.toFixed(2)}</p>
-                  </div>
-                  <div className="account-total monthly">
-                    <p>Monthly:</p>
-                    <p>{getSymbolFromCurrency(currency) || '$'}{totals.month.toFixed(2)}</p>
-                  </div>
-                  <div className="account-total yearly">
-                    <p>Yearly:</p>
-                    <p>{getSymbolFromCurrency(currency) || '$'}{totals.year.toFixed(2)}</p>
-                  </div>
+                  {Object.entries(currencies).map(([currencyCode, _], currencyIndex) => {
+                    const total = calculateAccountTotal(account, currencyCode, selectedPeriod);
+                    return (
+                      <div key={currencyIndex} className="account-total">
+                        <p>
+                          <span className="currency-symbol">
+                            {getSymbolFromCurrency(currencyCode) || '$'}
+                          </span>
+                          {total.toFixed(2)} {currencyCode}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
           </div>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }
