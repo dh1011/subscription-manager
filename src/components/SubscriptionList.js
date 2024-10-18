@@ -36,7 +36,6 @@ function getNextDueDate(subscription) {
 }
 
 function SubscriptionList({ subscriptions, onEdit, onDelete, currency, onToggleInclude }) {
-  const currencySymbol = getSymbolFromCurrency(currency) || '$';
   const sortedSubscriptions = [...subscriptions].sort((a, b) => {
     const nextDueDateA = getNextDueDate(a);
     const nextDueDateB = getNextDueDate(b);

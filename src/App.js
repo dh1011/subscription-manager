@@ -6,10 +6,8 @@ import SubscriptionList from './components/SubscriptionList';
 import SubscriptionModal from './components/SubscriptionModal';
 import Totals from './components/Totals';
 import NtfySettingsModal from './components/NtfySettingsModal';
-import CurrencySettingsModal from './components/CurrencySettingsModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
-import { faMoneyBill } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
 
 function App() {
@@ -18,7 +16,6 @@ function App() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
   const [isNtfyModalOpen, setIsNtfyModalOpen] = useState(false);
-  const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
   const [currency, setCurrency] = useState('dollar');
 
   useEffect(() => {
@@ -97,12 +94,6 @@ function App() {
           >
             <FontAwesomeIcon icon={faBell} />
           </button>
-          <button 
-            className="currency-settings-button" 
-            onClick={() => setIsCurrencyModalOpen(true)} 
-          >
-            <FontAwesomeIcon icon={faMoneyBill} />
-          </button>
         </h1>
       </div>
       <CalendarGrid
@@ -135,15 +126,6 @@ function App() {
       <NtfySettingsModal
         isOpen={isNtfyModalOpen}
         onClose={() => setIsNtfyModalOpen(false)}
-      />
-      <CurrencySettingsModal
-        isOpen={isCurrencyModalOpen}
-        onClose={() => setIsCurrencyModalOpen(false)}
-        currentCurrency={currency}
-        onSave={(newCurrency) => {
-          setCurrency(newCurrency);
-          setIsCurrencyModalOpen(false);
-        }}
       />
     </div>
   );
