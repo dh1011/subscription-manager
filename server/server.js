@@ -34,8 +34,7 @@ let db;
       autopay BOOLEAN DEFAULT FALSE,
       interval_value INTEGER DEFAULT 1,
       interval_unit VARCHAR(20) CHECK (interval_unit IN ('days', 'weeks', 'months', 'years')),
-      notify BOOLEAN DEFAULT FALSE,
-      currency VARCHAR(10) DEFAULT 'USD'
+      notify BOOLEAN DEFAULT FALSE
     );
     
     CREATE TABLE IF NOT EXISTS ntfy_settings (
@@ -60,7 +59,19 @@ let db;
     console.log('Added domain column to ntfy_settings table');
   }
 
-  // Create the new user_configuration table with default value 'dollar' for currency
+  // Check if the currency column exists in subscriptions
+  const subscriptionsColumns = await db.all("PRAGMA table_info(subscriptions)");
+  const currencyColumnExists = subscriptionsColumns.some(column => column.name === 'currency');
+
+  if (!currencyColumnExists) {
+    // Add the currency column with a default value
+    await db.exec(`
+      ALTER TABLE subscriptions ADD COLUMN currency VARCHAR(10) DEFAULT 'USD';
+    `);
+    console.log('Added currency column to subscriptions table');
+  }
+
+  // Create the new user_configuration table with default value 'USD' for currency
   await db.exec(`
     CREATE TABLE IF NOT EXISTS user_configuration (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,7 +79,7 @@ let db;
     );
   `);
 
-  console.log('Database initialized successfully with new table for user configuration.');
+  console.log('Database initialized successfully with new table for user configuration and currency column in subscriptions.');
 })();
 
 // Get the user's currency configuration
