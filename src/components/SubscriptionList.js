@@ -1,11 +1,10 @@
 // src/components/SubscriptionList.js
-import React from 'react';
+import React, { useState } from 'react';
 import './SubscriptionList.css';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCreditCard, faBell } from '@fortawesome/free-solid-svg-icons';
+import { Icon } from '@iconify-icon/react';
 import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
-import { parseISO, addDays, addWeeks, addMonths, addYears } from 'date-fns';
+import { parseISO, addDays, addWeeks, addMonths, addYears, format } from 'date-fns';
 
 function getNextDueDate(subscription) {
   const today = new Date();
@@ -36,16 +35,40 @@ function getNextDueDate(subscription) {
 }
 
 function SubscriptionList({ subscriptions, onEdit, onDelete, currency, onToggleInclude }) {
+  const [sortBy, setSortBy] = useState('dueDate');
   const currencySymbol = getSymbolFromCurrency(currency) || '$';
+
   const sortedSubscriptions = [...subscriptions].sort((a, b) => {
-    const nextDueDateA = getNextDueDate(a);
-    const nextDueDateB = getNextDueDate(b);
-    return nextDueDateA.getTime() - nextDueDateB.getTime();
+    switch (sortBy) {
+      case 'dueDate':
+        return getNextDueDate(a).getTime() - getNextDueDate(b).getTime();
+      case 'creditCard':
+        return (a.account || '').localeCompare(b.account || '');
+      case 'amount':
+        return parseFloat(b.amount) - parseFloat(a.amount); // Changed to sort from large to small
+      default:
+        return 0;
+    }
   });
 
   return (
     <div className="subscription-list-container">
-      <h2 className="subscription-list-title">Subscriptions List</h2>
+      <div className="subscription-list-header">
+        <h2 className="subscription-list-title">Subscriptions List</h2>
+        <div className="subscription-list-controls">
+          <label htmlFor="sort-select">Sort by: </label>
+          <select
+            id="sort-select"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="sort-select"
+          >
+            <option value="dueDate">Due Date</option>
+            <option value="creditCard">Credit Card</option>
+            <option value="amount">Amount</option>
+          </select>
+        </div>
+      </div>
       <div className="subscription-list-grid">
         <div className="subscription-card">
           <div className="subscription-card-content">
@@ -70,31 +93,41 @@ function SubscriptionList({ subscriptions, onEdit, onDelete, currency, onToggleI
                               className="subscription-item-checkbox"
                             />
                           </label>
-                          <FontAwesomeIcon
-                            icon={['fa', sub.icon]}
+                          <Icon
+                            icon={`mdi:${sub.icon}`}
                             className="subscription-item-icon"
                             style={{ color: sub.color }}
                           />
                           <div>
                             <p className="subscription-item-name">{sub.name}</p>
                             <p className="subscription-item-amount">
-                              {currencySymbol}{parseFloat(sub.amount).toFixed(2)}/month
+                              {getSymbolFromCurrency(sub.currency) || '$'}
+                              {parseFloat(sub.amount).toFixed(2)}/{sub.interval_value} {sub.interval_unit}
                             </p>
                           </div>
                         </div>
                         <div className="subscription-item-details">
-                          <FontAwesomeIcon icon={faCreditCard} className="credit-card-icon" />
-                          <span>{sub.account || 'Not Specified'}</span>
-                          {sub.autopay === 1 && (
-                            <span className="autopay-indicator">
-                              Autopay
+                          <div className="subscription-item-details-row">
+                            <Icon icon="mdi:credit-card" className="credit-card-icon" />
+                            <span>{sub.account || 'Not Specified'}</span>
+                          </div>
+                          <div className="subscription-item-indicators">
+                            <span className="subscription-item-due-date-badge">
+                              <span className="due-date">{format(getNextDueDate(sub), 'MMM d, yyyy')}</span>
                             </span>
-                          )}
-                          {sub.notify === 1 && (
-                            <span className="notify-indicator">
-                              <FontAwesomeIcon icon={faBell} className="notify-icon" />
-                            </span>
-                          )}
+                            {sub.autopay === 1 && (
+                              <span className="autopay-indicator">
+                                <Icon icon="mdi:auto-pay" className="autopay-icon" />
+                                Autopay
+                              </span>
+                            )}
+                            {sub.notify === 1 && (
+                              <span className="notify-indicator">
+                                <Icon icon="mdi:bell" className="notify-icon" />
+                                Notify
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <div className="subscription-item-actions">
                           <button onClick={() => onEdit(sub)}>

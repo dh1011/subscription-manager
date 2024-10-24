@@ -2,8 +2,8 @@
 import React from 'react';
 import './CalendarGrid.css';
 import { getDaysInMonth, getFirstDayOfMonth } from './utils/dateUtils';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { parseISO, addDays, addMonths, addYears, isSameMonth, getDate, set } from 'date-fns';
+import { Icon } from '@iconify-icon/react';
 
 function CalendarGrid({ subscriptions, onDateClick, currentDate }) {
   const year = currentDate.getFullYear();
@@ -83,9 +83,9 @@ function CalendarGrid({ subscriptions, onDateClick, currentDate }) {
               <div className="date-number">{day}</div>
               <div className="subscriptions">
                 {subs.map((sub, index) => (
-                  <FontAwesomeIcon
+                  <Icon
                     key={`${sub.id}-${index}`}
-                    icon={['fa', sub.icon]}
+                    icon={`mdi:${sub.icon}`}
                     className="subscription-icon"
                     style={{ color: sub.color }}
                   />

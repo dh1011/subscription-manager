@@ -1,7 +1,7 @@
 /* src/components/Totals.css */
 .totals {
     padding: 20px;
-    margin: 20px auto;
+    margin: 0 auto 20px;
     max-width: 800px;
     border-radius: 10px;
     color: #fff;
@@ -26,6 +26,18 @@
     border-radius: 10px;
     text-align: center;
     background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .total-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .total-card.selected {
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
   }
   
   .total-card h3 {
@@ -141,6 +153,31 @@
   margin-top: 40px;
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.period-badge {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 0.7em;
+  margin-left: 10px;
+  text-transform: capitalize;
+}
+
+.period-badge.week {
+  background-color: #FF6B6B; /* Coral Red */
+}
+
+.period-badge.month {
+  background-color: #4ECDC4; /* Medium Turquoise */
+}
+
+.period-badge.year {
+  background-color: #F7DC6F; /* Mellow Yellow */
 }
 
 .account-totals-grid {

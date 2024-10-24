@@ -3,6 +3,10 @@ body {
   font-family: 'Poppins', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #080808; /* Dark background */
+  background-image: url('https://www.transparenttextures.com/patterns/cartographer.png');
+  background-repeat: repeat;
+  background-size: 300px 300px;
 }
 
 code {

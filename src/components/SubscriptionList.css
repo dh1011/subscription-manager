@@ -1,15 +1,15 @@
 /* src/components/SubscriptionList.css */
 .subscription-list-container {
     padding: 20px;
-    margin: 20px auto;
+    margin: 20px auto 0;
     max-width: 1000px;
     color: #fff;
   }
   
   .subscription-list-title {
-    font-size: 2em;
-    text-align: center;
-    margin-bottom: 10px;
+    font-size: 1.5em;
+    text-align: left;
+    margin: 0;
     font-weight: 600;
   }
   
@@ -42,9 +42,10 @@
   
   .subscription-item {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 5px;
@@ -87,6 +88,8 @@
   .subscription-item-info {
     display: flex;
     align-items: center;
+    flex: 1;
+    min-width: 200px;
   }
   
   .subscription-item-icon {
@@ -104,6 +107,14 @@
   .subscription-item-amount {
     font-size: 0.8em;
     color: #adadad;
+  }
+  
+  .subscription-item-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+    flex: 1;
+    min-width: 150px;
   }
   
   .subscription-item-actions button {
@@ -124,32 +135,22 @@
     opacity: 0.9;
   }
   
-  @media (max-width: 768px) {
-    .subscription-item {
-      flex-direction: column;
-      align-items: flex-start;
-      padding-left: 10px;
-    }
-  
-    .subscription-item-actions {
-      margin-top: 10px;
-      display: flex;
-      width: 100%;
-      justify-content: flex-start;
-    }
-  
-    .subscription-item-actions button {
-      margin-left: 0;
-      margin-right: 10px;
-    }
-  }
-  
   .subscription-item-details {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     font-size: 0.9em;
     color: #ccc;
     margin-top: 5px;
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .subscription-item-details-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 5px;
   }
   
   .credit-card-icon {
@@ -157,25 +158,93 @@
     color: #45B7D1;
   }
   
-  .autopay-indicator {
+  .subscription-item-indicators {
     display: flex;
     align-items: center;
-    margin-left: 10px;
-    background-color: rgba(69, 183, 209, 0.2);
-    padding: 2px 5px;
-    border-radius: 3px;
+    flex-wrap: wrap;
+    margin-top: 5px;
   }
   
-  .autopay-icon {
-    margin-right: 3px;
+  .autopay-indicator,
+  .notify-indicator,
+  .subscription-item-due-date-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin: 2px 5px 2px 0;
+    white-space: nowrap;
+    height: 24px; /* Set a fixed height for all indicators */
+  }
+  
+  .autopay-indicator {
+    background-color: rgba(69, 183, 209, 0.2);
     color: #45B7D1;
   }
-
+  
   .notify-indicator {
-    margin-left: 10px;
+    background-color: rgba(255, 253, 107, 0.2);
     color: #fffd6b;
   }
   
+  .subscription-item-due-date-badge {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    order: -1; /* This will make the due date appear first */
+  }
+  
+  .autopay-icon,
   .notify-icon {
     margin-right: 3px;
+  }
+
+  @media (max-width: 768px) {
+    .subscription-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .subscription-item-info,
+    .subscription-item-details,
+    .subscription-item-actions {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .subscription-item-actions {
+      justify-content: flex-start;
+    }
+  }
+
+  .subscription-list-controls {
+    display: flex;
+    align-items: center;
+  }
+
+  .sort-select {
+    background-color: #2c2c2c;
+    color: #fff;
+    border: 1px solid #03DAC6;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+
+  .sort-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(3, 218, 198, 0.5);
+  }
+
+  .subscription-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .subscription-list-container {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 20px;
   }

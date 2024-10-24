@@ -55,5 +55,8 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000"
+  "proxy": "http://localhost:5000",
+  "devDependencies": {
+    "@iconify-icon/react": "^2.1.0"
+  }
 }

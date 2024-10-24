@@ -5,11 +5,9 @@ import CalendarGrid from './components/CalendarGrid';
 import SubscriptionList from './components/SubscriptionList';
 import SubscriptionModal from './components/SubscriptionModal';
 import Totals from './components/Totals';
-import NtfySettingsModal from './components/NtfySettingsModal';
-import CurrencySettingsModal from './components/CurrencySettingsModal';
+import ConfigurationModal from './components/ConfigurationModal.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell } from '@fortawesome/free-solid-svg-icons';
-import { faMoneyBill } from '@fortawesome/free-solid-svg-icons';
+import { faCog } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
 
 function App() {
@@ -17,13 +15,14 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
-  const [isNtfyModalOpen, setIsNtfyModalOpen] = useState(false);
-  const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
-  const [currency, setCurrency] = useState('dollar');
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [currency, setCurrency] = useState('USD');
+  const [ntfyTopic, setNtfyTopic] = useState('');
+  const [ntfyDomain, setNtfyDomain] = useState('https://ntfy.sh');
 
   useEffect(() => {
     fetchSubscriptions();
-    fetchCurrency();
+    fetchConfiguration();
   }, []);
 
   const fetchSubscriptions = async () => {
@@ -35,13 +34,17 @@ function App() {
     }
   };
 
-  const fetchCurrency = async () => {
+  const fetchConfiguration = async () => {
     try {
-      const response = await axios.get('/api/user-configuration');
-      setCurrency(response.data.currency);
+      const [currencyResponse, ntfyResponse] = await Promise.all([
+        axios.get('/api/user-configuration'),
+        axios.get('/api/ntfy-settings')
+      ]);
+      setCurrency(currencyResponse.data.currency);
+      setNtfyTopic(ntfyResponse.data.topic);
+      setNtfyDomain(ntfyResponse.data.domain);
     } catch (error) {
-      console.error('Error fetching currency:', error);
-      setCurrency('USD');
+      console.error('Error fetching configuration:', error);
     }
   };
 
@@ -86,24 +89,33 @@ function App() {
     ));
   };
 
+  const handleConfigurationSave = async (newConfig) => {
+    try {
+      await Promise.all([
+        axios.post('/api/user-configuration', { currency: newConfig.currency }),
+        axios.post('/api/ntfy-settings', { topic: newConfig.ntfyTopic, domain: newConfig.ntfyDomain })
+      ]);
+      setCurrency(newConfig.currency);
+      setNtfyTopic(newConfig.ntfyTopic);
+      setNtfyDomain(newConfig.ntfyDomain);
+      setIsConfigModalOpen(false);
+      // Fetch subscriptions again to update with new currency
+      fetchSubscriptions();
+    } catch (error) {
+      console.error('Error saving configuration:', error);
+    }
+  };
+
   return (
     <div className="app">
       <div className="app-header">
-        <h1>
-          Subscription Manager
-          <button 
-            className="ntfy-settings-button" 
-            onClick={() => setIsNtfyModalOpen(true)} 
-          >
-            <FontAwesomeIcon icon={faBell} />
-          </button>
-          <button 
-            className="currency-settings-button" 
-            onClick={() => setIsCurrencyModalOpen(true)} 
-          >
-            <FontAwesomeIcon icon={faMoneyBill} />
-          </button>
-        </h1>
+        <h1>Subscription Manager</h1>
+        <button 
+          className="config-button" 
+          onClick={() => setIsConfigModalOpen(true)}
+        >
+          <FontAwesomeIcon icon={faCog} /> Settings
+        </button>
       </div>
       <CalendarGrid
         subscriptions={subscriptions}
@@ -130,20 +142,16 @@ function App() {
           onSave={addOrUpdateSubscription}
           selectedSubscription={selectedSubscription}
           selectedDate={selectedDate}
+          defaultCurrency={currency}
         />
       )}
-      <NtfySettingsModal
-        isOpen={isNtfyModalOpen}
-        onClose={() => setIsNtfyModalOpen(false)}
-      />
-      <CurrencySettingsModal
-        isOpen={isCurrencyModalOpen}
-        onClose={() => setIsCurrencyModalOpen(false)}
-        currentCurrency={currency}
-        onSave={(newCurrency) => {
-          setCurrency(newCurrency);
-          setIsCurrencyModalOpen(false);
-        }}
+      <ConfigurationModal
+        isOpen={isConfigModalOpen}
+        onClose={() => setIsConfigModalOpen(false)}
+        currency={currency}
+        ntfyTopic={ntfyTopic}
+        ntfyDomain={ntfyDomain}
+        onSave={handleConfigurationSave}
       />
     </div>
   );

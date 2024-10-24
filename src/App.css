@@ -1,7 +1,7 @@
 /* src/App.css */
 .app {
-  min-height: 100vh;
-  background: linear-gradient(to bottom right, #000000, #333333);
+  max-width: 1000px;
+  margin: 0 auto;
   padding: 20px;
   font-family: 'Poppins', sans-serif;
   color: #fff;
@@ -25,42 +25,32 @@ body {
 
 .app-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
   margin-bottom: 20px;
 }
 
 .app-header h1 {
+  margin: 0;
+  text-align: left;
+  font-size: 2em;
+}
+
+.config-button {
+  background: none;
+  border: 2px solid #03DAC6;
+  border-radius: 5px;
+  color: #03DAC6;
+  font-size: 1em;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
-.ntfy-settings-button {
-  background: none;
-  border: none;
-  color: #4a90e2;
-  font-size: 0.8em;
-  padding: 5px;
-  margin-left: 10px;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.ntfy-settings-button:hover {
-  color: #6aa9f4;
-}
-
-.currency-settings-button {
-  background: none;
-  border: none;
-  color: #4a90e2;
-  font-size: 0.8em;
-  padding: 5px;
-  margin-left: 10px;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.currency-settings-button:hover {
-  color: #6aa9f4;
+.config-button:hover {
+  background-color: #03DAC6;
+  color: #080808;
 }

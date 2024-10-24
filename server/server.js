@@ -38,7 +38,8 @@ let db;
       autopay INTEGER DEFAULT 0,
       interval_value INTEGER DEFAULT 1,
       interval_unit TEXT CHECK (interval_unit IN ('days', 'weeks', 'months', 'years')),
-      notify INTEGER DEFAULT 0
+      notify INTEGER DEFAULT 0,
+      currency VARCHAR(10) DEFAULT 'default'
     );
     
     CREATE TABLE IF NOT EXISTS ntfy_settings (
@@ -70,6 +71,18 @@ let db;
       currency TEXT DEFAULT 'USD'
     );
   `);
+
+  // Check if the currency column exists in subscriptions
+  const subscriptionsColumns = await db.all("PRAGMA table_info(subscriptions)");
+  const currencyColumnExists = subscriptionsColumns.some(column => column.name === 'currency');
+
+  if (!currencyColumnExists) {
+    // Add the currency column with a default value
+    await db.exec(`
+      ALTER TABLE subscriptions ADD COLUMN currency VARCHAR(10) DEFAULT 'default';
+    `);
+    console.log('Added currency column to subscriptions table');
+  }
 
   console.log('Database initialized successfully with new table for user configuration.');
 })();
@@ -195,7 +208,15 @@ cron.schedule('0 0 * * *', async () => {
 app.get('/api/subscriptions', async (req, res) => {
   try {
     const result = await db.all('SELECT * FROM subscriptions');
-    res.json(result);
+    const userConfig = await db.get('SELECT currency FROM user_configuration LIMIT 1');
+    const defaultCurrency = userConfig?.currency || 'USD';
+    
+    const subscriptionsWithCurrency = result.map(sub => ({
+      ...sub,
+      currency: sub.currency === 'default' ? defaultCurrency : sub.currency
+    }));
+    
+    res.json(subscriptionsWithCurrency);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
@@ -214,13 +235,14 @@ app.post('/api/subscriptions', async (req, res) => {
     interval_value,
     interval_unit,
     notify,
+    currency,
   } = req.body;
 
   try {
     const result = await db.run(
       `INSERT INTO subscriptions
-        (name, amount, due_date, icon, color, account, autopay, interval_value, interval_unit, notify)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (name, amount, due_date, icon, color, account, autopay, interval_value, interval_unit, notify, currency)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name,
         amount,
@@ -232,9 +254,17 @@ app.post('/api/subscriptions', async (req, res) => {
         interval_value || 1,
         interval_unit || 'months',
         notify ? 1 : 0,
+        currency || 'default',
       ]
     );
     const newSubscription = await db.get('SELECT * FROM subscriptions WHERE id = ?', result.lastID);
+    
+    // If currency is 'default', replace with user configuration currency
+    if (newSubscription.currency === 'default') {
+      const userConfig = await db.get('SELECT currency FROM user_configuration LIMIT 1');
+      newSubscription.currency = userConfig?.currency || 'USD';
+    }
+    
     res.status(201).json(newSubscription);
   } catch (err) {
     console.error('Error adding subscription:', err);
@@ -255,6 +285,7 @@ app.put('/api/subscriptions/:id', async (req, res) => {
     interval_value,
     interval_unit,
     notify,
+    currency,
   } = req.body;
 
   try {
@@ -269,7 +300,8 @@ app.put('/api/subscriptions/:id', async (req, res) => {
         autopay = ?,
         interval_value = ?,
         interval_unit = ?,
-        notify = ?
+        notify = ?,
+        currency = ?
        WHERE id = ?`,
       [
         name,
@@ -282,6 +314,7 @@ app.put('/api/subscriptions/:id', async (req, res) => {
         interval_value || 1,
         interval_unit || 'months',
         notify ? 1 : 0,
+        currency || 'default',
         id,
       ]
     );
@@ -289,6 +322,11 @@ app.put('/api/subscriptions/:id', async (req, res) => {
     if (!updatedSubscription) {
       res.status(404).json({ error: 'Subscription not found' });
     } else {
+      // If currency is 'default', replace with user configuration currency
+      if (updatedSubscription.currency === 'default') {
+        const userConfig = await db.get('SELECT currency FROM user_configuration LIMIT 1');
+        updatedSubscription.currency = userConfig?.currency || 'USD';
+      }
       res.json(updatedSubscription);
     }
   } catch (err) {
