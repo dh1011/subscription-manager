@@ -204,3 +204,29 @@
     display: inline-block;
     margin-top: 5px;
   }
+
+  .form-group.date-picker-group {
+    display: flex;
+    align-items: center;
+  }
+
+  .form-group.date-picker-group label {
+    margin-bottom: 0;
+    margin-right: 10px;
+  }
+
+  .date-picker-button {
+    background-color: #2c2c2c;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 0.9em;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .date-picker-button:hover {
+    background-color: #3c3c3c;
+  }

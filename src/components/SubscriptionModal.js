@@ -2,9 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import './SubscriptionModal.css';
 import { motion } from 'framer-motion';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getRandomColor } from './utils/colorUtils';
+import { Icon } from '@iconify-icon/react';
 import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import './styles/react-datepicker-dark.css';
 
 const currencyList = require('currency-symbol-map/map');
 
@@ -12,7 +15,7 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
   const [id, setId] = useState(null);
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
-  const [dueDate, setDueDate] = useState('');
+  const [dueDate, setDueDate] = useState(null);
   const [icon, setIcon] = useState('');
   const [iconInput, setIconInput] = useState('');
   const [color, setColor] = useState('');
@@ -30,8 +33,8 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
       setAmount(selectedSubscription.amount || '');
       setDueDate(
         selectedSubscription.due_date
-          ? new Date(selectedSubscription.due_date).toISOString().split('T')[0]
-          : ''
+          ? new Date(selectedSubscription.due_date)
+          : null
       );
       setIcon(selectedSubscription.icon || '');
       setIconInput(selectedSubscription.icon || '');
@@ -44,7 +47,7 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
       setCurrency(selectedSubscription.currency || defaultCurrency);
     } else {
       if (selectedDate) {
-        setDueDate(selectedDate.toISOString().split('T')[0]);
+        setDueDate(selectedDate);
       }
       setColor(getRandomColor());
       setIntervalValue(1);
@@ -83,12 +86,12 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
   const handleSubmit = (e) => {
     e.preventDefault();
     if (name && amount && dueDate && icon) {
-      const monthlyAmount = convertToMonthlyAmount(amount, intervalValue, intervalUnit);
+      const formattedDueDate = dueDate.toISOString().split('T')[0];
       onSave({
         id,
         name,
-        amount: monthlyAmount.toFixed(2),
-        dueDate,
+        amount: parseFloat(amount).toFixed(2),
+        dueDate: formattedDueDate,
         icon,
         color,
         account,
@@ -110,14 +113,11 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
   };
 
   const getIconElement = (iconName) => {
-    try {
-      if (iconName === '') {
-        return <FontAwesomeIcon icon={['fa', 'question-circle']} />;
-      }
-      return <FontAwesomeIcon icon={['fa', iconName]} />;
-    } catch {
-      return <FontAwesomeIcon icon={['fa', 'question-circle']} />;
-    }
+    return <Icon icon={`mdi:${iconName || 'help-circle'}`} />;
+  };
+
+  const formatDate = (date) => {
+    return date ? date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Select billing date';
   };
 
   return (
@@ -153,13 +153,16 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
               step="0.01"
             />
           </div>
-          <div className="form-group">
+          <div className="form-group date-picker-group">
             <label htmlFor="dueDate">Billing Date</label>
-            <input
+            <DatePicker
               id="dueDate"
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              selected={dueDate}
+              onChange={(date) => setDueDate(date)}
+              dateFormat="d MMM yyyy"
+              customInput={<button type="button" className="date-picker-button">{formatDate(dueDate)}</button>}
+              className="dark-theme-datepicker"
+              calendarClassName="dark-theme-calendar"
             />
           </div>
           <div className="form-group">
@@ -170,7 +173,7 @@ function SubscriptionModal({ onClose, onSave, selectedSubscription, selectedDate
                 type="text"
                 value={iconInput}
                 onChange={handleIconChange}
-                placeholder="Enter Font Awesome brand icon name"
+                placeholder="Enter Material Design Icon name"
               />
               <span className="icon-preview">{getIconElement(icon)}</span>
             </div>
