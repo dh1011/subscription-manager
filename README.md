@@ -5,7 +5,7 @@
 This single-page web application lets you keep track of and manage your subscriptions. You can add, edit, delete, and view subscriptions all in one place. You can set up notifications for each subscription using NTFY. The app provides a general summary of all your subscriptions and a detailed summary for each payment account, all within a single, intuitive interface.
 
 ## Demo
-https://github.com/user-attachments/assets/59432850-4090-4732-a511-c65cb308f2ab
+https://github.com/user-attachments/assets/9e7830e1-3c3c-474a-8f48-93ee8f5e440d
 
 ## Features
 - ➕ Add, edit, and delete subscriptions
