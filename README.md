@@ -4,37 +4,8 @@
 
 This web application lets you keep track of and manage your subscriptions. You can add, edit, delete, and view subscriptions. You can set up notifications for each subscription using NTFY. There is a general summary of all your subscriptions and a detailed summary for each payment account.
 
-## Video Demo
-
-<p align="center">
-  <a href="https://www.youtube.com/watch?v=tAL8Gv35mKw">
-    <img src="https://img.youtube.com/vi/tAL8Gv35mKw/0.jpg" alt="Subscription Manager Demo">
-  </a>
-</p>
-
-## Screenshots
-<p align="center">
-  <img src="img/main.png" alt="Main dashboard" width="70%">
-</p>
-<p align="center"><em>Main dashboard</em></p>
-
-<p align="center">
-  <img src="img/add_sub_form.png" alt="Add/Edit subscription form" width="70%">
-</p>
-<p align="center"><em>Add/Edit subscription form</em></p>
-
-<p align="center">
-  <img src="img/notification_setting.png" alt="Notification settings" width="70%">
-</p>
-<p align="center"><em>Notification settings</em></p>
-
-<p align="center">
-  <img src="img/mobile1.png" alt="Mobile Screenshot 1" width="25%">
-  <img src="img/mobile2.png" alt="Mobile Screenshot 2" width="25%">
-  <img src="img/mobile3.png" alt="Mobile Screenshot 3" width="25%">
-</p>
-<p align="center"><em>Mobile interface</em></p>
-
+## Demo
+https://github.com/user-attachments/assets/59432850-4090-4732-a511-c65cb308f2ab
 
 ## Features
 
