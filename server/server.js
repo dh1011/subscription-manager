@@ -15,11 +15,10 @@ app.use(express.json());
 // Database connection and initialization
 let db;
 (async () => {
-  const path = require('path');
-  // Use an environment variable if set, otherwise fallback to __dirname
-  const baseDir = process.env.DB_DIR || __dirname;
-  const dbPath = path.join(baseDir, '/subscriptions.db');
-  console.log(`Using subscriptions database located at: ${dbPath} due to baseDir: ${baseDir}`);
+  const dbPath = process.env.DB_DIR
+    ? path.join(process.env.DB_DIR, 'subscriptions.db')
+    : path.resolve(__dirname, '../subscriptions.db');
+  console.log(`Using subscriptions database located at: ${dbPath}`);
   db = await open({
     filename: dbPath,
     driver: sqlite3.Database,
