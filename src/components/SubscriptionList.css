@@ -248,3 +248,12 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 20px;
   }
+
+  .currency-symbol {
+    color: #888888; /* Darker grey for the currency symbol */
+  }
+
+  .subscription-item-amount {
+    font-size: 0.8em;
+    color: #adadad; /* Keeping the original lighter grey for the amount */
+  }

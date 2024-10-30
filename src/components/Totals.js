@@ -67,7 +67,11 @@ function Totals({ subscriptions, currency }) {
 
     return Object.entries(totals).map(([curr, total]) => {
       const symbol = getSymbolFromCurrency(curr) || '$';
-      return `${symbol}${total.toFixed(2)}`;
+      return (
+        <span key={curr}>
+          <span className="currency-symbol">{symbol}</span>{total.toFixed(2)}
+        </span>
+      );
     });
   };
 
@@ -146,7 +150,10 @@ function Totals({ subscriptions, currency }) {
             <div className="account-totals">
               {Object.entries(currencies).map(([curr, totals], currIndex) => (
                 <div key={currIndex} className={`account-total ${selectedPeriod}`}>
-                  <p>{getSymbolFromCurrency(curr) || '$'}{totals[selectedPeriod].toFixed(2)} {curr}</p>
+                  <p>
+                    <span className="currency-symbol">{getSymbolFromCurrency(curr) || '$'}</span>
+                    {totals[selectedPeriod].toFixed(2)}
+                  </p>
                 </div>
               ))}
             </div>
