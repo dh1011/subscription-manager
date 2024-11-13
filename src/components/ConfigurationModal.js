@@ -7,12 +7,13 @@ import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
 
 const currencyList = require('currency-symbol-map/map');
 
-function ConfigurationModal({ isOpen, onClose, currency, ntfyTopic, ntfyDomain, onSave }) {
+function ConfigurationModal({ isOpen, onClose, currency, showCurrencySymbol, ntfyTopic, ntfyDomain, onSave }) {
   const [selectedCurrency, setSelectedCurrency] = useState(currency);
   const [topic, setTopic] = useState(ntfyTopic);
   const [domain, setDomain] = useState(ntfyDomain);
   const [searchTerm, setSearchTerm] = useState('');
   const [testStatus, setTestStatus] = useState(null);
+  const [selectedShowCurrencySymbol, setSelectedShowCurrencySymbol] = useState(showCurrencySymbol);
 
   useEffect(() => {
     if (isOpen) {
@@ -29,7 +30,8 @@ function ConfigurationModal({ isOpen, onClose, currency, ntfyTopic, ntfyDomain, 
       onSave({
         currency: selectedCurrency,
         ntfyTopic: topic,
-        ntfyDomain: domain
+        ntfyDomain: domain,
+        showCurrencySymbol: selectedShowCurrencySymbol
       });
     } catch (error) {
       console.error('Error saving NTFY settings:', error);
@@ -99,6 +101,24 @@ function ConfigurationModal({ isOpen, onClose, currency, ntfyTopic, ntfyDomain, 
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="form-group">
+              <label className="switch-label">
+                <div className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={selectedShowCurrencySymbol}
+                    onChange={(e) => setSelectedShowCurrencySymbol(e.target.checked)}
+                  />
+                  <span className="toggle-slider"></span>
+                </div>
+                <span style={{ paddingLeft: '10px' }}>
+                  {selectedShowCurrencySymbol 
+                    ? `Symbol (${getSymbolFromCurrency(selectedCurrency) || 'N/A'})` 
+                    : `Code (${selectedCurrency})`
+                  }
+                </span>
+              </label>
             </div>
           </div>
           

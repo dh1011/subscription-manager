@@ -19,7 +19,8 @@ function App() {
   const [currency, setCurrency] = useState('USD');
   const [ntfyTopic, setNtfyTopic] = useState('');
   const [ntfyDomain, setNtfyDomain] = useState('https://ntfy.sh');
-
+  const [showCurrencySymbol, setShowCurrencySymbol] = useState(true);
+  
   useEffect(() => {
     fetchSubscriptions();
     fetchConfiguration();
@@ -41,6 +42,7 @@ function App() {
         axios.get('/api/ntfy-settings')
       ]);
       setCurrency(currencyResponse.data.currency);
+      setShowCurrencySymbol(currencyResponse.data.showCurrencySymbol);
       setNtfyTopic(ntfyResponse.data.topic);
       setNtfyDomain(ntfyResponse.data.domain);
     } catch (error) {
@@ -92,13 +94,23 @@ function App() {
   const handleConfigurationSave = async (newConfig) => {
     try {
       await Promise.all([
-        axios.post('/api/user-configuration', { currency: newConfig.currency }),
-        axios.post('/api/ntfy-settings', { topic: newConfig.ntfyTopic, domain: newConfig.ntfyDomain })
+        axios.post('/api/user-configuration', { 
+          currency: newConfig.currency, 
+          showCurrencySymbol: newConfig.showCurrencySymbol 
+        }),
+        axios.post('/api/ntfy-settings', { 
+          topic: newConfig.ntfyTopic, 
+          domain: newConfig.ntfyDomain 
+        })
       ]);
+      
+      // Update all the states
       setCurrency(newConfig.currency);
+      setShowCurrencySymbol(newConfig.showCurrencySymbol);
       setNtfyTopic(newConfig.ntfyTopic);
       setNtfyDomain(newConfig.ntfyDomain);
       setIsConfigModalOpen(false);
+      
       // Fetch subscriptions again to update with new currency
       fetchSubscriptions();
     } catch (error) {
@@ -129,9 +141,14 @@ function App() {
           onDelete={handleDelete}
           onToggleInclude={handleToggleInclude}
           currency={currency}
+          showCurrencySymbol={showCurrencySymbol}
         />
       )}
-      <Totals subscriptions={subscriptions.filter(sub => sub.included)} currency={currency} />
+      <Totals 
+        subscriptions={subscriptions.filter(sub => sub.included)} 
+        currency={currency}
+        showCurrencySymbol={showCurrencySymbol}
+      />
       {isModalOpen && (
         <SubscriptionModal
           onClose={() => {
@@ -143,12 +160,14 @@ function App() {
           selectedSubscription={selectedSubscription}
           selectedDate={selectedDate}
           defaultCurrency={currency}
+          showCurrencySymbol={showCurrencySymbol}
         />
       )}
       <ConfigurationModal
         isOpen={isConfigModalOpen}
         onClose={() => setIsConfigModalOpen(false)}
         currency={currency}
+        showCurrencySymbol={showCurrencySymbol}
         ntfyTopic={ntfyTopic}
         ntfyDomain={ntfyDomain}
         onSave={handleConfigurationSave}

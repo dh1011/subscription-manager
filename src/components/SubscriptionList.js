@@ -34,9 +34,17 @@ function getNextDueDate(subscription) {
   return dueDate;
 }
 
-function SubscriptionList({ subscriptions, onEdit, onDelete, currency, onToggleInclude }) {
+function SubscriptionList({ subscriptions, onEdit, onDelete, currency, onToggleInclude, showCurrencySymbol }) {
   const [sortBy, setSortBy] = useState('dueDate');
-  const currencySymbol = getSymbolFromCurrency(currency) || '$';
+
+  const formatCurrency = (amount, currencyCode) => {
+    if (showCurrencySymbol) {
+      const symbol = getSymbolFromCurrency(currencyCode) || '$';
+      return `${symbol}${parseFloat(amount).toFixed(2)}`;
+    } else {
+      return `${parseFloat(amount).toFixed(2)} ${currencyCode}`;
+    }
+  };
 
   const sortedSubscriptions = [...subscriptions].sort((a, b) => {
     switch (sortBy) {
@@ -45,7 +53,7 @@ function SubscriptionList({ subscriptions, onEdit, onDelete, currency, onToggleI
       case 'creditCard':
         return (a.account || '').localeCompare(b.account || '');
       case 'amount':
-        return parseFloat(b.amount) - parseFloat(a.amount); // Changed to sort from large to small
+        return parseFloat(b.amount) - parseFloat(a.amount);
       default:
         return 0;
     }
@@ -101,10 +109,8 @@ function SubscriptionList({ subscriptions, onEdit, onDelete, currency, onToggleI
                           <div>
                             <p className="subscription-item-name">{sub.name}</p>
                             <p className="subscription-item-amount">
-                              <span className="currency-symbol">
-                                {getSymbolFromCurrency(sub.currency) || '$'}
-                              </span>
-                              {parseFloat(sub.amount).toFixed(2)}/{sub.interval_value} {sub.interval_unit}
+                              {formatCurrency(sub.amount, sub.currency)}
+                              /{sub.interval_value} {sub.interval_unit}
                             </p>
                           </div>
                         </div>

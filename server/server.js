@@ -67,7 +67,8 @@ let db;
   await db.exec(`
     CREATE TABLE IF NOT EXISTS user_configuration (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      currency TEXT DEFAULT 'USD'
+      currency TEXT DEFAULT 'USD',
+      show_currency_symbol INTEGER DEFAULT 1
     );
   `);
 
@@ -83,14 +84,28 @@ let db;
     console.log('Added currency column to subscriptions table');
   }
 
+  // Check if show_currency_symbol column exists
+  const userConfigColumns = await db.all("PRAGMA table_info(user_configuration)");
+  const symbolColumnExists = userConfigColumns.some(column => column.name === 'show_currency_symbol');
+
+  if (!symbolColumnExists) {
+    await db.exec(`
+      ALTER TABLE user_configuration ADD COLUMN show_currency_symbol INTEGER DEFAULT 1;
+    `);
+    console.log('Added show_currency_symbol column to user_configuration table');
+  }
+
   console.log('Database initialized successfully with new table for user configuration.');
 })();
 
 // Get the user's currency configuration
 app.get('/api/user-configuration', async (req, res) => {
   try {
-    const result = await db.get('SELECT currency FROM user_configuration LIMIT 1');
-    res.json({ currency: result?.currency || 'USD' });
+    const result = await db.get('SELECT currency, show_currency_symbol FROM user_configuration LIMIT 1');
+    res.json({ 
+      currency: result?.currency || 'USD',
+      showCurrencySymbol: result?.show_currency_symbol === 1 // Convert to boolean
+    });
   } catch (err) {
     console.error('Error fetching user configuration:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -99,17 +114,20 @@ app.get('/api/user-configuration', async (req, res) => {
 
 // Set or update the user's currency configuration
 app.post('/api/user-configuration', async (req, res) => {
-  const { currency } = req.body;
+  const { currency, showCurrencySymbol } = req.body;
   try {
-    // Check if the configuration exists, if not, insert it, otherwise update it
     const existingConfig = await db.get('SELECT id FROM user_configuration LIMIT 1');
-
+    
     if (existingConfig) {
-      // Update the existing record
-      await db.run('UPDATE user_configuration SET currency = ? WHERE id = ?', [currency, existingConfig.id]);
+      await db.run(
+        'UPDATE user_configuration SET currency = ?, show_currency_symbol = ? WHERE id = ?',
+        [currency, showCurrencySymbol ? 1 : 0, existingConfig.id]
+      );
     } else {
-      // Insert a new record
-      await db.run('INSERT INTO user_configuration (currency) VALUES (?)', [currency]);
+      await db.run(
+        'INSERT INTO user_configuration (currency, show_currency_symbol) VALUES (?, ?)',
+        [currency, showCurrencySymbol ? 1 : 0]
+      );
     }
 
     res.json({ message: 'User configuration updated successfully' });
@@ -207,12 +225,14 @@ cron.schedule('0 0 * * *', async () => {
 app.get('/api/subscriptions', async (req, res) => {
   try {
     const result = await db.all('SELECT * FROM subscriptions');
-    const userConfig = await db.get('SELECT currency FROM user_configuration LIMIT 1');
+    const userConfig = await db.get('SELECT currency, show_currency_symbol FROM user_configuration LIMIT 1');
     const defaultCurrency = userConfig?.currency || 'USD';
+    const showCurrencySymbol = userConfig?.show_currency_symbol === 1; // Default to true if not set
     
     const subscriptionsWithCurrency = result.map(sub => ({
       ...sub,
-      currency: sub.currency === 'default' ? defaultCurrency : sub.currency
+      currency: sub.currency === 'default' ? defaultCurrency : sub.currency,
+      showCurrencySymbol // Add the display preference to each subscription
     }));
     
     res.json(subscriptionsWithCurrency);

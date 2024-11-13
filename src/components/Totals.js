@@ -5,19 +5,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
 
-function Totals({ subscriptions, currency }) {
+function Totals({ subscriptions, currency, showCurrencySymbol }) {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [defaultCurrency, setDefaultCurrency] = useState(currency);
 
-  useEffect(() => {
-    // Fetch the user's default currency from the server
-    fetch('/api/user-configuration')
-      .then(response => response.json())
-      .then(data => {
-        setDefaultCurrency(data.currency || 'USD');
-      })
-      .catch(error => console.error('Error fetching user configuration:', error));
-  }, []);
+  const formatCurrency = (amount, currencyCode) => {
+    if (showCurrencySymbol) {
+      const symbol = getSymbolFromCurrency(currencyCode) || '$';
+      return `${symbol}${amount.toFixed(2)}`;
+    } else {
+      return `${amount.toFixed(2)} ${currencyCode}`;
+    }
+  };
 
   const calculateTotal = (period) => {
     const totals = {};
@@ -65,14 +64,11 @@ function Totals({ subscriptions, currency }) {
       }
     });
 
-    return Object.entries(totals).map(([curr, total]) => {
-      const symbol = getSymbolFromCurrency(curr) || '$';
-      return (
-        <span key={curr}>
-          <span className="currency-symbol">{symbol}</span>{total.toFixed(2)}
-        </span>
-      );
-    });
+    return Object.entries(totals).map(([curr, total]) => (
+      <span key={curr}>
+        {formatCurrency(total, curr)}
+      </span>
+    ));
   };
 
   const accountTotals = subscriptions.reduce((acc, sub) => {
@@ -150,10 +146,7 @@ function Totals({ subscriptions, currency }) {
             <div className="account-totals">
               {Object.entries(currencies).map(([curr, totals], currIndex) => (
                 <div key={currIndex} className={`account-total ${selectedPeriod}`}>
-                  <p>
-                    <span className="currency-symbol">{getSymbolFromCurrency(curr) || '$'}</span>
-                    {totals[selectedPeriod].toFixed(2)}
-                  </p>
+                  <p>{formatCurrency(totals[selectedPeriod], curr)}</p>
                 </div>
               ))}
             </div>
