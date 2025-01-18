@@ -1,13 +1,17 @@
-version: '3.8'
-
+version: "3.9"
 services:
-  app:
-    image: dh1011/subscription-manager:latest
+  subscription-manager-backend:
+    build:
+      context: ./backend
+    ports:
+      - "5000:5000"
+
+  subscription-manager-frontend:
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_API_URL: http://your_ip_address:5000
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - HOST=0.0.0.0
-
-volumes:
-  subscriptions_data:
+    depends_on:
+      - subscription-manager-backend

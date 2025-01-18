@@ -28,3 +28,9 @@ yarn-error.log*
 subscriptions.db
 
 temp
+
+/env
+
+build
+package-lock.json
+__pycache__

@@ -1,6 +1,6 @@
 {
   "name": "subscription-manager",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
@@ -11,11 +11,9 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
-    "concurrently": "^9.0.1",
     "currency-symbol-map": "^5.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
-    "express": "^4.21.0",
     "framer-motion": "^11.5.6",
     "node-cron": "^3.0.3",
     "pg": "^8.13.0",
@@ -30,9 +28,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "node server/server.js",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "node server/server.js",
+    "start": "npm run client",
     "client": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -56,7 +52,6 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000",
   "devDependencies": {
     "@iconify-icon/react": "^2.1.0"
   }

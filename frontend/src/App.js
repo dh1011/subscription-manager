@@ -10,6 +10,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 function App() {
   const [subscriptions, setSubscriptions] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,7 +30,7 @@ function App() {
 
   const fetchSubscriptions = async () => {
     try {
-      const response = await axios.get('/api/subscriptions');
+      const response = await axios.get(`${API_BASE_URL}/api/subscriptions`);
       setSubscriptions(response.data.map(sub => ({ ...sub, included: true })));
     } catch (error) {
       console.error('Error fetching subscriptions:', error);
@@ -38,8 +40,8 @@ function App() {
   const fetchConfiguration = async () => {
     try {
       const [currencyResponse, ntfyResponse] = await Promise.all([
-        axios.get('/api/user-configuration'),
-        axios.get('/api/ntfy-settings')
+        axios.get(`${API_BASE_URL}/api/user-configuration`),
+        axios.get(`${API_BASE_URL}/api/ntfy-settings`)
       ]);
       setCurrency(currencyResponse.data.currency);
       setShowCurrencySymbol(currencyResponse.data.showCurrencySymbol);
@@ -53,9 +55,9 @@ function App() {
   const addOrUpdateSubscription = async (subscription) => {
     try {
       if (subscription.id) {
-        await axios.put(`/api/subscriptions/${subscription.id}`, subscription);
+        await axios.put(`${API_BASE_URL}/api/subscriptions/${subscription.id}`, subscription);
       } else {
-        await axios.post('/api/subscriptions', subscription);
+        await axios.post(`${API_BASE_URL}/api/subscriptions`, subscription);
       }
       fetchSubscriptions();
     } catch (error) {
@@ -77,7 +79,7 @@ function App() {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this subscription?')) {
       try {
-        await axios.delete(`/api/subscriptions/${id}`);
+        await axios.delete(`${API_BASE_URL}/api/subscriptions/${id}`);
         fetchSubscriptions();
       } catch (error) {
         console.error('Error deleting subscription:', error);
@@ -94,11 +96,11 @@ function App() {
   const handleConfigurationSave = async (newConfig) => {
     try {
       await Promise.all([
-        axios.post('/api/user-configuration', { 
+        axios.post(`${API_BASE_URL}/api/user-configuration`, { 
           currency: newConfig.currency, 
           showCurrencySymbol: newConfig.showCurrencySymbol 
         }),
-        axios.post('/api/ntfy-settings', { 
+        axios.post(`${API_BASE_URL}/api/ntfy-settings`, { 
           topic: newConfig.ntfyTopic, 
           domain: newConfig.ntfyDomain 
         })

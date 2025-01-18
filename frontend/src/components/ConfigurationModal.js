@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import './ConfigurationModal.css';
 import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 const currencyList = require('currency-symbol-map/map');
 
 function ConfigurationModal({ isOpen, onClose, currency, showCurrencySymbol, ntfyTopic, ntfyDomain, onSave }) {
@@ -26,7 +27,7 @@ function ConfigurationModal({ isOpen, onClose, currency, showCurrencySymbol, ntf
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/ntfy-settings', { topic, domain });
+      await axios.post(`${API_BASE_URL}/api/ntfy-settings`, { topic, domain });
       onSave({
         currency: selectedCurrency,
         ntfyTopic: topic,

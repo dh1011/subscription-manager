@@ -3,6 +3,8 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import './NtfySettingsModal.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 function NtfySettingsModal({ isOpen, onClose }) {
   const [ntfyTopic, setNtfyTopic] = useState('');
   const [ntfyDomain, setNtfyDomain] = useState('https://ntfy.sh');
@@ -24,7 +26,7 @@ function NtfySettingsModal({ isOpen, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/ntfy-settings', { topic: ntfyTopic, domain: ntfyDomain });
+      await axios.post(`${API_BASE_URL}/api/ntfy-settings`, { topic: ntfyTopic, domain: ntfyDomain });
       onClose();
     } catch (error) {
       console.error('Error saving NTFY settings:', error);

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import './CurrencySettingsModal.css';
 import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 const currencyList = require('currency-symbol-map/map');
 
 function CurrencySettingsModal({ isOpen, onClose, currentCurrency, onSave }) {
@@ -20,7 +21,7 @@ function CurrencySettingsModal({ isOpen, onClose, currentCurrency, onSave }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/user-configuration', { currency: selectedCurrency });
+      await axios.post(`${API_BASE_URL}/api/user-configuration`, { currency: selectedCurrency });
       onSave(selectedCurrency);
     } catch (error) {
       console.error('Error saving currency:', error);
