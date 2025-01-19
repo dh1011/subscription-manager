@@ -17,5 +17,5 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - subscription-manager-backend
+      - backend
     restart: unless-stopped
