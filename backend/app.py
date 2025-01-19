@@ -1,10 +1,12 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, validator
 import sqlite3
 from sqlite3 import Row
 from typing import Union, Optional
 from datetime import datetime, timedelta
+import json
 import asyncio
 import httpx
 import os
@@ -22,7 +24,8 @@ app.add_middleware(
 )
 
 # Database connection
-DB_PATH = os.getenv("DB_DIR", os.path.join(os.path.dirname(__file__), "subscriptions.db"))
+DB_DIR = os.getenv("DB_DIR", "/app/data")
+DB_PATH = os.path.join(DB_DIR, "subscriptions.db")
 DB_LOCK = asyncio.Lock()
 
 def get_db_connection():
@@ -248,6 +251,67 @@ async def update_ntfy_settings(settings: NtfySettings):
         conn.close()
 
     return {"message": "NTFY settings saved successfully"}
+
+@app.get("/api/subscriptions/export")
+async def export_subscriptions():
+    async with DB_LOCK:
+        conn = get_db_connection()
+        subscriptions = conn.execute("SELECT * FROM subscriptions").fetchall()
+        conn.close()
+
+    subscriptions_list = [dict(sub) for sub in subscriptions]
+    export_file = os.path.join(DB_DIR, "subscriptions_export.json")
+
+    with open(export_file, "w") as f:
+        json.dump(subscriptions_list, f, indent=4)
+
+    return FileResponse(
+        export_file,
+        media_type="application/json",
+        filename="subscriptions_export.json"
+    )
+
+@app.post("/api/subscriptions/import")
+async def import_subscriptions(file: UploadFile):
+    # Check if the uploaded file is JSON
+    if file.content_type != "application/json":
+        raise HTTPException(status_code=400, detail="Invalid file format. Please upload a JSON file.")
+
+    # Read and parse the uploaded file
+    contents = await file.read()
+    try:
+        subscriptions = json.loads(contents)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON format.")
+
+    # Validate and insert subscriptions into the database
+    async with DB_LOCK:
+        conn = get_db_connection()
+        for sub in subscriptions:
+            try:
+                # Validate data using the Subscription model
+                sub = {key.replace("due_date", "dueDate"): value for key, value in sub.items()}
+                subscription = Subscription(**sub)
+                print(subscription)
+                conn.execute(
+                    """
+                    INSERT INTO subscriptions
+                    (name, amount, due_date, icon, color, account, autopay, interval_value, interval_unit, notify, currency)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        subscription.name, subscription.amount, subscription.due_date, subscription.icon, subscription.color,
+                        subscription.account, int(subscription.autopay), subscription.interval_value, subscription.interval_unit,
+                        int(subscription.notify), subscription.currency or "default",
+                    ),
+                )
+            except Exception as e:
+                # Log or handle invalid entries (optional)
+                print(f"Skipping invalid subscription: {sub} - {e}")
+        conn.commit()
+        conn.close()
+
+    return {"message": "Subscriptions imported successfully"}
 
 # Table initialization
 def initialize_db():

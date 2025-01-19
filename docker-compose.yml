@@ -5,13 +5,17 @@ services:
       context: ./backend
     ports:
       - "5000:5000"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
 
   subscription-manager-frontend:
     build:
       context: ./frontend
       args:
-        REACT_APP_API_URL: http://your_ip_address:5000
+        REACT_APP_API_URL: http://your_id_address:5000
     ports:
       - "3000:3000"
     depends_on:
       - subscription-manager-backend
+    restart: unless-stopped

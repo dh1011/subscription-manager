@@ -34,3 +34,7 @@ temp
 build
 package-lock.json
 __pycache__
+
+docker-compose_dev.yml
+
+data

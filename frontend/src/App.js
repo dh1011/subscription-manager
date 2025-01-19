@@ -8,6 +8,7 @@ import Totals from './components/Totals';
 import ConfigurationModal from './components/ConfigurationModal.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
+import { Icon } from '@iconify-icon/react';
 import './App.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -49,6 +50,43 @@ function App() {
       setNtfyDomain(ntfyResponse.data.domain);
     } catch (error) {
       console.error('Error fetching configuration:', error);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/subscriptions/export`, {
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "subscriptions_export.json");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error exporting subscriptions:", error);
+      alert("Failed to export subscriptions. Please try again.");
+    }
+  };
+
+  const handleImport = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      await axios.post(`${API_BASE_URL}/api/subscriptions/import`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      alert("Subscriptions imported successfully.");
+      fetchSubscriptions(); // Refresh the list after import
+    } catch (error) {
+      console.error("Error importing subscriptions:", error);
+      alert("Failed to import subscriptions. Please check the file format.");
     }
   };
 
@@ -124,12 +162,30 @@ function App() {
     <div className="app">
       <div className="app-header">
         <h1>Subscription Manager</h1>
-        <button 
-          className="config-button" 
-          onClick={() => setIsConfigModalOpen(true)}
-        >
-          <FontAwesomeIcon icon={faCog} /> Settings
-        </button>
+        <div className="header-actions">
+          {/* Export Button */}
+          <button className="export-button" onClick={handleExport} data-label="Export">
+            <Icon icon="mdi:download" className="export-icon" />
+          </button>
+
+          {/* Import Button */}
+          <label className="import-button" data-label="Import">
+            <Icon icon="mdi:upload" className="import-icon" />
+            <input
+              type="file"
+              accept=".json"
+              onChange={handleImport}
+              className="import-input"
+            />
+          </label>
+          {/* Configuration Button */}
+          <button 
+            className="config-button" 
+            onClick={() => setIsConfigModalOpen(true)}
+          >
+            <FontAwesomeIcon icon={faCog} />
+          </button>
+        </div>
       </div>
       <CalendarGrid
         subscriptions={subscriptions}

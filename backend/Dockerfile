@@ -12,6 +12,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY . .
 
+# Ensure the data directory exists
+RUN mkdir -p /app/data
+
 # Expose the port
 EXPOSE 5000
 

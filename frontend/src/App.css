@@ -54,3 +54,47 @@ body {
   background-color: #03DAC6;
   color: #080808;
 }
+
+/* App.css */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.export-button,
+.import-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background-color: transparent;
+  border: 2px solid #03DAC6;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.export-button:hover,
+.import-button:hover {
+  background-color: #03DAC6;
+  color: #080808;
+}
+
+.export-icon,
+.import-icon {
+  font-size: 1.2em;
+  color: #03DAC6;
+  transition: color 0.3s ease;
+}
+
+.export-button:hover .export-icon,
+.import-button:hover .import-icon {
+  color: #080808;
+}
+
+.import-input {
+  display: none;
+}
