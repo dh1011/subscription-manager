@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  subscription-manager-backend:
+  backend:
     build:
       context: ./backend
     ports:
@@ -9,7 +9,7 @@ services:
       - ./data:/app/data
     restart: unless-stopped
 
-  subscription-manager-frontend:
+  frontend:
     build:
       context: ./frontend
       args:
