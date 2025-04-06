@@ -1,0 +1,98 @@
+.calendarContainer {
+  max-width: 100%;
+  margin: 0 0 20px 0;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.calendarDayHeader {
+  text-align: center;
+  font-weight: bold;
+  padding: 10px 0;
+  color: #fff;
+  font-size: 1.2em;
+}
+
+.calendarDay {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  padding: 10px;
+  cursor: pointer;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.calendarDay:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.calendarDay.empty {
+  background: transparent;
+  cursor: default;
+}
+
+.calendarDay.today {
+  background: rgba(3, 218, 198, 0.2);
+  border: 2px solid #03DAC6;
+}
+
+.dateNumber {
+  font-size: 1.2em;
+  margin-bottom: 5px;
+}
+
+.subscriptions {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.subscriptionIcon {
+  margin: 2px;
+  font-size: 1.5em;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .calendarGrid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+
+  .calendarDay {
+    min-height: 80px;
+    padding: 5px;
+  }
+
+  .dateNumber {
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendarGrid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+
+  .calendarDayHeader {
+    font-size: 0.8em;
+  }
+
+  .calendarDay {
+    min-height: 60px;
+    padding: 5px;
+  }
+
+  .dateNumber {
+    font-size: 0.9em;
+  }
+
+  .subscriptionIcon {
+    font-size: 1.2em;
+  }
+} 

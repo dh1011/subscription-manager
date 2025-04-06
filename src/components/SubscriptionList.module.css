@@ -1,0 +1,266 @@
+.subscriptionListContainer {
+  padding: 20px;
+  margin: 20px auto 0;
+  max-width: 1000px;
+  color: #fff;
+}
+
+.subscriptionListTitle {
+  font-size: 1.5em;
+  text-align: left;
+  margin: 0;
+  font-weight: 600;
+}
+
+.subscriptionTotal {
+  text-align: center;
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
+
+.subscriptionListGrid {
+  display: flex;
+  justify-content: center;
+}
+
+.subscriptionCard {
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+}
+
+.subscriptionCardContent {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.subscriptionCardContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.subscriptionCardContent::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.subscriptionCardContent::-webkit-scrollbar-thumb {
+  background: rgba(3, 218, 198, 0.3);
+  border-radius: 10px;
+}
+
+.subscriptionCardContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(3, 218, 198, 0.5);
+}
+
+.subscriptionList {
+  list-style: none;
+  padding: 0;
+}
+
+.subscriptionItem {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+.subscriptionItemCheckbox {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  margin-right: 15px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+  border: 2px solid #03DAC6;
+  border-radius: 4px;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.subscriptionItemCheckbox:checked {
+  background-color: #03DAC6;
+}
+
+.subscriptionItemCheckbox:checked::before {
+  content: '\2714';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  color: #121212;
+}
+
+.subscriptionItemCheckbox:hover {
+  border-color: #4ECDC4;
+}
+
+.subscriptionItemInfo {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+}
+
+.subscriptionItemIcon {
+  font-size: 1.5em;
+  margin-right: 15px;
+  color: #03DAC6;
+}
+
+.subscriptionItemName {
+  font-size: 1.2em;
+  margin: 0;
+  flex: 1;
+}
+
+.subscriptionItemAmount {
+  font-size: 0.8em;
+  color: #adadad;
+}
+
+.subscriptionItemActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+  flex: 1;
+  min-width: 150px;
+}
+
+.subscriptionItemActions button {
+  background: #2c2c2c;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  margin-left: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.deleteButton {
+  background: #E94560 !important;
+}
+
+.subscriptionItemActions button:hover {
+  opacity: 0.9;
+}
+
+.subscriptionItemDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 0.9em;
+  color: #ccc;
+  margin-top: 5px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.subscriptionItemDetailsRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.creditCardIcon {
+  margin-right: 5px;
+  color: #03DAC6;
+}
+
+.subscriptionItemIndicators {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+
+.autopayIndicator,
+.notifyIndicator,
+.subscriptionItemDueDateBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  margin: 2px 5px 2px 0;
+  white-space: nowrap;
+  height: 24px; /* Set a fixed height for all indicators */
+}
+
+.autopayIndicator {
+  background-color: rgba(3, 218, 198, 0.2);
+  color: #03DAC6;
+}
+
+.notifyIndicator {
+  background-color: rgba(255, 253, 107, 0.2);
+  color: #fffd6b;
+}
+
+.subscriptionItemDueDateBadge {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  order: -1; /* This will make the due date appear first */
+}
+
+.autopayIcon,
+.notifyIcon {
+  margin-right: 3px;
+}
+
+.subscriptionListControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.sortSelect {
+  background-color: #2c2c2c;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+.sortSelect:focus {
+  outline: none;
+  border-color: #03DAC6;
+}
+
+.subscriptionListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.currencySymbol {
+  margin-right: 2px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .subscriptionItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .subscriptionItemInfo,
+  .subscriptionItemDetails,
+  .subscriptionItemActions {
+    width: 100%;
+    margin-top: 10px;
+  }
+} 
