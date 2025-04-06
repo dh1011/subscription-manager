@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify-icon/react';
@@ -18,13 +18,17 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 `;
 
 const Title = styled.h2`
   margin: 0;
   font-size: 1.5rem;
   color: #fff;
+  
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+  }
 `;
 
 const Controls = styled.div`
@@ -42,14 +46,41 @@ const Select = styled.select`
   font-size: 0.9rem;
 `;
 
+const TagsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1.5rem;
+`;
+
 const List = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
 `;
 
+const ListContainer = styled.div<{ $maxHeight: string }>`
+  max-height: ${props => props.$maxHeight};
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
+`;
+
 const Item = styled(motion.li)`
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none;
   border-radius: 8px;
   padding: 10px;
   margin-bottom: 10px;
@@ -58,6 +89,9 @@ const Item = styled(motion.li)`
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  max-width: 95%;
+  margin-left: auto;
+  margin-right: auto;
 `;
 
 const ItemInfo = styled.div`
@@ -121,14 +155,21 @@ interface Props {
   onDelete: (id: number) => void;
   onToggleInclude: (id: number) => void;
   showCurrencySymbol: boolean;
+  onFilteredSubscriptionsChange?: (filteredSubscriptions: Subscription[]) => void;
+  onTagFilterChange?: (tags: string[]) => void;
+  maxHeight?: string;
 }
 
-function getNextDueDate(subscription: Subscription): Date {
-  const today = new Date();
-  if (!subscription.dueDate) {
-    return today;
+function getNextDueDate(subscription: Subscription): Date | null {
+  // Try due_date if dueDate is not available
+  const dueDateValue = subscription.dueDate || subscription.due_date;
+  
+  if (!dueDateValue) {
+    return null;
   }
-  let dueDate = parseISO(subscription.dueDate);
+  
+  const today = new Date();
+  let dueDate = parseISO(dueDateValue);
   const intervalValue = subscription.intervalValue ?? 1;
   const intervalUnit = subscription.intervalUnit ?? 'months';
 
@@ -159,9 +200,13 @@ export default function SubscriptionList({
   onEdit,
   onDelete,
   onToggleInclude,
-  showCurrencySymbol
+  showCurrencySymbol,
+  onFilteredSubscriptionsChange,
+  onTagFilterChange,
+  maxHeight = '400px'
 }: Props) {
-  const [sortBy, setSortBy] = useState<'dueDate' | 'creditCard' | 'amount'>('dueDate');
+  const [sortBy, setSortBy] = useState<'dueDate' | 'creditCard' | 'amount' | 'tags'>('dueDate');
+  const [tagFilters, setTagFilters] = useState<string[]>([]);
 
   const formatCurrency = (amount: number, currencyCode: string): string => {
     const code = currencyCode || 'USD';
@@ -174,14 +219,63 @@ export default function SubscriptionList({
     }
   };
 
-  const sortedSubscriptions = [...subscriptions].sort((a, b) => {
+  // Get all unique tags from subscriptions
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    subscriptions.forEach(sub => {
+      if (sub.tags && sub.tags.length > 0) {
+        sub.tags.forEach(tag => tagSet.add(tag));
+      }
+    });
+    return Array.from(tagSet).sort();
+  }, [subscriptions]);
+
+  // Toggle tag selection
+  const handleTagClick = (tag: string) => {
+    setTagFilters(prevTags => {
+      if (prevTags.includes(tag)) {
+        return prevTags.filter(t => t !== tag);
+      } else {
+        return [...prevTags, tag];
+      }
+    });
+  };
+
+  // Filter subscriptions by tags
+  const filteredSubscriptions = tagFilters.length > 0
+    ? subscriptions.filter(sub => 
+        sub.tags && sub.tags.some(tag => tagFilters.includes(tag))
+      )
+    : subscriptions;
+
+  // Notify parent about filtered subscriptions
+  useEffect(() => {
+    if (onFilteredSubscriptionsChange) {
+      onFilteredSubscriptionsChange(filteredSubscriptions);
+    }
+    if (onTagFilterChange) {
+      onTagFilterChange(tagFilters);
+    }
+  }, [filteredSubscriptions, onFilteredSubscriptionsChange, tagFilters, onTagFilterChange]);
+
+  const sortedSubscriptions = [...filteredSubscriptions].sort((a, b) => {
     switch (sortBy) {
       case 'dueDate':
-        return getNextDueDate(a).getTime() - getNextDueDate(b).getTime();
+        const dateA = getNextDueDate(a);
+        const dateB = getNextDueDate(b);
+        if (!dateA && !dateB) return 0;
+        if (!dateA) return 1; // null dates come last
+        if (!dateB) return -1;
+        // Use non-null assertion as we've checked both values are not null
+        return dateA!.getTime() - dateB!.getTime();
       case 'creditCard':
         return (a.account || '').localeCompare(b.account || '');
       case 'amount':
         return b.amount - a.amount;
+      case 'tags':
+        const aTags = a.tags?.join('') || '';
+        const bTags = b.tags?.join('') || '';
+        return aTags.localeCompare(bTags);
       default:
         return 0;
     }
@@ -201,128 +295,227 @@ export default function SubscriptionList({
             <option value="dueDate">Due Date</option>
             <option value="creditCard">Credit Card</option>
             <option value="amount">Amount</option>
+            <option value="tags">Tags</option>
           </Select>
         </Controls>
       </Header>
-      <List>
-        <AnimatePresence>
-          {sortedSubscriptions.map((sub) => (
-            <Item
-              key={sub.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
+      
+      {allTags.length > 0 && (
+        <TagsContainer>
+          {tagFilters.length > 0 && (
+            <Badge 
+              style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center',
+                padding: '3px 8px',
+                borderRadius: '12px',
+                fontSize: '0.8em',
+                margin: '2px 8px 2px 0',
+                cursor: 'pointer',
+                backgroundColor: '#333',
+                color: '#fff',
+                transition: 'all 0.2s ease',
+                boxShadow: 'none',
+              }}
+              onClick={() => setTagFilters([])}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.backgroundColor = '#444';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.backgroundColor = '#333';
+              }}
             >
-              <ItemInfo>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="checkbox"
-                    checked={sub.included}
-                    onChange={() => onToggleInclude(sub.id!)}
-                    style={{
-                      position: 'relative',
-                      width: '20px',
-                      height: '20px',
-                      marginRight: '15px',
-                      cursor: 'pointer',
-                      appearance: 'none',
-                      outline: 'none',
-                      border: '2px solid #03DAC6',
-                      borderRadius: '4px',
-                      backgroundColor: sub.included ? '#03DAC6' : 'transparent',
-                      transition: 'all 0.3s ease'
-                    }}
-                  />
-                  {sub.included && (
-                    <div style={{
-                      position: 'absolute',
-                      left: '6px',
-                      top: '2px',
-                      fontSize: '14px',
-                      color: '#121212',
-                      pointerEvents: 'none'
-                    }}>✓</div>
-                  )}
-                </div>
-                <Icon
-                  icon={`mdi:${sub.icon}`}
-                  style={{ color: sub.color, fontSize: '1.5em', marginRight: '15px' }}
-                />
-                <div>
-                  <p style={{ fontSize: '1.2em', margin: 0, color: '#fff' }}>{sub.name}</p>
-                  <p style={{ fontSize: '0.8em', margin: 0, color: '#adadad' }}>
-                    {formatCurrency(sub.amount, sub.currency)}/{sub.intervalValue} {sub.intervalUnit}
-                  </p>
-                </div>
-              </ItemInfo>
-              <ItemDetails>
-                <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: '5px' }}>
-                  <Icon icon="mdi:credit-card" style={{ marginRight: '5px', color: '#45B7D1' }} />
-                  <span style={{ color: '#ccc' }}>{sub.account || 'Not Specified'}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', marginTop: '5px' }}>
-                  <Badge style={{ 
-                    display: 'inline-flex', 
-                    alignItems: 'center',
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    fontSize: '0.8em',
-                    margin: '2px 5px 2px 0',
-                    whiteSpace: 'nowrap',
-                    height: '24px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    color: '#fff',
-                    order: -1
-                  }}>
-                    {format(getNextDueDate(sub), 'MMM d, yyyy')}
-                  </Badge>
-                  {Boolean(sub.autopay) && (
-                    <Badge style={{ 
-                      display: 'inline-flex', 
-                      alignItems: 'center',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      fontSize: '0.8em',
-                      margin: '2px 5px 2px 0',
-                      whiteSpace: 'nowrap',
-                      height: '24px',
-                      backgroundColor: 'rgba(69, 183, 209, 0.2)',
-                      color: '#45B7D1'
-                    }}>
-                      <Icon icon="mdi:auto-pay" style={{ marginRight: '3px' }} />
-                      Autopay
-                    </Badge>
-                  )}
-                  {Boolean(sub.notify) && (
-                    <Badge style={{ 
-                      display: 'inline-flex', 
-                      alignItems: 'center',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      fontSize: '0.8em',
-                      margin: '2px 5px 2px 0',
-                      whiteSpace: 'nowrap',
-                      height: '24px',
-                      backgroundColor: 'rgba(255, 253, 107, 0.2)',
-                      color: '#fffd6b'
-                    }}>
-                      <Icon icon="mdi:bell" style={{ marginRight: '3px' }} />
-                      Notify
-                    </Badge>
-                  )}
-                </div>
-              </ItemDetails>
-              <ItemActions>
-                <Button onClick={() => onEdit(sub)}>Edit</Button>
-                <Button variant="delete" onClick={() => onDelete(sub.id!)}>
-                  Delete
-                </Button>
-              </ItemActions>
-            </Item>
+              <Icon icon="mdi:close" style={{ marginRight: '4px' }} />
+              Clear All
+            </Badge>
+          )}
+          {allTags.map((tag, index) => (
+            <Badge 
+              key={index}
+              style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center',
+                padding: '3px 8px',
+                borderRadius: '12px',
+                fontSize: '0.8em',
+                margin: '2px 4px 2px 0',
+                cursor: 'pointer',
+                backgroundColor: tagFilters.includes(tag) 
+                  ? 'rgba(255, 140, 0, 0.8)' 
+                  : 'rgba(255, 140, 0, 0.2)',
+                color: tagFilters.includes(tag) ? '#fff' : '#FF8C00',
+                fontWeight: tagFilters.includes(tag) ? 'bold' : 'normal',
+                transition: 'all 0.2s ease',
+                boxShadow: 'none',
+              }}
+              onClick={() => handleTagClick(tag)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                if (!tagFilters.includes(tag)) {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 140, 0, 0.3)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.transform = 'translateY(0)';
+                if (!tagFilters.includes(tag)) {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 140, 0, 0.2)';
+                }
+              }}
+            >
+              {tag}
+            </Badge>
           ))}
-        </AnimatePresence>
-      </List>
+        </TagsContainer>
+      )}
+      <ListContainer $maxHeight={maxHeight}>
+        <List>
+          <AnimatePresence>
+            {sortedSubscriptions.map((sub) => (
+              <Item
+                key={sub.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ItemInfo>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="checkbox"
+                      checked={sub.included}
+                      onChange={() => onToggleInclude(sub.id!)}
+                      style={{
+                        width: '12px',
+                        height: '12px',
+                        cursor: 'pointer',
+                        appearance: 'none',
+                        outline: 'none',
+                        border: '2px solid #03DAC6',
+                        borderRadius: '50%',
+                        backgroundColor: sub.included ? '#03DAC6' : 'transparent',
+                      }}
+                    />
+                  </div>
+                  <Icon
+                    icon={`mdi:${sub.icon}`}
+                    style={{ color: sub.color, fontSize: '1.5em' }}
+                  />
+                  <div>
+                    <p style={{ fontSize: '1.2em', margin: 0, color: '#fff' }}>{sub.name}</p>
+                    <p style={{ fontSize: '0.8em', margin: 0, color: '#adadad' }}>
+                      {formatCurrency(sub.amount, sub.currency)}/{sub.intervalValue} {sub.intervalUnit}
+                    </p>
+                  </div>
+                </ItemInfo>
+                <ItemDetails>
+                  <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: '5px' }}>
+                    <Icon icon="mdi:credit-card" style={{ marginRight: '5px', color: '#45B7D1' }} />
+                    <span style={{ color: '#ccc' }}>{sub.account || 'Not Specified'}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', marginTop: '5px' }}>
+                    <Badge style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      fontSize: '0.8em',
+                      margin: '2px 5px 2px 0',
+                      whiteSpace: 'nowrap',
+                      height: '24px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      color: '#fff',
+                      order: -1
+                    }}>
+                      {(() => {
+                        const nextDueDate = getNextDueDate(sub);
+                        if (nextDueDate) {
+                          return format(nextDueDate, 'MMM d, yyyy');
+                        } else {
+                          return 'No due date';
+                        }
+                      })()}
+                    </Badge>
+                    {Boolean(sub.autopay) && (
+                      <Badge style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontSize: '0.8em',
+                        margin: '2px 5px 2px 0',
+                        whiteSpace: 'nowrap',
+                        height: '24px',
+                        backgroundColor: 'rgba(69, 183, 209, 0.2)',
+                        color: '#45B7D1'
+                      }}>
+                        <Icon icon="mdi:auto-pay" style={{ marginRight: '3px' }} />
+                        Autopay
+                      </Badge>
+                    )}
+                    {Boolean(sub.notify) && (
+                      <Badge style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontSize: '0.8em',
+                        margin: '2px 5px 2px 0',
+                        whiteSpace: 'nowrap',
+                        height: '24px',
+                        backgroundColor: 'rgba(255, 253, 107, 0.2)',
+                        color: '#fffd6b'
+                      }}>
+                        <Icon icon="mdi:bell" style={{ marginRight: '3px' }} />
+                        Notify
+                      </Badge>
+                    )}
+                  </div>
+                  {sub.tags && sub.tags.length > 0 && (
+                    <div style={{ 
+                      display: 'flex', 
+                      flexWrap: 'wrap', 
+                      marginTop: '4px', 
+                      width: '100%' 
+                    }}>
+                      {sub.tags.map((tag, index) => (
+                        <Badge 
+                          key={index}
+                          style={{ 
+                            display: 'inline-flex', 
+                            alignItems: 'center',
+                            padding: '1px 6px',
+                            borderRadius: '10px',
+                            fontSize: '0.7em',
+                            margin: '2px 4px 2px 0',
+                            whiteSpace: 'nowrap',
+                            height: '18px',
+                            backgroundColor: 'rgba(255, 140, 0, 0.2)',
+                            color: '#FF8C00'
+                          }}
+                        >
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </ItemDetails>
+                <ItemActions>
+                  <Button onClick={() => onEdit(sub)}>Edit</Button>
+                  <Button variant="delete" onClick={() => onDelete(sub.id!)}>
+                    Delete
+                  </Button>
+                </ItemActions>
+              </Item>
+            ))}
+          </AnimatePresence>
+        </List>
+      </ListContainer>
     </Container>
   );
 } 

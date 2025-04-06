@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './Totals.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
@@ -22,11 +22,23 @@ interface TotalsProps {
   subscriptions: AppSubscription[];
   currency: string;
   showCurrencySymbol: boolean;
+  selectedTags?: string[];
 }
 
-function Totals({ subscriptions, currency, showCurrencySymbol }: TotalsProps) {
+function Totals({ subscriptions, currency, showCurrencySymbol, selectedTags }: TotalsProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
   const [defaultCurrency, setDefaultCurrency] = useState(currency);
+
+  // Get all unique tags that are in the current subscription set
+  const currentTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    subscriptions.forEach(sub => {
+      if (sub.tags && sub.tags.length > 0) {
+        sub.tags.forEach(tag => tagSet.add(tag));
+      }
+    });
+    return Array.from(tagSet).sort();
+  }, [subscriptions]);
 
   // Update defaultCurrency if the prop changes
   useEffect(() => {
@@ -54,7 +66,7 @@ function Totals({ subscriptions, currency, showCurrencySymbol }: TotalsProps) {
       
       // Handle different property naming conventions
       const intervalValue = sub.interval_value 
-        ? parseInt(sub.interval_value) 
+        ? parseInt(String(sub.interval_value)) 
         : (sub.intervalValue || 1);
       
       const intervalUnit = sub.interval_unit || sub.intervalUnit || 'months';
@@ -138,7 +150,7 @@ function Totals({ subscriptions, currency, showCurrencySymbol }: TotalsProps) {
     
     // Handle different property naming conventions
     const intervalValue = sub.interval_value 
-      ? parseInt(sub.interval_value) 
+      ? parseInt(String(sub.interval_value)) 
       : (sub.intervalValue || 1);
     
     const intervalUnit = sub.interval_unit || sub.intervalUnit || 'months';
@@ -174,7 +186,38 @@ function Totals({ subscriptions, currency, showCurrencySymbol }: TotalsProps) {
 
   return (
     <div className="totals">
-      <h2>Summary</h2>
+      <h2>
+        Summary
+        {selectedTags && selectedTags.length > 0 && (
+          <div style={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            marginTop: '6px',
+            fontSize: '0.6em',
+            justifyContent: 'center',
+            width: '100%'
+          }}>
+            {selectedTags.map((tag, index) => (
+              <span 
+                key={index}
+                style={{
+                  display: 'inline-block',
+                  fontSize: '1em',
+                  marginRight: '4px',
+                  marginBottom: '4px',
+                  padding: '1px 5px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(255, 140, 0, 0.2)',
+                  color: '#FF8C00',
+                  fontWeight: 'normal',
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </h2>
       <div className="totals-grid">
         {(['week', 'month', 'year'] as const).map((period) => (
           <div

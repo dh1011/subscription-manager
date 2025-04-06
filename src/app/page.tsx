@@ -27,6 +27,8 @@ export default function Home() {
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | undefined>();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isLoading, setIsLoading] = useState(true);
+  const [filteredSubscriptions, setFilteredSubscriptions] = useState<Subscription[] | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -159,10 +161,72 @@ export default function Home() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const importedSubscriptions = JSON.parse(e.target?.result as string);
+        console.log("Imported data:", importedSubscriptions);
+        
+        // First update the UI state
         setSubscriptions(importedSubscriptions);
+        
+        // Then save each subscription to the database
+        const savePromises = importedSubscriptions.map(async (sub: any) => {
+          // Copy dates explicitly
+          const dueDate = sub.dueDate || sub.due_date;
+          
+          // Prepare subscription with proper types
+          const newSub = {
+            name: sub.name,
+            amount: Number(sub.amount),
+            due_date: sub.due_date,
+            dueDate: dueDate,
+            icon: sub.icon || "",
+            color: sub.color || "",
+            account: sub.account || "",
+            autopay: Boolean(sub.autopay),
+            interval_value: Number(sub.interval_value || 1),
+            interval_unit: sub.interval_unit || "months",
+            intervalValue: Number(sub.interval_value || sub.intervalValue || 1),
+            intervalUnit: sub.intervalUnit || sub.interval_unit || "months",
+            notify: Boolean(sub.notify),
+            currency: sub.currency || userConfig.currency,
+            tags: Array.isArray(sub.tags) ? sub.tags : [],
+            included: sub.included !== undefined ? Boolean(sub.included) : true
+          };
+          
+          console.log("Saving subscription with due date:", newSub.due_date);
+          
+          const response = await fetch('/api/subscriptions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newSub),
+          });
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`API error: ${errorText}`);
+            throw new Error(`Failed to save subscription: ${sub.name}`);
+          }
+          
+          const savedSub = await response.json();
+          console.log("Saved subscription:", savedSub);
+          return savedSub;
+        });
+        
+        try {
+          // Wait for all subscriptions to be saved
+          const savedSubscriptions = await Promise.all(savePromises);
+          
+          // Update the state with the saved subscriptions that now have database IDs
+          setSubscriptions(savedSubscriptions);
+          
+          alert(`Successfully imported ${savedSubscriptions.length} subscriptions.`);
+        } catch (error) {
+          console.error('Error in Promise.all:', error);
+          alert('Some subscriptions failed to import. Check console for details.');
+        }
       } catch (error) {
         console.error('Error importing subscriptions:', error);
         alert('Failed to import subscriptions. Please check the file format.');
@@ -232,7 +296,7 @@ export default function Home() {
   return (
     <div className="app">
       <div className="app-header">
-        <h1>Subscription Manager</h1>
+        <h1 className="app-title">Subscription Manager</h1>
         <div className="header-actions">
           {/* Export Button */}
           <button className="export-button" onClick={handleExport} data-label="Export">
@@ -275,11 +339,14 @@ export default function Home() {
           onDelete={handleDeleteSubscription}
           onToggleInclude={handleToggleInclude}
           showCurrencySymbol={userConfig.showCurrencySymbol}
+          onFilteredSubscriptionsChange={(filteredSubs) => setFilteredSubscriptions(filteredSubs)}
+          onTagFilterChange={(tags) => setSelectedTags(tags)}
         />
         <Totals 
-          subscriptions={subscriptions}
+          subscriptions={filteredSubscriptions || subscriptions}
           currency={userConfig.currency}
           showCurrencySymbol={userConfig.showCurrencySymbol}
+          selectedTags={selectedTags}
         />
       </div>
       {isModalOpen && (

@@ -147,6 +147,22 @@
   .account-total-card {
     margin-bottom: 10px;
   }
+  
+  .totals h2 {
+    font-size: 1.4em;
+  }
+  
+  .total-card h3 {
+    font-size: 1.2em;
+  }
+  
+  .account-total-card h3 {
+    font-size: 1em;
+  }
+  
+  .detail-summaries-title {
+    font-size: 1.4em;
+  }
 }
 
 .detail-summaries-title {

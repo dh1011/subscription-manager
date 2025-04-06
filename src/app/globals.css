@@ -31,8 +31,8 @@ code {
 
 .app {
   max-width: 1000px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 15px auto 0;
+  padding: 0px;
   font-family: var(--font-poppins), sans-serif;
   color: #fff;
   min-height: 100vh;
@@ -140,7 +140,6 @@ code {
 .content-container {
   max-width: 100%;
   margin: 0;
-  padding: 2rem;
   flex: 1;
 }
 
@@ -167,10 +166,24 @@ code {
   background: var(--primary-hover);
 }
 
+.app-title {
+  font-size: 2em;
+  margin: 0;
+  text-align: left;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .app-header {
     padding: 1rem;
+  }
+
+  .app-header h1 {
+    font-size: 1.5em;
+  }
+  
+  .app-title {
+    font-size: 1.5em;
   }
 
   .content-container {
@@ -183,5 +196,14 @@ code {
     font-size: 1.5rem;
     bottom: 1rem;
     right: 1rem;
+  }
+  
+  /* Make component headings smaller on mobile */
+  h2 {
+    font-size: 1.2rem !important;
+  }
+  
+  h3 {
+    font-size: 1rem !important;
   }
 } 

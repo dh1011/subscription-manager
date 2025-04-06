@@ -41,6 +41,8 @@ export default function SubscriptionModal({
   const [intervalUnit, setIntervalUnit] = useState('months');
   const [notify, setNotify] = useState(false);
   const [currency, setCurrency] = useState(defaultCurrency);
+  const [tagInput, setTagInput] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (selectedSubscription) {
@@ -61,6 +63,8 @@ export default function SubscriptionModal({
       setIntervalUnit(selectedSubscription.intervalUnit || selectedSubscription.interval_unit || 'months');
       setNotify(selectedSubscription.notify);
       setCurrency(selectedSubscription.currency);
+      setTags(selectedSubscription.tags || []);
+      setTagInput(selectedSubscription.tags ? selectedSubscription.tags.join(', ') : '');
     } else {
       if (selectedDate) {
         setDueDate(selectedDate);
@@ -70,6 +74,8 @@ export default function SubscriptionModal({
       setIntervalUnit('months');
       setAccount('');
       setCurrency(defaultCurrency);
+      setTags([]);
+      setTagInput('');
     }
   }, [selectedSubscription, selectedDate, defaultCurrency]);
 
@@ -89,6 +95,7 @@ export default function SubscriptionModal({
         intervalUnit: intervalUnit || 'months',
         notify,
         currency: currency === defaultCurrency ? 'default' : currency,
+        tags
       };
       onSave(subscription);
       onClose();
@@ -100,6 +107,17 @@ export default function SubscriptionModal({
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIconInput(e.target.value);
     setIcon(e.target.value.toLowerCase());
+  };
+
+  const handleTagChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTagInput(e.target.value);
+    // Update tags when the input changes, split by commas and trim whitespace
+    if (e.target.value.trim()) {
+      const tagArray = e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+      setTags(tagArray);
+    } else {
+      setTags([]);
+    }
   };
 
   const formatDate = (date: Date | null) => {
@@ -242,6 +260,31 @@ export default function SubscriptionModal({
                 </option>
               ))}
             </select>
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="tags">Tags (comma separated)</label>
+            <input
+              id="tags"
+              type="text"
+              value={tagInput}
+              onChange={handleTagChange}
+              placeholder="e.g. streaming, entertainment, monthly"
+            />
+            {tags.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '8px', gap: '4px' }}>
+                {tags.map((tag, index) => (
+                  <span key={index} style={{
+                    backgroundColor: 'rgba(255, 140, 0, 0.2)',
+                    color: '#FF8C00',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    fontSize: '0.8em'
+                  }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <div className={styles.modalActions}>
             <button type="submit" className={styles.submitButton}>

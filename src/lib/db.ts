@@ -44,7 +44,8 @@ export async function initializeDb() {
       interval_value INTEGER NOT NULL DEFAULT 1,
       interval_unit TEXT NOT NULL,
       notify INTEGER NOT NULL DEFAULT 0,
-      currency TEXT DEFAULT 'default'
+      currency TEXT DEFAULT 'default',
+      tags TEXT
     )
   `);
 

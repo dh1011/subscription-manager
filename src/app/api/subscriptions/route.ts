@@ -15,7 +15,8 @@ export async function GET() {
     const result = subscriptions.map(sub => ({
       ...sub,
       currency: sub.currency === 'default' ? defaultCurrency : sub.currency,
-      showCurrencySymbol
+      showCurrencySymbol,
+      tags: sub.tags ? JSON.parse(sub.tags) : []
     }));
 
     return NextResponse.json(result);
@@ -36,8 +37,8 @@ export async function POST(request: Request) {
     const result = await db.run(
       `INSERT INTO subscriptions (
         name, amount, due_date, icon, color, account, autopay,
-        interval_value, interval_unit, notify, currency
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        interval_value, interval_unit, notify, currency, tags
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         subscription.name,
         subscription.amount,
@@ -49,7 +50,8 @@ export async function POST(request: Request) {
         subscription.intervalValue,
         subscription.intervalUnit,
         subscription.notify ? 1 : 0,
-        subscription.currency || 'default'
+        subscription.currency || 'default',
+        subscription.tags ? JSON.stringify(subscription.tags) : null
       ]
     );
 
@@ -64,7 +66,8 @@ export async function POST(request: Request) {
     const finalSubscription = {
       ...newSubscription,
       currency: newSubscription.currency === 'default' ? defaultCurrency : newSubscription.currency,
-      showCurrencySymbol
+      showCurrencySymbol,
+      tags: newSubscription.tags ? JSON.parse(newSubscription.tags) : []
     };
 
     return NextResponse.json(finalSubscription);

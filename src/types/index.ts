@@ -20,6 +20,7 @@ export interface Subscription {
   notify: boolean;
   currency: string;
   included?: boolean;
+  tags?: string[];
 }
 
 export interface NtfySettings {
