@@ -1,19 +1,9 @@
 version: "3.9"
 services:
-  backend:
-    image: dh1011/subscription-manager-backend:2.0.0
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./data:/app/data
-    restart: unless-stopped
-
-  frontend:
-    image: dh1011/subscription-manager-frontend:2.0.0
+  app:
+    image: dh1011/subscription-manager:3.0.0
     ports:
       - "3000:3000"
-    environment:
-      - REACT_APP_API_URL=http://your_id_address:5000
-    depends_on:
-      - backend
+    volumes:
+      - ./data:/app/data
     restart: unless-stopped
