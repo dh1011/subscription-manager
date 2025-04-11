@@ -5,6 +5,7 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,14 +14,18 @@
 }
 
 .modalContainer {
-  background: #1e1e1e;
+  background: rgba(30, 30, 30, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   padding: 30px;
   width: 100%;
   max-width: 500px;
-  border-radius: 10px;
+  border-radius: 16px;
   color: #fff;
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .modalContainer h2 {
@@ -28,13 +33,16 @@
   font-size: 2em;
   color: #fff;
   padding-bottom: 10px;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   margin-bottom: 20px;
+  font-family: var(--font-heading), sans-serif;
+  letter-spacing: 0.5px;
 }
 
 .modalForm {
   display: flex;
   flex-direction: column;
+  font-family: var(--font-primary), sans-serif;
 }
 
 .configSection {
@@ -43,8 +51,9 @@
 
 .configSection h3 {
   font-size: 1.2em;
-  color: #03DAC6;
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 10px;
+  font-family: var(--font-heading), sans-serif;
 }
 
 .formGroup {
@@ -56,16 +65,26 @@
   color: #ccc;
   margin-bottom: 5px;
   display: block;
+  font-family: var(--font-primary), sans-serif;
 }
 
 .formGroup input,
 .formGroup select {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #444;
-  border-radius: 5px;
-  background-color: #2c2c2c;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background-color: rgba(44, 44, 44, 0.7);
   color: #fff;
+  font-family: var(--font-primary), sans-serif;
+  transition: all 0.3s ease;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+  outline: none;
 }
 
 .formGroup select {
@@ -76,45 +95,53 @@
 .modalActions {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 .submitButton,
 .cancelButton {
-  padding: 10px 20px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 1em;
+  font-family: var(--font-primary), sans-serif;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 .submitButton {
-  background: #03DAC6;
-  color: #000;
+  background: #ffffff;
+  color: #111;
 }
 
 .cancelButton {
-  background: #444;
+  background: rgba(68, 68, 68, 0.8);
+  backdrop-filter: blur(4px);
   color: #fff;
 }
 
 .modalActions button:hover {
-  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .testButton {
-  background: #BB86FC;
-  color: #000;
-  padding: 10px 20px;
+  background: #aaaaaa;
+  color: #111;
+  padding: 12px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 1em;
+  font-family: var(--font-primary), sans-serif;
   margin-top: 10px;
+  transition: all 0.3s ease;
 }
 
 .testButton:hover {
-  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .testStatus {
@@ -123,11 +150,11 @@
 }
 
 .success {
-  color: #4CAF50;
+  color: #ffffff;
 }
 
 .error {
-  color: #F44336;
+  color: #cccccc;
 }
 
 .switchLabel {
@@ -174,9 +201,31 @@
 }
 
 input:checked + .toggleSlider {
-  background-color: #45B7D1;
+  background-color: #ffffff;
 }
 
 input:checked + .toggleSlider:before {
   transform: translateX(18px);
+}
+
+.backgroundPreview {
+  margin-top: 15px;
+  width: 100%;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.backgroundPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.backgroundPreview:hover img {
+  transform: scale(1.05);
 } 

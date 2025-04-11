@@ -82,13 +82,25 @@ function NtfySettingsModal({ isOpen, onClose }: NtfySettingsModalProps) {
             />
           </div>
           <div className={styles.modalActions}>
-            <button type="submit" className={styles.submitButton}>
+            <button 
+              type="submit" 
+              className={`${styles.button} ${styles.primary}`}
+            >
               Save
             </button>
-            <button type="button" onClick={testNtfyTopic} className={styles.testButton}>
+            <button 
+              type="button" 
+              onClick={testNtfyTopic} 
+              className={`${styles.button} ${styles.primary}`}
+              style={{ backgroundColor: '#BB86FC' }}
+            >
               Test
             </button>
-            <button type="button" onClick={onClose} className={styles.cancelButton}>
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className={`${styles.button} ${styles.secondary}`}
+            >
               Cancel
             </button>
           </div>

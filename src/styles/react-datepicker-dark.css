@@ -42,7 +42,7 @@
 .dark-theme-calendar .react-datepicker__month-text--selected,
 .dark-theme-calendar .react-datepicker__quarter-text--selected,
 .dark-theme-calendar .react-datepicker__year-text--selected {
-  background-color: #03DAC6;
+  background-color: rgba(255, 255, 255, 0.8);
   color: #000;
 }
 
@@ -81,13 +81,13 @@
 }
 
 .react-datepicker__day:hover {
-  background-color: #45B7D1;
+  background-color: rgba(255, 255, 255, 0.5);
   color: #000;
 }
 
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
-  background-color: #03DAC6;
+  background-color: rgba(255, 255, 255, 0.8);
   color: #000;
 }
 

@@ -26,7 +26,8 @@ export async function initializeDb() {
     CREATE TABLE IF NOT EXISTS user_configuration (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       currency TEXT NOT NULL,
-      show_currency_symbol INTEGER NOT NULL DEFAULT 1
+      show_currency_symbol INTEGER NOT NULL DEFAULT 1,
+      background_url TEXT
     )
   `);
 
@@ -62,8 +63,8 @@ export async function initializeDb() {
   const config = await db.get('SELECT * FROM user_configuration LIMIT 1');
   if (!config) {
     await db.run(
-      'INSERT INTO user_configuration (currency, show_currency_symbol) VALUES (?, ?)',
-      ['USD', 1]
+      'INSERT INTO user_configuration (currency, show_currency_symbol, background_url) VALUES (?, ?, ?)',
+      ['USD', 1, 'https://cdn.midjourney.com/1f46fbfe-102d-49d8-aa96-b54f1ea9a19a/0_0.png']
     );
   }
 

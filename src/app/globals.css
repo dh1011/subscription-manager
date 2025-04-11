@@ -1,9 +1,12 @@
 :root {
-  --primary-color: #03DAC6;
-  --primary-hover: #03DAC6;
-  --background-color: #080808;
+  --primary-color: #ffffff;
+  --primary-hover: #e0e0e0;
+  --background-color: #121221;
   --text-color: #ffffff;
   --border-color: #333333;
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-bg: rgba(30, 30, 30, 0.4);
+  --glass-shadow: rgba(0, 0, 0, 0.2);
 }
 
 * {
@@ -14,13 +17,15 @@
 
 body {
   margin: 0;
-  font-family: var(--font-poppins), sans-serif;
+  font-family: var(--font-primary), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--background-color);
-  background-image: url('https://www.transparenttextures.com/patterns/cartographer.png');
-  background-repeat: repeat;
-  background-size: 300px 300px;
+  background-image: url('https://cdn.midjourney.com/1f46fbfe-102d-49d8-aa96-b54f1ea9a19a/0_0.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text-color);
 }
 
@@ -33,7 +38,7 @@ code {
   max-width: 1000px;
   margin: 15px auto 0;
   padding: 0px;
-  font-family: var(--font-poppins), sans-serif;
+  font-family: var(--font-primary), sans-serif;
   color: #fff;
   min-height: 100vh;
   display: flex;
@@ -48,14 +53,15 @@ code {
 
 .app h1 {
   text-align: center;
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: var(--font-heading), sans-serif;
 }
 
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  position: relative;
 }
 
 .app-header h1 {
@@ -64,63 +70,164 @@ code {
   font-size: 2em;
 }
 
-.config-button {
-  background: none;
-  border: 2px solid #03DAC6;
-  border-radius: 5px;
-  color: #03DAC6;
-  font-size: 1em;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.config-button:hover {
-  background-color: #03DAC6;
-  color: #080808;
-}
-
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
 }
 
-.export-button,
-.import-button {
+/* Common styles for all header buttons */
+.header-button {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
-  background-color: transparent;
-  border: 2px solid #03DAC6;
-  border-radius: 50%;
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 12px var(--glass-shadow);
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.export-button:hover,
+.header-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.header-button:hover::before {
+  opacity: 1;
+}
+
+.header-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.header-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Specific styles for each button type */
+.export-button,
+.import-button,
+.config-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  position: relative;
+  isolation: isolate;
+}
+
+.export-button {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+}
+
+.export-button::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.export-button:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.import-button {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+}
+
+.import-button::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+}
+
 .import-button:hover {
-  background-color: #03DAC6;
-  color: #080808;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-.export-icon,
-.import-icon {
-  font-size: 1.2em;
-  color: #03DAC6;
-  transition: color 0.3s ease;
+.config-button {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
 }
 
-.export-button:hover .export-icon,
-.import-button:hover .import-icon {
-  color: #080808;
+.config-button::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
 }
 
+.config-button:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Icon styles */
+.export-button svg {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.4em;
+}
+
+.import-button svg {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.4em;
+}
+
+.config-button svg {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.4em;
+}
+
+.header-button svg,
+.header-button i {
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.header-button:hover svg,
+.header-button:hover i {
+  transform: scale(1.15);
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+}
+
+/* Label tooltip for buttons */
+.header-button::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+  font-family: var(--font-primary), sans-serif;
+}
+
+.header-button:hover::after {
+  opacity: 1;
+}
+
+.import-input {
+  display: none;
+}
+
+/* Calendar styles */
 .react-calendar {
   border: none;
 }
@@ -131,10 +238,6 @@ code {
 
 .react-calendar__tile {
   max-width: initial !important;
-}
-
-.import-input {
-  display: none;
 }
 
 .content-container {
@@ -150,8 +253,8 @@ code {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: var(--primary-color);
-  color: white;
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(18, 18, 33, 0.9);
   border: none;
   font-size: 2rem;
   cursor: pointer;
@@ -159,11 +262,13 @@ code {
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .add-button:hover {
-  background: var(--primary-hover);
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 .app-title {

@@ -10,8 +10,8 @@ import { Subscription } from '@/types';
 
 const Container = styled.div`
   background: transparent;
-  border-radius: 12px;
-  padding: 1.5rem;
+  border-radius: 0;
+  padding: 0;
 `;
 
 const Header = styled.div`
@@ -19,16 +19,7 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
-`;
-
-const Title = styled.h2`
-  margin: 0;
-  font-size: 1.5rem;
-  color: #fff;
-  
-  @media (max-width: 768px) {
-    font-size: 1.2rem;
-  }
+  width: 100%;
 `;
 
 const Controls = styled.div`
@@ -38,19 +29,27 @@ const Controls = styled.div`
 `;
 
 const Select = styled.select`
-  padding: 0.5rem;
-  border: 1px solid #444;
-  border-radius: 4px;
-  background: #2c2c2c;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(30, 30, 45, 0.4);
   color: #fff;
   font-size: 0.9rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  
+  option {
+    background-color: rgba(30, 30, 45, 0.8);
+    color: white;
+  }
 `;
 
 const TagsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  margin-bottom: 1.5rem;
+  flex: 1;
 `;
 
 const List = styled.ul`
@@ -81,72 +80,103 @@ const ListContainer = styled.div<{ $maxHeight: string }>`
 
 const Item = styled(motion.li)`
   border: none;
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0;
+  padding: 10px 5px;
+  margin-bottom: 0;
+  background: transparent;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  max-width: 95%;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
+  transition: all 0.4s ease;
+  gap: 10px;
+  
+  &:hover {
+    transform: translateY(-3px);
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 
 const ItemInfo = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
-  flex: 1;
-  min-width: 200px;
+  gap: 0.7rem;
+  flex: 0 0 auto;
+  min-width: 180px;
+  max-width: 30%;
 `;
 
 const ItemDetails = styled.div`
-  margin-top: 5px;
+  margin-top: 3px;
   padding-top: 0;
   border-top: none;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  font-size: 0.9em;
-  color: #ccc;
-  flex: 1;
-  min-width: 200px;
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.9);
+  flex: 1 1 auto;
+  margin-left: 0;
+  min-width: 180px;
 `;
 
 const ItemActions = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
-  margin-top: 10px;
-  flex: 1;
-  min-width: 150px;
+  margin-top: 0;
+  flex: 0 0 auto;
+  min-width: auto;
+  margin-left: auto;
 `;
 
 const Button = styled.button<{ variant?: 'delete' }>`
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
   cursor: pointer;
-  background: ${props => props.variant === 'delete' ? '#E94560' : '#2c2c2c'};
-  color: white;
+  background: ${props => props.variant === 'delete' ? 'rgba(255, 255, 255, 0.2)' : 'transparent'};
+  color: ${props => props.variant === 'delete' ? 'rgba(255, 255, 255, 0.9)' : 'white'};
   margin-left: 5px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
 
   &:hover {
-    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
   }
 `;
 
 const Badge = styled.span`
-  background: rgba(255, 255, 255, 0.1);
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  background: transparent;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: 0.7rem;
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  color: #fff;
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  margin: 0 4px 0 0;
+  height: 18px;
+  white-space: nowrap;
 `;
 
 interface Props {
@@ -205,7 +235,7 @@ export default function SubscriptionList({
   onTagFilterChange,
   maxHeight = '400px'
 }: Props) {
-  const [sortBy, setSortBy] = useState<'dueDate' | 'creditCard' | 'amount' | 'tags'>('dueDate');
+  const [sortBy, setSortBy] = useState<'name' | 'dueDate' | 'amount'>('dueDate');
   const [tagFilters, setTagFilters] = useState<string[]>([]);
 
   const formatCurrency = (amount: number, currencyCode: string): string => {
@@ -260,6 +290,8 @@ export default function SubscriptionList({
 
   const sortedSubscriptions = [...filteredSubscriptions].sort((a, b) => {
     switch (sortBy) {
+      case 'name':
+        return (a.name || '').localeCompare(b.name || '');
       case 'dueDate':
         const dateA = getNextDueDate(a);
         const dateB = getNextDueDate(b);
@@ -268,14 +300,8 @@ export default function SubscriptionList({
         if (!dateB) return -1;
         // Use non-null assertion as we've checked both values are not null
         return dateA!.getTime() - dateB!.getTime();
-      case 'creditCard':
-        return (a.account || '').localeCompare(b.account || '');
       case 'amount':
         return b.amount - a.amount;
-      case 'tags':
-        const aTags = a.tags?.join('') || '';
-        const bTags = b.tags?.join('') || '';
-        return aTags.localeCompare(bTags);
       default:
         return 0;
     }
@@ -284,23 +310,6 @@ export default function SubscriptionList({
   return (
     <Container>
       <Header>
-        <Title>Subscriptions List</Title>
-        <Controls>
-          <label htmlFor="sort-select">Sort by: </label>
-          <Select
-            id="sort-select"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-          >
-            <option value="dueDate">Due Date</option>
-            <option value="creditCard">Credit Card</option>
-            <option value="amount">Amount</option>
-            <option value="tags">Tags</option>
-          </Select>
-        </Controls>
-      </Header>
-      
-      {allTags.length > 0 && (
         <TagsContainer>
           {tagFilters.length > 0 && (
             <Badge 
@@ -312,28 +321,30 @@ export default function SubscriptionList({
                 fontSize: '0.8em',
                 margin: '2px 8px 2px 0',
                 cursor: 'pointer',
-                backgroundColor: '#333',
-                color: '#fff',
-                transition: 'all 0.2s ease',
-                boxShadow: 'none',
+                background: 'transparent',
+                color: 'rgba(255, 255, 255, 0.9)',
+                transition: 'all 0.3s ease',
+                border: '1px solid rgba(255, 255, 255, 0.18)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
               }}
               onClick={() => setTagFilters([])}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.backgroundColor = '#444';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                e.currentTarget.style.transform = 'translateY(-3px)';
+                e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.3)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.boxShadow = 'none';
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.backgroundColor = '#333';
+                e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.18)';
               }}
             >
               <Icon icon="mdi:close" style={{ marginRight: '4px' }} />
               Clear All
             </Badge>
           )}
-          {allTags.map((tag, index) => (
+          {allTags.length > 0 && allTags.map((tag, index) => (
             <Badge 
               key={index}
               style={{ 
@@ -344,35 +355,50 @@ export default function SubscriptionList({
                 fontSize: '0.8em',
                 margin: '2px 4px 2px 0',
                 cursor: 'pointer',
-                backgroundColor: tagFilters.includes(tag) 
-                  ? 'rgba(255, 140, 0, 0.8)' 
-                  : 'rgba(255, 140, 0, 0.2)',
-                color: tagFilters.includes(tag) ? '#fff' : '#FF8C00',
+                background: 'transparent',
+                color: tagFilters.includes(tag) ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.9)',
                 fontWeight: tagFilters.includes(tag) ? 'bold' : 'normal',
-                transition: 'all 0.2s ease',
-                boxShadow: 'none',
+                transition: 'all 0.3s ease',
+                border: tagFilters.includes(tag) 
+                  ? '1px solid rgba(255, 255, 255, 0.5)' 
+                  : '1px solid rgba(255, 255, 255, 0.18)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                boxShadow: tagFilters.includes(tag) 
+                  ? '0 0 15px rgba(255, 255, 255, 0.2)' 
+                  : 'none',
               }}
               onClick={() => handleTagClick(tag)}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                if (!tagFilters.includes(tag)) {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 140, 0, 0.3)';
-                }
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                e.currentTarget.style.transform = 'translateY(-3px)';
+                e.currentTarget.style.border = tagFilters.includes(tag)
+                  ? '1px solid rgba(255, 255, 255, 0.7)'
+                  : '1px solid rgba(255, 255, 255, 0.3)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.boxShadow = tagFilters.includes(tag) 
+                  ? '0 0 15px rgba(255, 255, 255, 0.2)' 
+                  : 'none';
                 e.currentTarget.style.transform = 'translateY(0)';
-                if (!tagFilters.includes(tag)) {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 140, 0, 0.2)';
-                }
+                e.currentTarget.style.border = tagFilters.includes(tag)
+                  ? '1px solid rgba(255, 255, 255, 0.5)'
+                  : '1px solid rgba(255, 255, 255, 0.18)';
               }}
             >
               {tag}
             </Badge>
           ))}
         </TagsContainer>
-      )}
+        <Controls>
+          <Select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}>
+            <option value="name">Name</option>
+            <option value="amount">Amount</option>
+            <option value="dueDate">Due Date</option>
+          </Select>
+        </Controls>
+      </Header>
+      
       <ListContainer $maxHeight={maxHeight}>
         <List>
           <AnimatePresence>
@@ -391,47 +417,35 @@ export default function SubscriptionList({
                       checked={sub.included}
                       onChange={() => onToggleInclude(sub.id!)}
                       style={{
-                        width: '12px',
-                        height: '12px',
+                        width: '10px',
+                        height: '10px',
                         cursor: 'pointer',
                         appearance: 'none',
                         outline: 'none',
-                        border: '2px solid #03DAC6',
+                        border: '2px solid rgba(255, 255, 255, 0.7)',
                         borderRadius: '50%',
-                        backgroundColor: sub.included ? '#03DAC6' : 'transparent',
+                        backgroundColor: sub.included ? 'rgba(255, 255, 255, 0.7)' : 'transparent',
                       }}
                     />
                   </div>
                   <Icon
                     icon={`mdi:${sub.icon}`}
-                    style={{ color: sub.color, fontSize: '1.5em' }}
+                    style={{ color: sub.color, fontSize: '1.2em' }}
                   />
                   <div>
-                    <p style={{ fontSize: '1.2em', margin: 0, color: '#fff' }}>{sub.name}</p>
-                    <p style={{ fontSize: '0.8em', margin: 0, color: '#adadad' }}>
-                      {formatCurrency(sub.amount, sub.currency)}/{sub.intervalValue} {sub.intervalUnit}
+                    <p style={{ fontSize: '1em', margin: 0, color: 'rgba(255, 255, 255, 0.9)' }}>{sub.name}</p>
+                    <p style={{ fontSize: '0.75em', margin: 0, color: 'rgba(255, 255, 255, 0.6)' }}>
+                      {formatCurrency(sub.amount, sub.currency)}
                     </p>
                   </div>
                 </ItemInfo>
                 <ItemDetails>
-                  <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: '5px' }}>
-                    <Icon icon="mdi:credit-card" style={{ marginRight: '5px', color: '#45B7D1' }} />
-                    <span style={{ color: '#ccc' }}>{sub.account || 'Not Specified'}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: '3px' }}>
+                    <Icon icon="mdi:credit-card" style={{ marginRight: '5px', color: 'rgba(255, 255, 255, 0.9)', fontSize: '0.9em' }} />
+                    <span style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.85em' }}>{sub.account || 'Not Specified'}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', marginTop: '5px' }}>
-                    <Badge style={{ 
-                      display: 'inline-flex', 
-                      alignItems: 'center',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      fontSize: '0.8em',
-                      margin: '2px 5px 2px 0',
-                      whiteSpace: 'nowrap',
-                      height: '24px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                      color: '#fff',
-                      order: -1
-                    }}>
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+                    <Badge style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
                       {(() => {
                         const nextDueDate = getNextDueDate(sub);
                         if (nextDueDate) {
@@ -442,73 +456,36 @@ export default function SubscriptionList({
                       })()}
                     </Badge>
                     {Boolean(sub.autopay) && (
-                      <Badge style={{ 
-                        display: 'inline-flex', 
-                        alignItems: 'center',
-                        padding: '2px 8px',
-                        borderRadius: '12px',
-                        fontSize: '0.8em',
-                        margin: '2px 5px 2px 0',
-                        whiteSpace: 'nowrap',
-                        height: '24px',
-                        backgroundColor: 'rgba(69, 183, 209, 0.2)',
-                        color: '#45B7D1'
-                      }}>
-                        <Icon icon="mdi:auto-pay" style={{ marginRight: '3px' }} />
-                        Autopay
+                      <Badge style={{ color: 'rgba(255, 255, 255, 0.9)', border: '1px solid rgba(255, 255, 255, 0.4)' }}>
+                        <Icon icon="mdi:auto-pay" style={{ marginRight: '2px', fontSize: '0.9em' }} />
+                        Auto
                       </Badge>
                     )}
                     {Boolean(sub.notify) && (
-                      <Badge style={{ 
-                        display: 'inline-flex', 
-                        alignItems: 'center',
-                        padding: '2px 8px',
-                        borderRadius: '12px',
-                        fontSize: '0.8em',
-                        margin: '2px 5px 2px 0',
-                        whiteSpace: 'nowrap',
-                        height: '24px',
-                        backgroundColor: 'rgba(255, 253, 107, 0.2)',
-                        color: '#fffd6b'
-                      }}>
-                        <Icon icon="mdi:bell" style={{ marginRight: '3px' }} />
+                      <Badge style={{ color: 'rgba(255, 255, 255, 0.9)', border: '1px solid rgba(255, 255, 255, 0.4)' }}>
+                        <Icon icon="mdi:bell" style={{ marginRight: '2px', fontSize: '0.9em' }} />
                         Notify
                       </Badge>
                     )}
+                    {sub.tags && sub.tags.length > 0 && sub.tags.map((tag, index) => (
+                      <Badge 
+                        key={index}
+                        style={{ 
+                          backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                          color: 'rgba(255, 255, 255, 0.9)'
+                        }}
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
                   </div>
-                  {sub.tags && sub.tags.length > 0 && (
-                    <div style={{ 
-                      display: 'flex', 
-                      flexWrap: 'wrap', 
-                      marginTop: '4px', 
-                      width: '100%' 
-                    }}>
-                      {sub.tags.map((tag, index) => (
-                        <Badge 
-                          key={index}
-                          style={{ 
-                            display: 'inline-flex', 
-                            alignItems: 'center',
-                            padding: '1px 6px',
-                            borderRadius: '10px',
-                            fontSize: '0.7em',
-                            margin: '2px 4px 2px 0',
-                            whiteSpace: 'nowrap',
-                            height: '18px',
-                            backgroundColor: 'rgba(255, 140, 0, 0.2)',
-                            color: '#FF8C00'
-                          }}
-                        >
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
                 </ItemDetails>
                 <ItemActions>
-                  <Button onClick={() => onEdit(sub)}>Edit</Button>
+                  <Button onClick={() => onEdit(sub)}>
+                    <Icon icon="mdi:pencil" />
+                  </Button>
                   <Button variant="delete" onClick={() => onDelete(sub.id!)}>
-                    Delete
+                    <Icon icon="mdi:trash-can-outline" />
                   </Button>
                 </ItemActions>
               </Item>

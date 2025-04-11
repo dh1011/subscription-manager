@@ -1,97 +1,165 @@
 /* src/components/Totals.css */
 .totals {
-  padding: 20px;
-  margin: 0 auto 20px;
-  max-width: 800px;
-  border-radius: 10px;
   color: #fff;
+  max-width: 100%;
+  margin: 0 0 20px 0;
+  backdrop-filter: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  background: transparent;
+  border: none;
+  margin-top: 40px;
 }
 
-.totals h2 {
-  font-size: 2em;
+.totals.glass-morphism {
+  background: transparent;
+}
+
+.selected-tags-container {
+  display: flex;
+  flex-wrap: wrap;
   margin-bottom: 20px;
-  text-align: center;
-  font-weight: 600;
+  justify-content: center;
+  width: 100%;
+}
+
+.selected-tag {
+  display: inline-block;
+  font-size: 0.8em;
+  margin-right: 4px;
+  margin-bottom: 4px;
+  padding: 1px 8px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: normal;
 }
 
 .totals-grid {
   display: flex;
   gap: 20px;
   justify-content: center;
+  margin-bottom: 20px;
 }
 
 .total-card {
   flex: 1;
-  padding: 20px;
-  border-radius: 10px;
+  padding: 12px;
+  border-radius: 16px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.4s ease;
+}
+
+.glass-card {
+  background: rgba(30, 30, 30, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .total-card:hover {
+  background: rgba(255, 255, 255, 0.05);
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .total-card.selected {
-  border: 2px solid #fff;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
 }
 
-.total-card h3 {
-  font-size: 1.5em;
-  font-weight: thin;
-  margin-bottom: 10px;
+.period-label {
+  font-size: 1.2em;
+  margin-bottom: 12px;
+  font-weight: 700;
+  font-family: var(--font-heading), sans-serif;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  text-transform: capitalize;
 }
 
-.total-card p {
-  font-size: 2em;
+.total-card p.amount {
+  font-size: 1.8em;
   font-weight: bold;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .total-card.weekly {
-  color: #FF6B6B; /* Coral Red */
+  color: rgba(255, 255, 255, 1); /* Brightest */
 }
 
 .total-card.monthly {
-  color: #4ECDC4; /* Medium Turquoise */
+  color: rgba(255, 255, 255, 0.9); /* Slightly dimmer */
 }
 
 .total-card.yearly {
-  color: #F7DC6F; /* Mellow Yellow */
+  color: rgba(255, 255, 255, 0.8); /* Dimmer */
 }
 
 .account-totals-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
   justify-content: center;
-  margin-top: 20px;
+  position: relative;
+  padding-top: 20px;
+}
+
+.account-totals-grid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
 }
 
 .account-total-card {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
+  padding: 12px;
+  border-radius: 16px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.1);
   color: #fff;
   min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s ease;
 }
 
-.account-total-card h3 {
-  font-size: 1.2em; /* Smaller font size */
+.account-total-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.account-label {
+  font-size: 1.1em;
   font-weight: normal;
   margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: var(--font-heading), sans-serif;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .credit-card-icon {
   margin-right: 5px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .account-totals {
@@ -101,7 +169,7 @@
 }
 
 .account-total {
-  font-size: 0.9em; /* Smaller font size */
+  font-size: 0.9em;
   margin-bottom: 5px;
   display: flex;
   justify-content: space-between;
@@ -110,59 +178,104 @@
 
 .account-total p {
   margin: 0;
+  font-size: 1.2em;
+  font-weight: 500;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-.account-total.weekly p,
-.account-total.monthly p,
-.account-total.yearly p {
-  color: #fff;
+.account-total.week {
+  color: rgba(255, 255, 255, 1); /* Brightest */
 }
 
-.account-total.weekly {
-  color: #FF6B6B; /* Coral Red */
+.account-total.month {
+  color: rgba(255, 255, 255, 0.9); /* Slightly dimmer */
 }
 
-.account-total.monthly {
-  color: #4ECDC4; /* Medium Turquoise */
-}
-
-.account-total.yearly {
-  color: #F7DC6F; /* Mellow Yellow */
+.account-total.year {
+  color: rgba(255, 255, 255, 0.8); /* Dimmer */
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
+  .totals {
+    margin-top: 30px; /* Reduced space on mobile */
+  }
+
   .totals-grid {
     flex-direction: column;
+    margin-bottom: 30px; /* Reduced space on mobile */
   }
 
   .total-card {
     margin-bottom: 10px;
+    min-height: 80px;
+    padding: 8px;
+    border-radius: 12px;
   }
 
   .account-totals-grid {
-    flex-direction: column;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    padding-top: 15px; /* Reduced padding on mobile */
   }
 
   .account-total-card {
     margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 12px;
   }
   
-  .totals h2 {
-    font-size: 1.4em;
+  .period-label {
+    font-size: 1em;
+    margin-bottom: 10px;
   }
   
-  .total-card h3 {
-    font-size: 1.2em;
-  }
-  
-  .account-total-card h3 {
+  .account-label {
     font-size: 1em;
   }
   
-  .detail-summaries-title {
-    font-size: 1.4em;
+  .total-card p.amount {
+    font-size: 1.5em;
   }
+
+  .account-total p {
+    font-size: 1.1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .total-card {
+    min-height: 60px;
+    padding: 5px;
+    border-radius: 10px;
+  }
+  
+  .account-total-card {
+    padding: 5px;
+    border-radius: 10px;
+  }
+  
+  .period-label {
+    font-size: 0.9em;
+    margin-bottom: 8px;
+  }
+  
+  .total-card p.amount {
+    font-size: 1.3em;
+  }
+
+  .account-total p {
+    font-size: 1em;
+  }
+}
+
+@media (min-width: 768px) {
+  .account-totals-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.currency-symbol {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .detail-summaries-title {
@@ -172,50 +285,4 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.period-badge {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  padding: 3px 8px;
-  border-radius: 5px;
-  font-size: 0.7em;
-  margin-left: 10px;
-  text-transform: capitalize;
-}
-
-.period-badge.week {
-  background-color: #FF6B6B; /* Coral Red */
-}
-
-.period-badge.month {
-  background-color: #4ECDC4; /* Medium Turquoise */
-}
-
-.period-badge.year {
-  background-color: #F7DC6F; /* Mellow Yellow */
-}
-
-.account-totals-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-@media (min-width: 768px) {
-  .account-totals-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 767px) {
-  .account-totals-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  }
-}
-
-.currency-symbol {
-  color: grey; /* Grey color */
 } 

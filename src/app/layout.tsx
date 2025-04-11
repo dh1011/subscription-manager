@@ -1,20 +1,20 @@
 import type { Metadata } from 'next';
-import { Poppins, Montserrat } from 'next/font/google';
+import { Comfortaa, Space_Grotesk } from 'next/font/google';
 import StyledComponentsRegistry from '@/lib/registry';
 import './globals.css';
 
-const poppins = Poppins({ 
+const comfortaa = Comfortaa({ 
   weight: ['300', '400', '500', '600', '700'],
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-poppins',
+  variable: '--font-primary',
 });
 
-const montserrat = Montserrat({
+const spaceGrotesk = Space_Grotesk({
   weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-montserrat',
+  variable: '--font-heading',
 });
 
 export const metadata: Metadata = {
@@ -52,7 +52,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
         <link rel="apple-touch-icon" href="/logo192.png" />
       </head>
-      <body className={`${poppins.variable} ${montserrat.variable}`}>
+      <body className={`${comfortaa.variable} ${spaceGrotesk.variable}`}>
         <StyledComponentsRegistry>
           {children}
         </StyledComponentsRegistry>

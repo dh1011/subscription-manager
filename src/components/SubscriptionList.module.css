@@ -45,12 +45,12 @@
 }
 
 .subscriptionCardContent::-webkit-scrollbar-thumb {
-  background: rgba(3, 218, 198, 0.3);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 10px;
 }
 
 .subscriptionCardContent::-webkit-scrollbar-thumb:hover {
-  background: rgba(3, 218, 198, 0.5);
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .subscriptionList {
@@ -79,7 +79,6 @@
 .subscriptionItemIcon {
   font-size: 1.5em;
   margin-right: 15px;
-  color: #03DAC6;
 }
 
 .subscriptionItemName {
@@ -112,7 +111,7 @@
 }
 
 .deleteButton {
-  background: #E94560 !important;
+  background: rgba(255, 255, 255, 0.2) !important;
 }
 
 .subscriptionItemActions button:hover {
@@ -139,7 +138,7 @@
 
 .creditCardIcon {
   margin-right: 5px;
-  color: #03DAC6;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .subscriptionItemIndicators {
@@ -163,13 +162,13 @@
 }
 
 .autopayIndicator {
-  background-color: rgba(3, 218, 198, 0.2);
-  color: #03DAC6;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .notifyIndicator {
-  background-color: rgba(255, 253, 107, 0.2);
-  color: #fffd6b;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .subscriptionItemDueDateBadge {
@@ -202,7 +201,7 @@
 
 .sortSelect:focus {
   outline: none;
-  border-color: #03DAC6;
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .subscriptionListHeader {

@@ -1,6 +1,7 @@
 export interface UserConfiguration {
   currency: string;
   showCurrencySymbol: boolean;
+  backgroundUrl?: string;
 }
 
 export interface Subscription {

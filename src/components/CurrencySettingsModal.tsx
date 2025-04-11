@@ -97,10 +97,17 @@ function CurrencySettingsModal({ isOpen, onClose, currentCurrency, onSave }: Cur
             </select>
           </div>
           <div className={styles.modalActions}>
-            <button type="submit" className={styles.submitButton}>
+            <button 
+              type="submit" 
+              className={`${styles.button} ${styles.primary}`}
+            >
               Save
             </button>
-            <button type="button" onClick={onClose} className={styles.cancelButton}>
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className={`${styles.button} ${styles.secondary}`}
+            >
               Cancel
             </button>
           </div>

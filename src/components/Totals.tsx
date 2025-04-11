@@ -185,64 +185,29 @@ function Totals({ subscriptions, currency, showCurrencySymbol, selectedTags }: T
   };
 
   return (
-    <div className="totals">
-      <h2>
-        Summary
-        {selectedTags && selectedTags.length > 0 && (
-          <div style={{ 
-            display: 'flex', 
-            flexWrap: 'wrap', 
-            marginTop: '6px',
-            fontSize: '0.6em',
-            justifyContent: 'center',
-            width: '100%'
-          }}>
-            {selectedTags.map((tag, index) => (
-              <span 
-                key={index}
-                style={{
-                  display: 'inline-block',
-                  fontSize: '1em',
-                  marginRight: '4px',
-                  marginBottom: '4px',
-                  padding: '1px 5px',
-                  borderRadius: '8px',
-                  backgroundColor: 'rgba(255, 140, 0, 0.2)',
-                  color: '#FF8C00',
-                  fontWeight: 'normal',
-                }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-      </h2>
+    <div className="totals glass-morphism">
       <div className="totals-grid">
         {(['week', 'month', 'year'] as const).map((period) => (
           <div
             key={period}
-            className={`total-card ${period}ly ${selectedPeriod === period ? 'selected' : ''}`}
+            className={`total-card glass-card ${period}ly ${selectedPeriod === period ? 'selected' : ''}`}
             onClick={() => handlePeriodClick(period)}
           >
-            <h3>{period.charAt(0).toUpperCase() + period.slice(1)}ly</h3>
+            <div className="period-label">{period.charAt(0).toUpperCase() + period.slice(1)}ly</div>
             {calculateTotal(period).map((total, index) => (
-              <p key={index}>{total}</p>
+              <p key={index} className="amount">{total}</p>
             ))}
           </div>
         ))}
       </div>
-
-      <h2 className="detail-summaries-title">
-        Detail Summaries <span className={`period-badge ${selectedPeriod}`}>{selectedPeriod}</span>
-      </h2>
+      
       <div className="account-totals-grid">
         {Object.entries(accountTotals).map(([account, currencies], index) => (
-          <div key={index} className="account-total-card">
-            <h3>
+          <div key={index} className="account-total-card glass-card">
+            <div className="account-label">
               <FontAwesomeIcon icon={faCreditCard} className="credit-card-icon" />{' '}
               {account}
-            </h3>
+            </div>
             <div className="account-totals">
               {Object.entries(currencies).map(([curr, totals], currIndex) => (
                 <div key={currIndex} className={`account-total ${selectedPeriod}`}>

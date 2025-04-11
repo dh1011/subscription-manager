@@ -9,7 +9,7 @@ import Totals from '@/components/Totals';
 import { Subscription, UserConfiguration, NtfySettings } from '@/types';
 import { Icon } from '@iconify-icon/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
+import { faGears, faFileExport, faFileImport } from '@fortawesome/free-solid-svg-icons';
 import ConfigurationModal from '@/components/ConfigurationModal';
 
 export default function Home() {
@@ -17,6 +17,7 @@ export default function Home() {
   const [userConfig, setUserConfig] = useState<UserConfiguration>({
     currency: 'USD',
     showCurrencySymbol: true,
+    backgroundUrl: 'https://cdn.midjourney.com/1f46fbfe-102d-49d8-aa96-b54f1ea9a19a/0_0.png'
   });
   const [ntfySettings, setNtfySettings] = useState<NtfySettings>({
     topic: '',
@@ -35,6 +36,9 @@ export default function Home() {
       try {
         // Initialize the database
         await fetch('/api/init');
+        
+        // Run database migration
+        await fetch('/api/migrate');
 
         // Fetch initial data
         const [subs, config, ntfy] = await Promise.all([
@@ -63,6 +67,24 @@ export default function Home() {
     };
 
     initializeApp();
+  }, []);
+
+  useEffect(() => {
+    const fetchUserConfiguration = async () => {
+      try {
+        const response = await fetch('/api/user-configuration');
+        const data = await response.json();
+        setUserConfig({
+          currency: data.currency || 'USD',
+          showCurrencySymbol: data.showCurrencySymbol !== undefined ? data.showCurrencySymbol : true,
+          backgroundUrl: data.backgroundUrl || 'https://cdn.midjourney.com/1f46fbfe-102d-49d8-aa96-b54f1ea9a19a/0_0.png'
+        });
+      } catch (error) {
+        console.error('Failed to fetch user configuration:', error);
+      }
+    };
+
+    fetchUserConfiguration();
   }, []);
 
   const handleSaveSubscription = async (subscription: Subscription) => {
@@ -147,13 +169,20 @@ export default function Home() {
     const data = JSON.stringify(subscriptions, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
+    
+    // Use a simpler approach without DOM manipulation
     const a = document.createElement('a');
     a.href = url;
     a.download = 'subscriptions.json';
-    document.body.appendChild(a);
+    a.style.display = 'none'; // Hide the element
+    
+    // Click it programmatically
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    
+    // Clean up by revoking the object URL
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 100);
   };
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -240,6 +269,7 @@ export default function Home() {
     ntfyTopic: string;
     ntfyDomain: string;
     showCurrencySymbol: boolean;
+    backgroundUrl?: string;
   }) => {
     try {
       // Save currency and showCurrencySymbol
@@ -248,7 +278,8 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           currency: config.currency,
-          showCurrencySymbol: config.showCurrencySymbol
+          showCurrencySymbol: config.showCurrencySymbol,
+          backgroundUrl: config.backgroundUrl
         })
       });
 
@@ -265,7 +296,8 @@ export default function Home() {
       // Update local state
       setUserConfig({
         currency: config.currency,
-        showCurrencySymbol: config.showCurrencySymbol
+        showCurrencySymbol: config.showCurrencySymbol,
+        backgroundUrl: config.backgroundUrl
       });
       
       setNtfySettings({
@@ -273,12 +305,23 @@ export default function Home() {
         domain: config.ntfyDomain
       });
       
+      // Apply background
+      if (config.backgroundUrl) {
+        document.body.style.backgroundImage = `url('${config.backgroundUrl}')`;
+      }
+      
       setIsConfigModalOpen(false);
     } catch (error) {
       console.error('Error saving configuration:', error);
       alert('Failed to save configuration. Please try again.');
     }
   };
+
+  useEffect(() => {
+    if (userConfig.backgroundUrl) {
+      document.body.style.backgroundImage = `url('${userConfig.backgroundUrl}')`;
+    }
+  }, [userConfig.backgroundUrl]);
 
   if (isLoading) {
     return (
@@ -299,13 +342,20 @@ export default function Home() {
         <h1 className="app-title">Subscription Manager</h1>
         <div className="header-actions">
           {/* Export Button */}
-          <button className="export-button" onClick={handleExport} data-label="Export">
-            <Icon icon="mdi:download" className="export-icon" />
+          <button 
+            className="header-button export-button" 
+            onClick={handleExport} 
+            data-label="Export"
+          >
+            <FontAwesomeIcon icon={faFileExport} />
           </button>
 
           {/* Import Button */}
-          <label className="import-button" data-label="Import">
-            <Icon icon="mdi:upload" className="import-icon" />
+          <label 
+            className="header-button import-button" 
+            data-label="Import"
+          >
+            <FontAwesomeIcon icon={faFileImport} />
             <input
               type="file"
               accept=".json"
@@ -316,11 +366,11 @@ export default function Home() {
 
           {/* Configuration Button */}
           <button 
-            className="config-button" 
+            className="header-button config-button" 
             onClick={() => setIsConfigModalOpen(true)}
             data-label="Settings"
           >
-            <FontAwesomeIcon icon={faCog} />
+            <FontAwesomeIcon icon={faGears} />
           </button>
         </div>
       </div>
@@ -370,6 +420,7 @@ export default function Home() {
           showCurrencySymbol={userConfig.showCurrencySymbol}
           ntfyTopic={ntfySettings.topic || ''}
           ntfyDomain={ntfySettings.domain || 'https://ntfy.sh'}
+          backgroundUrl={userConfig.backgroundUrl}
           onSave={handleConfigurationSave}
         />
       )}

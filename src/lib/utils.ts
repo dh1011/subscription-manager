@@ -44,23 +44,23 @@ export function formatCurrency(amount: number, currency: string): string {
 }
 
 export function getRandomColor(): string {
-  const colors = [
-    '#FF6B6B', // Red
-    '#4ECDC4', // Teal
-    '#45B7D1', // Blue
-    '#96CEB4', // Green
-    '#FFEEAD', // Yellow
-    '#D4A5A5', // Pink
-    '#9B59B6', // Purple
-    '#3498DB', // Light Blue
-    '#E67E22', // Orange
-    '#2ECC71', // Emerald
-    '#F1C40F', // Sun Yellow
-    '#E74C3C', // Dark Red
-    '#1ABC9C', // Turquoise
-    '#9B59B6', // Amethyst
-    '#34495E', // Dark Blue
+  const pastelColors = [
+    '#FFD6D6', // Pastel Red
+    '#D6F5F5', // Pastel Teal
+    '#D6EEFA', // Pastel Blue
+    '#D8EFE2', // Pastel Green
+    '#FFF6D6', // Pastel Yellow
+    '#F2D6D6', // Pastel Pink
+    '#E7D6F5', // Pastel Purple
+    '#D6E7F5', // Pastel Light Blue
+    '#F8E1D2', // Pastel Orange
+    '#D6F5DD', // Pastel Emerald
+    '#FFF1C8', // Pastel Sun Yellow
+    '#F5D6D6', // Pastel Dark Red
+    '#D6F2EF', // Pastel Turquoise
+    '#E2D6F5', // Pastel Amethyst
+    '#E0E6ED', // Pastel Gray Blue
   ];
   
-  return colors[Math.floor(Math.random() * colors.length)];
+  return pastelColors[Math.floor(Math.random() * pastelColors.length)];
 } 

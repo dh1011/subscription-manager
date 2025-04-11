@@ -5,19 +5,21 @@ import { UserConfiguration } from '@/types';
 export async function GET() {
   try {
     const db = await getDb();
-    const result = await db.get('SELECT currency, show_currency_symbol FROM user_configuration LIMIT 1');
+    const result = await db.get('SELECT currency, show_currency_symbol, background_url FROM user_configuration LIMIT 1');
     await db.close();
 
     if (!result) {
       return NextResponse.json({
         currency: 'USD',
-        showCurrencySymbol: true
+        showCurrencySymbol: true,
+        backgroundUrl: 'https://cdn.midjourney.com/1f46fbfe-102d-49d8-aa96-b54f1ea9a19a/0_0.png'
       });
     }
 
     return NextResponse.json({
       currency: result.currency,
-      showCurrencySymbol: Boolean(result.show_currency_symbol)
+      showCurrencySymbol: Boolean(result.show_currency_symbol),
+      backgroundUrl: result.background_url || 'https://cdn.midjourney.com/1f46fbfe-102d-49d8-aa96-b54f1ea9a19a/0_0.png'
     });
   } catch (error) {
     console.error('Error fetching user configuration:', error);
@@ -37,13 +39,22 @@ export async function POST(request: Request) {
     
     if (existing) {
       await db.run(
-        'UPDATE user_configuration SET currency = ?, show_currency_symbol = ? WHERE id = ?',
-        [config.currency, config.showCurrencySymbol ? 1 : 0, existing.id]
+        'UPDATE user_configuration SET currency = ?, show_currency_symbol = ?, background_url = ? WHERE id = ?',
+        [
+          config.currency,
+          config.showCurrencySymbol ? 1 : 0,
+          config.backgroundUrl || 'https://cdn.midjourney.com/1f46fbfe-102d-49d8-aa96-b54f1ea9a19a/0_0.png',
+          existing.id
+        ]
       );
     } else {
       await db.run(
-        'INSERT INTO user_configuration (currency, show_currency_symbol) VALUES (?, ?)',
-        [config.currency, config.showCurrencySymbol ? 1 : 0]
+        'INSERT INTO user_configuration (currency, show_currency_symbol, background_url) VALUES (?, ?, ?)',
+        [
+          config.currency,
+          config.showCurrencySymbol ? 1 : 0,
+          config.backgroundUrl || 'https://cdn.midjourney.com/1f46fbfe-102d-49d8-aa96-b54f1ea9a19a/0_0.png'
+        ]
       );
     }
     
@@ -68,13 +79,22 @@ export async function PUT(request: Request) {
     
     if (existing) {
       await db.run(
-        'UPDATE user_configuration SET currency = ?, show_currency_symbol = ? WHERE id = ?',
-        [config.currency, config.showCurrencySymbol ? 1 : 0, existing.id]
+        'UPDATE user_configuration SET currency = ?, show_currency_symbol = ?, background_url = ? WHERE id = ?',
+        [
+          config.currency,
+          config.showCurrencySymbol ? 1 : 0,
+          config.backgroundUrl || 'https://cdn.midjourney.com/1f46fbfe-102d-49d8-aa96-b54f1ea9a19a/0_0.png',
+          existing.id
+        ]
       );
     } else {
       await db.run(
-        'INSERT INTO user_configuration (currency, show_currency_symbol) VALUES (?, ?)',
-        [config.currency, config.showCurrencySymbol ? 1 : 0]
+        'INSERT INTO user_configuration (currency, show_currency_symbol, background_url) VALUES (?, ?, ?)',
+        [
+          config.currency,
+          config.showCurrencySymbol ? 1 : 0,
+          config.backgroundUrl || 'https://cdn.midjourney.com/1f46fbfe-102d-49d8-aa96-b54f1ea9a19a/0_0.png'
+        ]
       );
     }
     

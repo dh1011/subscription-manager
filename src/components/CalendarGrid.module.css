@@ -1,51 +1,77 @@
 .calendarContainer {
   max-width: 100%;
   margin: 0 0 20px 0;
+  backdrop-filter: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  background: transparent;
+  border: none;
 }
 
 .calendarGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
+  gap: 10px;
+  background: transparent;
 }
 
 .calendarDayHeader {
   text-align: center;
-  font-weight: bold;
-  padding: 10px 0;
+  font-weight: 600;
+  padding: 12px 0;
   color: #fff;
-  font-size: 1.2em;
+  font-size: 1.1em;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: var(--font-heading), sans-serif;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .calendarDay {
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
   color: #fff;
-  padding: 10px;
+  padding: 12px;
   cursor: pointer;
   min-height: 100px;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
-  transition: background-color 0.3s ease;
+  border-radius: 16px;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .calendarDay:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .calendarDay.empty {
   background: transparent;
+  backdrop-filter: none;
+  border: none;
+  box-shadow: none;
   cursor: default;
 }
 
 .calendarDay.today {
-  background: rgba(3, 218, 198, 0.2);
-  border: 2px solid #03DAC6;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.25);
 }
 
 .dateNumber {
-  font-size: 1.2em;
-  margin-bottom: 5px;
+  font-size: 1.3em;
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-family: var(--font-primary), sans-serif;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .subscriptions {
@@ -54,38 +80,60 @@
 }
 
 .subscriptionIcon {
-  margin: 2px;
+  margin: 3px;
   font-size: 1.5em;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+  transition: all 0.3s ease;
+}
+
+.subscriptionIcon:hover {
+  transform: scale(1.3) rotate(5deg);
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
+  .calendarContainer {
+    padding: 20px;
+    border-radius: 16px;
+  }
+  
   .calendarGrid {
     grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
   }
 
   .calendarDay {
     min-height: 80px;
-    padding: 5px;
+    padding: 8px;
+    border-radius: 12px;
   }
 
   .dateNumber {
-    font-size: 1em;
+    font-size: 1.1em;
   }
 }
 
 @media (max-width: 480px) {
+  .calendarContainer {
+    padding: 12px;
+    border-radius: 12px;
+  }
+  
   .calendarGrid {
     grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
   }
 
   .calendarDayHeader {
-    font-size: 0.8em;
+    font-size: 0.7em;
+    padding: 8px 0;
   }
 
   .calendarDay {
     min-height: 60px;
     padding: 5px;
+    border-radius: 10px;
   }
 
   .dateNumber {
