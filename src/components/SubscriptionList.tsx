@@ -407,7 +407,16 @@ export default function SubscriptionList({
                     style={{ color: sub.color, fontSize: '1.5em' }}
                   />
                   <div>
-                    <p style={{ fontSize: '1.2em', margin: 0, color: '#fff' }}>{sub.name}</p>
+                    <p style={{ 
+                      fontSize: '1.2em', 
+                      margin: 0, 
+                      color: '#fff',
+                      wordWrap: 'break-word',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      maxWidth: '200px'
+                    }}>{sub.name}</p>
                     <p style={{ fontSize: '0.8em', margin: 0, color: '#adadad' }}>
                       {formatCurrency(sub.amount, sub.currency)}/{sub.intervalValue} {sub.intervalUnit}
                     </p>
