@@ -139,7 +139,7 @@ export default function SubscriptionModal({
         <p>Enter the details of your subscription</p>
         <form onSubmit={handleSubmit} className={styles.modalForm}>
           <div className={styles.formGroup}>
-            <label htmlFor="name">Subscription Name</label>
+            <label htmlFor="name">Subscription Name <span style={{ color: '#ff4444' }}>*</span></label>
             <input
               id="name"
               type="text"
@@ -149,7 +149,7 @@ export default function SubscriptionModal({
             />
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="amount">Recurring Amount</label>
+            <label htmlFor="amount">Recurring Amount <span style={{ color: '#ff4444' }}>*</span></label>
             <input
               id="amount"
               type="number"
@@ -176,7 +176,7 @@ export default function SubscriptionModal({
             />
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="icon">Icon</label>
+            <label htmlFor="icon">Icon <span style={{ color: '#ff4444' }}>*</span></label>
             <div className={styles.iconInputContainer}>
               <input
                 id="icon"
