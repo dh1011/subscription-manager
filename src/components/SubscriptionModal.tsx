@@ -43,6 +43,7 @@ export default function SubscriptionModal({
   const [currency, setCurrency] = useState(defaultCurrency);
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>([]);
+  const [errors, setErrors] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
     if (selectedSubscription) {
@@ -81,27 +82,40 @@ export default function SubscriptionModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name && amount && dueDate && icon) {
-      const subscription: Subscription = {
-        id: id || undefined,
-        name,
-        amount: parseFloat(amount),
-        dueDate: dueDate.toISOString().split('T')[0],
-        icon,
-        color,
-        account,
-        autopay,
-        intervalValue: intervalValue ? parseInt(String(intervalValue)) : 1,
-        intervalUnit: intervalUnit || 'months',
-        notify,
-        currency: currency === defaultCurrency ? 'default' : currency,
-        tags
-      };
-      onSave(subscription);
-      onClose();
-    } else {
+    
+    // Reset errors
+    setErrors({});
+    
+    // Check validation for required fields
+    const newErrors: {[key: string]: boolean} = {};
+    if (!name.trim()) newErrors.name = true;
+    if (!amount.trim() || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) newErrors.amount = true;
+    if (!dueDate) newErrors.dueDate = true;
+    if (!icon) newErrors.icon = true;
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       alert('Please fill in all required fields.');
+      return;
     }
+    
+    const subscription: Subscription = {
+      id: id || undefined,
+      name,
+      amount: parseFloat(amount),
+      dueDate: dueDate!.toISOString().split('T')[0],
+      icon,
+      color,
+      account,
+      autopay,
+      intervalValue: intervalValue ? parseInt(String(intervalValue)) : 1,
+      intervalUnit: intervalUnit || 'months',
+      notify,
+      currency: currency === defaultCurrency ? 'default' : currency,
+      tags
+    };
+    onSave(subscription);
+    onClose();
   };
 
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,17 +153,18 @@ export default function SubscriptionModal({
         <p>Enter the details of your subscription</p>
         <form onSubmit={handleSubmit} className={styles.modalForm}>
           <div className={styles.formGroup}>
-            <label htmlFor="name">Subscription Name</label>
+            <label htmlFor="name">Subscription Name <span style={{ color: '#ff4444' }}>*</span></label>
             <input
               id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter subscription name"
+              style={errors.name ? { border: '1px solid #ff4444', boxShadow: '0 0 5px rgba(255, 68, 68, 0.3)' } : {}}
             />
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="amount">Recurring Amount</label>
+            <label htmlFor="amount">Recurring Amount <span style={{ color: '#ff4444' }}>*</span></label>
             <input
               id="amount"
               type="number"
@@ -157,6 +172,7 @@ export default function SubscriptionModal({
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter amount"
               step="0.01"
+              style={errors.amount ? { border: '1px solid #ff4444', boxShadow: '0 0 5px rgba(255, 68, 68, 0.3)' } : {}}
             />
           </div>
           <div className={`${styles.formGroup} ${styles.datePickerGroup}`}>
@@ -167,7 +183,11 @@ export default function SubscriptionModal({
               onChange={(date: Date | null) => date && setDueDate(date)}
               dateFormat="d MMM yyyy"
               customInput={
-                <button type="button" className={styles.datePickerButton}>
+                <button 
+                  type="button" 
+                  className={styles.datePickerButton}
+                  style={errors.dueDate ? { border: '1px solid #ff4444', boxShadow: '0 0 5px rgba(255, 68, 68, 0.3)' } : {}}
+                >
                   {formatDate(dueDate)}
                 </button>
               }
@@ -176,7 +196,7 @@ export default function SubscriptionModal({
             />
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="icon">Icon</label>
+            <label htmlFor="icon">Icon <span style={{ color: '#ff4444' }}>*</span></label>
             <div className={styles.iconInputContainer}>
               <input
                 id="icon"
@@ -184,6 +204,7 @@ export default function SubscriptionModal({
                 value={iconInput}
                 onChange={handleIconChange}
                 placeholder="Enter Material Design Icon name"
+                style={errors.icon ? { border: '1px solid #ff4444', boxShadow: '0 0 5px rgba(255, 68, 68, 0.3)' } : {}}
               />
               <span className={styles.iconPreview}>
                 <Icon icon={`mdi:${icon || 'help-circle'}`} />
