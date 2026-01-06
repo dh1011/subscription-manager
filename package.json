@@ -23,6 +23,7 @@
     "react-calendar": "^5.0.0",
     "react-datepicker": "^7.5.0",
     "react-dom": "^18.3.1",
+    "recharts": "^3.6.0",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
     "styled-components": "^6.1.13"

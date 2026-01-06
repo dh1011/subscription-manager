@@ -11,6 +11,8 @@ import { Icon } from '@iconify-icon/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 import ConfigurationModal from '@/components/ConfigurationModal';
+import CostTrendGraph from '@/components/CostTrendGraph';
+import CompositionCharts from '@/components/CompositionCharts';
 
 export default function Home() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -29,6 +31,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [filteredSubscriptions, setFilteredSubscriptions] = useState<Subscription[] | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -165,15 +168,15 @@ export default function Home() {
       try {
         const importedSubscriptions = JSON.parse(e.target?.result as string);
         console.log("Imported data:", importedSubscriptions);
-        
+
         // First update the UI state
         setSubscriptions(importedSubscriptions);
-        
+
         // Then save each subscription to the database
         const savePromises = importedSubscriptions.map(async (sub: any) => {
           // Copy dates explicitly
           const dueDate = sub.dueDate || sub.due_date;
-          
+
           // Prepare subscription with proper types
           const newSub = {
             name: sub.name,
@@ -193,9 +196,9 @@ export default function Home() {
             tags: Array.isArray(sub.tags) ? sub.tags : [],
             included: sub.included !== undefined ? Boolean(sub.included) : true
           };
-          
+
           console.log("Saving subscription with due date:", newSub.due_date);
-          
+
           const response = await fetch('/api/subscriptions', {
             method: 'POST',
             headers: {
@@ -203,25 +206,25 @@ export default function Home() {
             },
             body: JSON.stringify(newSub),
           });
-          
+
           if (!response.ok) {
             const errorText = await response.text();
             console.error(`API error: ${errorText}`);
             throw new Error(`Failed to save subscription: ${sub.name}`);
           }
-          
+
           const savedSub = await response.json();
           console.log("Saved subscription:", savedSub);
           return savedSub;
         });
-        
+
         try {
           // Wait for all subscriptions to be saved
           const savedSubscriptions = await Promise.all(savePromises);
-          
+
           // Update the state with the saved subscriptions that now have database IDs
           setSubscriptions(savedSubscriptions);
-          
+
           alert(`Successfully imported ${savedSubscriptions.length} subscriptions.`);
         } catch (error) {
           console.error('Error in Promise.all:', error);
@@ -267,12 +270,12 @@ export default function Home() {
         currency: config.currency,
         showCurrencySymbol: config.showCurrencySymbol
       });
-      
+
       setNtfySettings({
         topic: config.ntfyTopic,
         domain: config.ntfyDomain
       });
-      
+
       setIsConfigModalOpen(false);
     } catch (error) {
       console.error('Error saving configuration:', error);
@@ -315,8 +318,8 @@ export default function Home() {
           </label>
 
           {/* Configuration Button */}
-          <button 
-            className="config-button" 
+          <button
+            className="config-button"
             onClick={() => setIsConfigModalOpen(true)}
             data-label="Settings"
           >
@@ -342,11 +345,23 @@ export default function Home() {
           onFilteredSubscriptionsChange={(filteredSubs) => setFilteredSubscriptions(filteredSubs)}
           onTagFilterChange={(tags) => setSelectedTags(tags)}
         />
-        <Totals 
+        <Totals
           subscriptions={filteredSubscriptions || subscriptions}
           currency={userConfig.currency}
           showCurrencySymbol={userConfig.showCurrencySymbol}
           selectedTags={selectedTags}
+          selectedPeriod={selectedPeriod}
+          onPeriodChange={setSelectedPeriod}
+        />
+        <CostTrendGraph
+          subscriptions={filteredSubscriptions || subscriptions}
+          selectedPeriod={selectedPeriod}
+          currency={userConfig.currency}
+          showCurrencySymbol={userConfig.showCurrencySymbol}
+        />
+        <CompositionCharts
+          subscriptions={filteredSubscriptions || subscriptions}
+          currency={userConfig.currency}
         />
       </div>
       {isModalOpen && (
@@ -361,7 +376,7 @@ export default function Home() {
           defaultCurrency={userConfig.currency}
         />
       )}
-      
+
       {isConfigModalOpen && (
         <ConfigurationModal
           isOpen={isConfigModalOpen}

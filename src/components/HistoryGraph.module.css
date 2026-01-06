@@ -1,0 +1,43 @@
+.graphContainer {
+  background-color: var(--card-bg, #1e1e1e);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: #fff;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chartWrapper {
+  width: 100%;
+  height: 300px;
+}
+
+/* Tooltip styles */
+.customTooltip {
+  background-color: #2d2d2d;
+  border: 1px solid #3d3d3d;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.tooltipLabel {
+  margin: 0;
+  font-weight: bold;
+  color: #e0e0e0;
+}
+
+.tooltipValue {
+  margin: 5px 0 0 0;
+  color: #4ade80;
+}

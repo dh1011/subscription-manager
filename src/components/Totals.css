@@ -2,7 +2,7 @@
 .totals {
   padding: 20px;
   margin: 0 auto 20px;
-  max-width: 800px;
+  max-width: 100%;
   border-radius: 10px;
   color: #fff;
 }
@@ -52,15 +52,18 @@
 }
 
 .total-card.weekly {
-  color: #FF6B6B; /* Coral Red */
+  color: #FF6B6B;
+  /* Coral Red */
 }
 
 .total-card.monthly {
-  color: #4ECDC4; /* Medium Turquoise */
+  color: #4ECDC4;
+  /* Medium Turquoise */
 }
 
 .total-card.yearly {
-  color: #F7DC6F; /* Mellow Yellow */
+  color: #F7DC6F;
+  /* Mellow Yellow */
 }
 
 .account-totals-grid {
@@ -82,7 +85,8 @@
 }
 
 .account-total-card h3 {
-  font-size: 1.2em; /* Smaller font size */
+  font-size: 1.2em;
+  /* Smaller font size */
   font-weight: normal;
   margin-bottom: 10px;
   display: flex;
@@ -101,7 +105,8 @@
 }
 
 .account-total {
-  font-size: 0.9em; /* Smaller font size */
+  font-size: 0.9em;
+  /* Smaller font size */
   margin-bottom: 5px;
   display: flex;
   justify-content: space-between;
@@ -119,15 +124,18 @@
 }
 
 .account-total.weekly {
-  color: #FF6B6B; /* Coral Red */
+  color: #FF6B6B;
+  /* Coral Red */
 }
 
 .account-total.monthly {
-  color: #4ECDC4; /* Medium Turquoise */
+  color: #4ECDC4;
+  /* Medium Turquoise */
 }
 
 .account-total.yearly {
-  color: #F7DC6F; /* Mellow Yellow */
+  color: #F7DC6F;
+  /* Mellow Yellow */
 }
 
 /* Responsive Styles */
@@ -147,19 +155,19 @@
   .account-total-card {
     margin-bottom: 10px;
   }
-  
+
   .totals h2 {
     font-size: 1.4em;
   }
-  
+
   .total-card h3 {
     font-size: 1.2em;
   }
-  
+
   .account-total-card h3 {
     font-size: 1em;
   }
-  
+
   .detail-summaries-title {
     font-size: 1.4em;
   }
@@ -185,15 +193,18 @@
 }
 
 .period-badge.week {
-  background-color: #FF6B6B; /* Coral Red */
+  background-color: #FF6B6B;
+  /* Coral Red */
 }
 
 .period-badge.month {
-  background-color: #4ECDC4; /* Medium Turquoise */
+  background-color: #4ECDC4;
+  /* Medium Turquoise */
 }
 
 .period-badge.year {
-  background-color: #F7DC6F; /* Mellow Yellow */
+  background-color: #F7DC6F;
+  /* Mellow Yellow */
 }
 
 .account-totals-grid {
@@ -217,5 +228,6 @@
 }
 
 .currency-symbol {
-  color: grey; /* Grey color */
-} 
+  color: grey;
+  /* Grey color */
+}

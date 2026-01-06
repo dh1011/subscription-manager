@@ -89,7 +89,7 @@ const Item = styled(motion.li)`
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  max-width: 95%;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
 `;
@@ -163,11 +163,11 @@ interface Props {
 function getNextDueDate(subscription: Subscription): Date | null {
   // Try due_date if dueDate is not available
   const dueDateValue = subscription.dueDate || subscription.due_date;
-  
+
   if (!dueDateValue) {
     return null;
   }
-  
+
   const today = new Date();
   let dueDate = parseISO(dueDateValue);
   const intervalValue = subscription.intervalValue ?? 1;
@@ -210,7 +210,7 @@ export default function SubscriptionList({
 
   const formatCurrency = (amount: number, currencyCode: string): string => {
     const code = currencyCode || 'USD';
-    
+
     if (showCurrencySymbol) {
       const symbol = getSymbolFromCurrency(code) || '$';
       return `${symbol}${amount.toFixed(2)}`;
@@ -243,9 +243,9 @@ export default function SubscriptionList({
 
   // Filter subscriptions by tags
   const filteredSubscriptions = tagFilters.length > 0
-    ? subscriptions.filter(sub => 
-        sub.tags && sub.tags.some(tag => tagFilters.includes(tag))
-      )
+    ? subscriptions.filter(sub =>
+      sub.tags && sub.tags.some(tag => tagFilters.includes(tag))
+    )
     : subscriptions;
 
   // Notify parent about filtered subscriptions
@@ -299,13 +299,13 @@ export default function SubscriptionList({
           </Select>
         </Controls>
       </Header>
-      
+
       {allTags.length > 0 && (
         <TagsContainer>
           {tagFilters.length > 0 && (
-            <Badge 
-              style={{ 
-                display: 'inline-flex', 
+            <Badge
+              style={{
+                display: 'inline-flex',
                 alignItems: 'center',
                 padding: '3px 8px',
                 borderRadius: '12px',
@@ -334,18 +334,18 @@ export default function SubscriptionList({
             </Badge>
           )}
           {allTags.map((tag, index) => (
-            <Badge 
+            <Badge
               key={index}
-              style={{ 
-                display: 'inline-flex', 
+              style={{
+                display: 'inline-flex',
                 alignItems: 'center',
                 padding: '3px 8px',
                 borderRadius: '12px',
                 fontSize: '0.8em',
                 margin: '2px 4px 2px 0',
                 cursor: 'pointer',
-                backgroundColor: tagFilters.includes(tag) 
-                  ? 'rgba(255, 140, 0, 0.8)' 
+                backgroundColor: tagFilters.includes(tag)
+                  ? 'rgba(255, 140, 0, 0.8)'
                   : 'rgba(255, 140, 0, 0.2)',
                 color: tagFilters.includes(tag) ? '#fff' : '#FF8C00',
                 fontWeight: tagFilters.includes(tag) ? 'bold' : 'normal',
@@ -407,9 +407,9 @@ export default function SubscriptionList({
                     style={{ color: sub.color, fontSize: '1.5em' }}
                   />
                   <div>
-                    <p style={{ 
-                      fontSize: '1.2em', 
-                      margin: 0, 
+                    <p style={{
+                      fontSize: '1.2em',
+                      margin: 0,
                       color: '#fff',
                       wordWrap: 'break-word',
                       overflow: 'hidden',
@@ -428,8 +428,8 @@ export default function SubscriptionList({
                     <span style={{ color: '#ccc' }}>{sub.account || 'Not Specified'}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', marginTop: '5px' }}>
-                    <Badge style={{ 
-                      display: 'inline-flex', 
+                    <Badge style={{
+                      display: 'inline-flex',
                       alignItems: 'center',
                       padding: '2px 8px',
                       borderRadius: '12px',
@@ -451,8 +451,8 @@ export default function SubscriptionList({
                       })()}
                     </Badge>
                     {Boolean(sub.autopay) && (
-                      <Badge style={{ 
-                        display: 'inline-flex', 
+                      <Badge style={{
+                        display: 'inline-flex',
                         alignItems: 'center',
                         padding: '2px 8px',
                         borderRadius: '12px',
@@ -468,8 +468,8 @@ export default function SubscriptionList({
                       </Badge>
                     )}
                     {Boolean(sub.notify) && (
-                      <Badge style={{ 
-                        display: 'inline-flex', 
+                      <Badge style={{
+                        display: 'inline-flex',
                         alignItems: 'center',
                         padding: '2px 8px',
                         borderRadius: '12px',
@@ -486,17 +486,17 @@ export default function SubscriptionList({
                     )}
                   </div>
                   {sub.tags && sub.tags.length > 0 && (
-                    <div style={{ 
-                      display: 'flex', 
-                      flexWrap: 'wrap', 
-                      marginTop: '4px', 
-                      width: '100%' 
+                    <div style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      marginTop: '4px',
+                      width: '100%'
                     }}>
                       {sub.tags.map((tag, index) => (
-                        <Badge 
+                        <Badge
                           key={index}
-                          style={{ 
-                            display: 'inline-flex', 
+                          style={{
+                            display: 'inline-flex',
                             alignItems: 'center',
                             padding: '1px 6px',
                             borderRadius: '10px',

@@ -23,10 +23,11 @@ interface TotalsProps {
   currency: string;
   showCurrencySymbol: boolean;
   selectedTags?: string[];
+  selectedPeriod: 'week' | 'month' | 'year';
+  onPeriodChange: (period: 'week' | 'month' | 'year') => void;
 }
 
-function Totals({ subscriptions, currency, showCurrencySymbol, selectedTags }: TotalsProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
+function Totals({ subscriptions, currency, showCurrencySymbol, selectedTags, selectedPeriod, onPeriodChange }: TotalsProps) {
   const [defaultCurrency, setDefaultCurrency] = useState(currency);
 
   // Get all unique tags that are in the current subscription set
@@ -58,23 +59,23 @@ function Totals({ subscriptions, currency, showCurrencySymbol, selectedTags }: T
     const totals: { [key: string]: number } = {};
     subscriptions.forEach((sub) => {
       if (sub.included === false) return; // Skip if explicitly not included
-      
+
       // Handle both string and number amounts
-      const amount = typeof sub.amount === 'string' 
-        ? parseFloat(sub.amount || '0') 
+      const amount = typeof sub.amount === 'string'
+        ? parseFloat(sub.amount || '0')
         : (sub.amount || 0);
-      
+
       // Handle different property naming conventions
-      const intervalValue = sub.interval_value 
-        ? parseInt(String(sub.interval_value)) 
+      const intervalValue = sub.interval_value
+        ? parseInt(String(sub.interval_value))
         : (sub.intervalValue || 1);
-      
+
       const intervalUnit = sub.interval_unit || sub.intervalUnit || 'months';
-      
+
       // Use the subscription's currency directly since the API already
       // replaces 'default' with the actual currency value
       const subCurrency = sub.currency || defaultCurrency;
-      
+
       if (!totals[subCurrency]) {
         totals[subCurrency] = 0;
       }
@@ -131,11 +132,11 @@ function Totals({ subscriptions, currency, showCurrencySymbol, selectedTags }: T
 
   const accountTotals = subscriptions.reduce<AccountTotals>((acc, sub) => {
     if (sub.included === false) return acc;
-    
+
     const account = sub.account || 'Unspecified';
     // Use the subscription's currency directly
     const subCurrency = sub.currency || defaultCurrency;
-    
+
     if (!acc[account]) {
       acc[account] = {};
     }
@@ -144,15 +145,15 @@ function Totals({ subscriptions, currency, showCurrencySymbol, selectedTags }: T
     }
 
     // Handle both string and number amounts
-    const amount = typeof sub.amount === 'string' 
-      ? parseFloat(sub.amount || '0') 
+    const amount = typeof sub.amount === 'string'
+      ? parseFloat(sub.amount || '0')
       : (sub.amount || 0);
-    
+
     // Handle different property naming conventions
-    const intervalValue = sub.interval_value 
-      ? parseInt(String(sub.interval_value)) 
+    const intervalValue = sub.interval_value
+      ? parseInt(String(sub.interval_value))
       : (sub.intervalValue || 1);
-    
+
     const intervalUnit = sub.interval_unit || sub.intervalUnit || 'months';
 
     let annualAmount = 0;
@@ -181,7 +182,7 @@ function Totals({ subscriptions, currency, showCurrencySymbol, selectedTags }: T
   }, {});
 
   const handlePeriodClick = (period: 'week' | 'month' | 'year') => {
-    setSelectedPeriod(period);
+    onPeriodChange(period);
   };
 
   return (
@@ -189,16 +190,16 @@ function Totals({ subscriptions, currency, showCurrencySymbol, selectedTags }: T
       <h2>
         Summary
         {selectedTags && selectedTags.length > 0 && (
-          <div style={{ 
-            display: 'flex', 
-            flexWrap: 'wrap', 
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
             marginTop: '6px',
             fontSize: '0.6em',
             justifyContent: 'center',
             width: '100%'
           }}>
             {selectedTags.map((tag, index) => (
-              <span 
+              <span
                 key={index}
                 style={{
                   display: 'inline-block',

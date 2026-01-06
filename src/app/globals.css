@@ -141,6 +141,7 @@ code {
   max-width: 100%;
   margin: 0;
   flex: 1;
+  padding-bottom: 2rem;
 }
 
 .add-button {
@@ -181,7 +182,7 @@ code {
   .app-header h1 {
     font-size: 1.5em;
   }
-  
+
   .app-title {
     font-size: 1.5em;
   }
@@ -197,13 +198,13 @@ code {
     bottom: 1rem;
     right: 1rem;
   }
-  
+
   /* Make component headings smaller on mobile */
   h2 {
     font-size: 1.2rem !important;
   }
-  
+
   h3 {
     font-size: 1rem !important;
   }
-} 
+}

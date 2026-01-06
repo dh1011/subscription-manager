@@ -1,7 +1,7 @@
 .subscriptionListContainer {
   padding: 20px;
   margin: 20px auto 0;
-  max-width: 1000px;
+  max-width: 100%;
   color: #fff;
 }
 
@@ -159,7 +159,8 @@
   font-size: 0.8em;
   margin: 2px 5px 2px 0;
   white-space: nowrap;
-  height: 24px; /* Set a fixed height for all indicators */
+  height: 24px;
+  /* Set a fixed height for all indicators */
 }
 
 .autopayIndicator {
@@ -175,7 +176,8 @@
 .subscriptionItemDueDateBadge {
   background-color: rgba(255, 255, 255, 0.1);
   color: #fff;
-  order: -1; /* This will make the due date appear first */
+  order: -1;
+  /* This will make the due date appear first */
 }
 
 .autopayIcon,
@@ -229,4 +231,4 @@
     width: 100%;
     margin-top: 10px;
   }
-} 
+}
