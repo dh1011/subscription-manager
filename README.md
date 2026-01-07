@@ -34,7 +34,7 @@ https://github.com/user-attachments/assets/9e7830e1-3c3c-474a-8f48-93ee8f5e440d
    version: "3.9"
    services:
      app:
-       image: dh1011/subscription-manager:3.0.0
+       image: dh1011/subscription-manager:3.2.0
        ports:
          - "3000:3000"
        volumes:
