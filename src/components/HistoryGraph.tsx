@@ -53,7 +53,10 @@ const HistoryGraph: React.FC<HistoryGraphProps> = ({ subscriptions, currency, sh
       const amount = typeof sub.amount === 'string' ? parseFloat(sub.amount) : sub.amount;
       if (!amount) return;
 
-      let paymentDate = parseISO(sub.due_date);
+      const dueDateString = sub.due_date || sub.dueDate;
+      if (!dueDateString) return;
+
+      let paymentDate = parseISO(dueDateString);
       // If due date is invalid, skip
       if (isNaN(paymentDate.getTime())) return;
 

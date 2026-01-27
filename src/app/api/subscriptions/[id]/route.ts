@@ -51,6 +51,9 @@ export async function PUT(
     // Map 'default' currency to the user's configured currency
     const result = {
       ...updatedSubscription,
+      dueDate: updatedSubscription.due_date,
+      intervalValue: updatedSubscription.interval_value,
+      intervalUnit: updatedSubscription.interval_unit,
       currency: updatedSubscription.currency === 'default' ? defaultCurrency : updatedSubscription.currency,
       showCurrencySymbol,
       tags: updatedSubscription.tags ? JSON.parse(updatedSubscription.tags) : []
@@ -73,7 +76,7 @@ export async function DELETE(
   try {
     const id = parseInt(params.id);
     const db = await getDb();
-    
+
     const result = await db.run('DELETE FROM subscriptions WHERE id = ?', id);
     await db.close();
 
@@ -101,7 +104,7 @@ export async function GET(
   try {
     const id = parseInt(params.id);
     const db = await getDb();
-    
+
     const subscription = await db.get('SELECT * FROM subscriptions WHERE id = ?', id);
     const userConfig = await db.get('SELECT currency, show_currency_symbol FROM user_configuration LIMIT 1');
     await db.close();
@@ -119,6 +122,9 @@ export async function GET(
     // Map 'default' currency to the user's configured currency
     const result = {
       ...subscription,
+      dueDate: subscription.due_date,
+      intervalValue: subscription.interval_value,
+      intervalUnit: subscription.interval_unit,
       currency: subscription.currency === 'default' ? defaultCurrency : subscription.currency,
       showCurrencySymbol,
       tags: subscription.tags ? JSON.parse(subscription.tags) : []

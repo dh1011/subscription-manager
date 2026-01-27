@@ -5,7 +5,7 @@ import styles from './CurrencySettingsModal.module.css';
 import getSymbolFromCurrency from 'currency-symbol-map';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-const currencyList = require('currency-symbol-map/map');
+const currencyList = require('currency-symbol-map/map') as { [key: string]: string };
 
 interface CurrencySettingsModalProps {
   isOpen: boolean;

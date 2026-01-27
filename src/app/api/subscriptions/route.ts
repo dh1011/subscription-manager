@@ -14,6 +14,9 @@ export async function GET() {
 
     const result = subscriptions.map(sub => ({
       ...sub,
+      dueDate: sub.due_date,
+      intervalValue: sub.interval_value,
+      intervalUnit: sub.interval_unit,
       currency: sub.currency === 'default' ? defaultCurrency : sub.currency,
       showCurrencySymbol,
       tags: sub.tags ? JSON.parse(sub.tags) : []
@@ -33,7 +36,7 @@ export async function POST(request: Request) {
   try {
     const subscription: Subscription = await request.json();
     const db = await getDb();
-    
+
     const result = await db.run(
       `INSERT INTO subscriptions (
         name, amount, due_date, icon, color, account, autopay,
@@ -65,6 +68,9 @@ export async function POST(request: Request) {
     // Map 'default' currency to the user's configured currency
     const finalSubscription = {
       ...newSubscription,
+      dueDate: newSubscription.due_date,
+      intervalValue: newSubscription.interval_value,
+      intervalUnit: newSubscription.interval_unit,
       currency: newSubscription.currency === 'default' ? defaultCurrency : newSubscription.currency,
       showCurrencySymbol,
       tags: newSubscription.tags ? JSON.parse(newSubscription.tags) : []

@@ -106,7 +106,10 @@ const CostTrendGraph: React.FC<CostTrendGraphProps> = ({
             const amount = typeof sub.amount === 'string' ? parseFloat(sub.amount) : sub.amount;
             if (!amount) return;
 
-            let paymentDate = parseISO(sub.due_date);
+            const dateStr = sub.dueDate || sub.due_date;
+            if (!dateStr) return;
+
+            let paymentDate = parseISO(dateStr);
             if (isNaN(paymentDate.getTime())) return;
 
             const intervalValue = sub.interval_value || sub.intervalValue || 1;
