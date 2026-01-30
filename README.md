@@ -42,12 +42,17 @@ https://github.com/user-attachments/assets/9e7830e1-3c3c-474a-8f48-93ee8f5e440d
        restart: unless-stopped
    ```
 
-2. Run Docker Compose:
+2. Create the data directory:
+   ```bash
+   mkdir data
+   ```
+
+3. Run Docker Compose:
    ```bash
    docker-compose up -d
    ```
 
-3. The app will be available at `http://localhost:3000`.
+4. The app will be available at `http://localhost:3000`.
 
 ---
 
