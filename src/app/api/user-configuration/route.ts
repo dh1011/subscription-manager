@@ -2,10 +2,14 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { UserConfiguration } from '@/types';
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const db = await getDb();
-    const result = await db.get('SELECT currency, show_currency_symbol FROM user_configuration LIMIT 1');
+    const result = await db.get('SELECT currency, show_currency_symbol FROM user_configuration ORDER BY id DESC LIMIT 1');
     await db.close();
 
     if (!result) {
@@ -32,23 +36,18 @@ export async function POST(request: Request) {
   try {
     const config: UserConfiguration = await request.json();
     const db = await getDb();
-    
-    const existing = await db.get('SELECT id FROM user_configuration LIMIT 1');
-    
-    if (existing) {
-      await db.run(
-        'UPDATE user_configuration SET currency = ?, show_currency_symbol = ? WHERE id = ?',
-        [config.currency, config.showCurrencySymbol ? 1 : 0, existing.id]
-      );
-    } else {
-      await db.run(
-        'INSERT INTO user_configuration (currency, show_currency_symbol) VALUES (?, ?)',
-        [config.currency, config.showCurrencySymbol ? 1 : 0]
-      );
-    }
-    
+
+    // Delete existing
+    await db.run('DELETE FROM user_configuration');
+
+    // Insert new
+    await db.run(
+      'INSERT INTO user_configuration (currency, show_currency_symbol) VALUES (?, ?)',
+      [config.currency, config.showCurrencySymbol ? 1 : 0]
+    );
+
     await db.close();
-    
+
     return NextResponse.json({ message: 'User configuration updated successfully' });
   } catch (error) {
     console.error('Error updating user configuration:', error);
@@ -62,25 +61,21 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const config: UserConfiguration = await request.json();
+    console.log('PUT user-configuration:', config);
     const db = await getDb();
-    
-    const existing = await db.get('SELECT id FROM user_configuration LIMIT 1');
-    
-    if (existing) {
-      await db.run(
-        'UPDATE user_configuration SET currency = ?, show_currency_symbol = ? WHERE id = ?',
-        [config.currency, config.showCurrencySymbol ? 1 : 0, existing.id]
-      );
-    } else {
-      await db.run(
-        'INSERT INTO user_configuration (currency, show_currency_symbol) VALUES (?, ?)',
-        [config.currency, config.showCurrencySymbol ? 1 : 0]
-      );
-    }
-    
+
+    // Delete existing
+    await db.run('DELETE FROM user_configuration');
+
+    // Insert new
+    await db.run(
+      'INSERT INTO user_configuration (currency, show_currency_symbol) VALUES (?, ?)',
+      [config.currency, config.showCurrencySymbol ? 1 : 0]
+    );
+
     await db.close();
-    
-    return NextResponse.json({ message: 'User configuration updated successfully' });
+
+    return NextResponse.json(config);
   } catch (error) {
     console.error('Error updating user configuration:', error);
     return NextResponse.json(
@@ -88,4 +83,4 @@ export async function PUT(request: Request) {
       { status: 500 }
     );
   }
-} 
+}

@@ -20,7 +20,7 @@ export async function getDb() {
 
 export async function initializeDb() {
   const db = await getDb();
-  
+
   // Create user_configuration table
   await db.exec(`
     CREATE TABLE IF NOT EXISTS user_configuration (
@@ -59,7 +59,7 @@ export async function initializeDb() {
   `);
 
   // Check if we need to insert default user configuration
-  const config = await db.get('SELECT * FROM user_configuration LIMIT 1');
+  const config = await db.get('SELECT * FROM user_configuration ORDER BY id DESC LIMIT 1');
   if (!config) {
     await db.run(
       'INSERT INTO user_configuration (currency, show_currency_symbol) VALUES (?, ?)',
@@ -68,4 +68,4 @@ export async function initializeDb() {
   }
 
   await db.close();
-} 
+}

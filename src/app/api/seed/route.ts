@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { format, addMonths, addDays } from 'date-fns';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function GET() {
     try {
         const db = await getDb();

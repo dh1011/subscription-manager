@@ -121,17 +121,7 @@ code {
   color: #080808;
 }
 
-.react-calendar {
-  border: none;
-}
 
-.react-calendar__navigation button {
-  min-width: 44px;
-}
-
-.react-calendar__tile {
-  max-width: initial !important;
-}
 
 .import-input {
   display: none;

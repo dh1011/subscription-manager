@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { Subscription } from '@/types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const db = await getDb();
@@ -84,4 +87,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}
