@@ -40,3 +40,5 @@ docker-compose_dev.yml
 data
 
 .next
+
+.claude
