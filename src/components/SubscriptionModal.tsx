@@ -7,6 +7,7 @@ import getSymbolFromCurrency from 'currency-symbol-map';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '@/styles/react-datepicker-dark.css';
+import { parseISO } from 'date-fns';
 import { Subscription } from '@/types';
 import { getRandomColor } from '@/lib/utils';
 import styles from './SubscriptionModal.module.css';
@@ -50,10 +51,10 @@ export default function SubscriptionModal({
       setId(selectedSubscription.id || null);
       setName(selectedSubscription.name);
       setAmount(selectedSubscription.amount.toString());
-      setDueDate(selectedSubscription.dueDate 
-        ? new Date(selectedSubscription.dueDate) 
-        : (selectedSubscription.due_date 
-          ? new Date(selectedSubscription.due_date) 
+      setDueDate(selectedSubscription.dueDate
+        ? parseISO(selectedSubscription.dueDate)
+        : (selectedSubscription.due_date
+          ? parseISO(selectedSubscription.due_date)
           : null));
       setIcon(selectedSubscription.icon || '');
       setIconInput(selectedSubscription.icon || '');
