@@ -242,11 +242,14 @@ export default function SubscriptionList({
   };
 
   // Filter subscriptions by tags
-  const filteredSubscriptions = tagFilters.length > 0
-    ? subscriptions.filter(sub =>
-      sub.tags && sub.tags.some(tag => tagFilters.includes(tag))
-    )
-    : subscriptions;
+  const filteredSubscriptions = useMemo(() =>
+    tagFilters.length > 0
+      ? subscriptions.filter(sub =>
+        sub.tags && sub.tags.some(tag => tagFilters.includes(tag))
+      )
+      : subscriptions,
+    [subscriptions, tagFilters]
+  );
 
   // Notify parent about filtered subscriptions
   useEffect(() => {

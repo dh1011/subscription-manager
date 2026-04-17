@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import SubscriptionList from '@/components/SubscriptionList';
 import SubscriptionModal from '@/components/SubscriptionModal';
@@ -139,6 +139,17 @@ export default function Home() {
       )
     );
   };
+
+  const handleFilteredSubscriptionsChange = useCallback(
+    (nextFilteredSubscriptions: Subscription[]) => {
+      setFilteredSubscriptions(nextFilteredSubscriptions);
+    },
+    []
+  );
+
+  const handleTagFilterChange = useCallback((tags: string[]) => {
+    setSelectedTags(tags);
+  }, []);
 
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
@@ -342,8 +353,8 @@ export default function Home() {
           onDelete={handleDeleteSubscription}
           onToggleInclude={handleToggleInclude}
           showCurrencySymbol={userConfig.showCurrencySymbol}
-          onFilteredSubscriptionsChange={(filteredSubs) => setFilteredSubscriptions(filteredSubs)}
-          onTagFilterChange={(tags) => setSelectedTags(tags)}
+          onFilteredSubscriptionsChange={handleFilteredSubscriptionsChange}
+          onTagFilterChange={handleTagFilterChange}
         />
         <Totals
           subscriptions={filteredSubscriptions || subscriptions}
