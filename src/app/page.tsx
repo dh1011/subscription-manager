@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Header from '@/components/Header';
 import SubscriptionList from '@/components/SubscriptionList';
 import SubscriptionModal from '@/components/SubscriptionModal';
@@ -29,7 +29,6 @@ export default function Home() {
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | undefined>();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isLoading, setIsLoading] = useState(true);
-  const [filteredSubscriptions, setFilteredSubscriptions] = useState<Subscription[] | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
 
@@ -140,16 +139,19 @@ export default function Home() {
     );
   };
 
-  const handleFilteredSubscriptionsChange = useCallback(
-    (nextFilteredSubscriptions: Subscription[]) => {
-      setFilteredSubscriptions(nextFilteredSubscriptions);
-    },
-    []
-  );
-
   const handleTagFilterChange = useCallback((tags: string[]) => {
     setSelectedTags(tags);
   }, []);
+
+  const visibleSubscriptions = useMemo(() => {
+    if (selectedTags.length === 0) {
+      return subscriptions;
+    }
+
+    return subscriptions.filter(sub =>
+      sub.tags?.some(tag => selectedTags.includes(tag))
+    );
+  }, [subscriptions, selectedTags]);
 
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
@@ -353,11 +355,11 @@ export default function Home() {
           onDelete={handleDeleteSubscription}
           onToggleInclude={handleToggleInclude}
           showCurrencySymbol={userConfig.showCurrencySymbol}
-          onFilteredSubscriptionsChange={handleFilteredSubscriptionsChange}
+          selectedTags={selectedTags}
           onTagFilterChange={handleTagFilterChange}
         />
         <Totals
-          subscriptions={filteredSubscriptions || subscriptions}
+          subscriptions={visibleSubscriptions}
           currency={userConfig.currency}
           showCurrencySymbol={userConfig.showCurrencySymbol}
           selectedTags={selectedTags}
@@ -365,13 +367,13 @@ export default function Home() {
           onPeriodChange={setSelectedPeriod}
         />
         <CostTrendGraph
-          subscriptions={filteredSubscriptions || subscriptions}
+          subscriptions={visibleSubscriptions}
           selectedPeriod={selectedPeriod}
           currency={userConfig.currency}
           showCurrencySymbol={userConfig.showCurrencySymbol}
         />
         <CompositionCharts
-          subscriptions={filteredSubscriptions || subscriptions}
+          subscriptions={visibleSubscriptions}
           currency={userConfig.currency}
         />
       </div>
@@ -401,4 +403,4 @@ export default function Home() {
       )}
     </div>
   );
-} 
+}

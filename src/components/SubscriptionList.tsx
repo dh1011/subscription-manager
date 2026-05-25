@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify-icon/react';
@@ -155,7 +155,7 @@ interface Props {
   onDelete: (id: number) => void;
   onToggleInclude: (id: number) => void;
   showCurrencySymbol: boolean;
-  onFilteredSubscriptionsChange?: (filteredSubscriptions: Subscription[]) => void;
+  selectedTags: string[];
   onTagFilterChange?: (tags: string[]) => void;
   maxHeight?: string;
 }
@@ -201,12 +201,11 @@ export default function SubscriptionList({
   onDelete,
   onToggleInclude,
   showCurrencySymbol,
-  onFilteredSubscriptionsChange,
+  selectedTags,
   onTagFilterChange,
   maxHeight = '400px'
 }: Props) {
   const [sortBy, setSortBy] = useState<'dueDate' | 'creditCard' | 'amount' | 'tags'>('dueDate');
-  const [tagFilters, setTagFilters] = useState<string[]>([]);
 
   const formatCurrency = (amount: number, currencyCode: string): string => {
     const code = currencyCode || 'USD';
@@ -232,34 +231,26 @@ export default function SubscriptionList({
 
   // Toggle tag selection
   const handleTagClick = (tag: string) => {
-    setTagFilters(prevTags => {
-      if (prevTags.includes(tag)) {
-        return prevTags.filter(t => t !== tag);
-      } else {
-        return [...prevTags, tag];
-      }
-    });
+    if (!onTagFilterChange) {
+      return;
+    }
+
+    onTagFilterChange(
+      selectedTags.includes(tag)
+        ? selectedTags.filter(t => t !== tag)
+        : [...selectedTags, tag]
+    );
   };
 
   // Filter subscriptions by tags
   const filteredSubscriptions = useMemo(() =>
-    tagFilters.length > 0
+    selectedTags.length > 0
       ? subscriptions.filter(sub =>
-        sub.tags && sub.tags.some(tag => tagFilters.includes(tag))
+        sub.tags && sub.tags.some(tag => selectedTags.includes(tag))
       )
       : subscriptions,
-    [subscriptions, tagFilters]
+    [subscriptions, selectedTags]
   );
-
-  // Notify parent about filtered subscriptions
-  useEffect(() => {
-    if (onFilteredSubscriptionsChange) {
-      onFilteredSubscriptionsChange(filteredSubscriptions);
-    }
-    if (onTagFilterChange) {
-      onTagFilterChange(tagFilters);
-    }
-  }, [filteredSubscriptions, onFilteredSubscriptionsChange, tagFilters, onTagFilterChange]);
 
   const sortedSubscriptions = [...filteredSubscriptions].sort((a, b) => {
     switch (sortBy) {
@@ -305,7 +296,7 @@ export default function SubscriptionList({
 
       {allTags.length > 0 && (
         <TagsContainer>
-          {tagFilters.length > 0 && (
+          {selectedTags.length > 0 && (
             <Badge
               style={{
                 display: 'inline-flex',
@@ -320,7 +311,7 @@ export default function SubscriptionList({
                 transition: 'all 0.2s ease',
                 boxShadow: 'none',
               }}
-              onClick={() => setTagFilters([])}
+              onClick={() => onTagFilterChange?.([])}
               onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
                 e.currentTarget.style.transform = 'translateY(-1px)';
@@ -336,9 +327,9 @@ export default function SubscriptionList({
               Clear All
             </Badge>
           )}
-          {allTags.map((tag, index) => (
+          {allTags.map((tag) => (
             <Badge
-              key={index}
+              key={tag}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -347,11 +338,11 @@ export default function SubscriptionList({
                 fontSize: '0.8em',
                 margin: '2px 4px 2px 0',
                 cursor: 'pointer',
-                backgroundColor: tagFilters.includes(tag)
+                backgroundColor: selectedTags.includes(tag)
                   ? 'rgba(255, 140, 0, 0.8)'
                   : 'rgba(255, 140, 0, 0.2)',
-                color: tagFilters.includes(tag) ? '#fff' : '#FF8C00',
-                fontWeight: tagFilters.includes(tag) ? 'bold' : 'normal',
+                color: selectedTags.includes(tag) ? '#fff' : '#FF8C00',
+                fontWeight: selectedTags.includes(tag) ? 'bold' : 'normal',
                 transition: 'all 0.2s ease',
                 boxShadow: 'none',
               }}
@@ -359,14 +350,14 @@ export default function SubscriptionList({
               onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
                 e.currentTarget.style.transform = 'translateY(-1px)';
-                if (!tagFilters.includes(tag)) {
+                if (!selectedTags.includes(tag)) {
                   e.currentTarget.style.backgroundColor = 'rgba(255, 140, 0, 0.3)';
                 }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.boxShadow = 'none';
                 e.currentTarget.style.transform = 'translateY(0)';
-                if (!tagFilters.includes(tag)) {
+                if (!selectedTags.includes(tag)) {
                   e.currentTarget.style.backgroundColor = 'rgba(255, 140, 0, 0.2)';
                 }
               }}
@@ -495,9 +486,9 @@ export default function SubscriptionList({
                       marginTop: '4px',
                       width: '100%'
                     }}>
-                      {sub.tags.map((tag, index) => (
+                      {sub.tags.map((tag) => (
                         <Badge
-                          key={index}
+                          key={tag}
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -530,4 +521,4 @@ export default function SubscriptionList({
       </ListContainer>
     </Container>
   );
-} 
+}
