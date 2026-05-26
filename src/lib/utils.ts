@@ -1,5 +1,6 @@
 import { Subscription } from '@/types';
 import { addDays, addMonths, addWeeks, addYears } from 'date-fns';
+import { isOnOrBeforeSubscriptionEnd } from '@/lib/subscriptionDates';
 
 export function computeNextDueDates(subscription: Subscription): Date[] {
   const now = new Date();
@@ -9,7 +10,7 @@ export function computeNextDueDates(subscription: Subscription): Date[] {
   const oneMonthLater = addMonths(now, 1);
 
   while (nextDueDate <= oneMonthLater) {
-    if (nextDueDate >= now) {
+    if (nextDueDate >= now && isOnOrBeforeSubscriptionEnd(nextDueDate, subscription)) {
       dueDates.push(nextDueDate);
     }
 

@@ -45,9 +45,16 @@ export async function initializeDb() {
       interval_unit TEXT NOT NULL,
       notify INTEGER NOT NULL DEFAULT 0,
       currency TEXT DEFAULT 'default',
+      end_date TEXT,
       tags TEXT
     )
   `);
+
+  const subscriptionColumns = await db.all('PRAGMA table_info(subscriptions)');
+  const hasEndDate = subscriptionColumns.some(column => column.name === 'end_date');
+  if (!hasEndDate) {
+    await db.exec('ALTER TABLE subscriptions ADD COLUMN end_date TEXT');
+  }
 
   // Create ntfy_settings table
   await db.exec(`

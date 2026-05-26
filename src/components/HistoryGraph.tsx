@@ -13,6 +13,7 @@ import { format, subMonths, startOfMonth, isAfter, isBefore, subDays, subWeeks, 
 import { Subscription } from '@/types';
 import styles from './HistoryGraph.module.css';
 import getSymbolFromCurrency from 'currency-symbol-map';
+import { isOnOrBeforeSubscriptionEnd } from '@/lib/subscriptionDates';
 
 interface HistoryGraphProps {
   subscriptions: Subscription[];
@@ -78,7 +79,7 @@ const HistoryGraph: React.FC<HistoryGraphProps> = ({ subscriptions, currency, sh
       while (isAfter(cursor, startDate) || cursor.getTime() === startDate.getTime()) {
         if (iterations++ > MAX_ITERATIONS) break;
 
-        if (isBefore(cursor, today) || cursor.getTime() === today.getTime()) {
+        if ((isBefore(cursor, today) || cursor.getTime() === today.getTime()) && isOnOrBeforeSubscriptionEnd(cursor, sub)) {
           const monthKey = format(cursor, 'yyyy-MM');
           if (monthlyTotals.has(monthKey)) {
             monthlyTotals.set(monthKey, (monthlyTotals.get(monthKey) || 0) + amount);

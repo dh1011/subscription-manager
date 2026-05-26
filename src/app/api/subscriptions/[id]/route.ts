@@ -15,7 +15,7 @@ export async function PUT(
       `UPDATE subscriptions SET
         name = ?, amount = ?, due_date = ?, icon = ?, color = ?,
         account = ?, autopay = ?, interval_value = ?, interval_unit = ?,
-        notify = ?, currency = ?, tags = ?
+        notify = ?, currency = ?, end_date = ?, tags = ?
       WHERE id = ?`,
       [
         subscription.name,
@@ -29,6 +29,7 @@ export async function PUT(
         subscription.intervalUnit,
         subscription.notify ? 1 : 0,
         subscription.currency || 'default',
+        subscription.endDate || subscription.end_date || null,
         subscription.tags ? JSON.stringify(subscription.tags) : null,
         id
       ]
@@ -52,6 +53,7 @@ export async function PUT(
     const result = {
       ...updatedSubscription,
       dueDate: updatedSubscription.due_date,
+      endDate: updatedSubscription.end_date,
       intervalValue: updatedSubscription.interval_value,
       intervalUnit: updatedSubscription.interval_unit,
       currency: updatedSubscription.currency === 'default' ? defaultCurrency : updatedSubscription.currency,
@@ -123,6 +125,7 @@ export async function GET(
     const result = {
       ...subscription,
       dueDate: subscription.due_date,
+      endDate: subscription.end_date,
       intervalValue: subscription.interval_value,
       intervalUnit: subscription.interval_unit,
       currency: subscription.currency === 'default' ? defaultCurrency : subscription.currency,

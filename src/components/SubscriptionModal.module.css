@@ -199,6 +199,29 @@ input:checked + .slider:before {
   background-color: #3c3c3c;
 }
 
+.endDateInputContainer {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.endDateInputContainer :global(.react-datepicker-wrapper) {
+  flex: 1;
+}
+
+.clearDateButton {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 5px;
+  background: #444;
+  color: #fff;
+  cursor: pointer;
+}
+
+.clearDateButton:hover {
+  opacity: 0.9;
+}
+
 .autopayStatus {
   margin-left: 10px;
   font-size: 0.9em;

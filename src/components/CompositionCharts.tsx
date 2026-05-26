@@ -10,6 +10,7 @@ import {
 import { Subscription } from '@/types';
 import styles from './Charts.module.css';
 import getSymbolFromCurrency from 'currency-symbol-map';
+import { isSubscriptionActive } from '@/lib/subscriptionDates';
 
 interface CompositionChartsProps {
     subscriptions: Subscription[];
@@ -22,7 +23,7 @@ const CompositionCharts: React.FC<CompositionChartsProps> = ({ subscriptions, cu
 
     // Normalize everything to monthly cost for fair comparison in pie chart
     const getMonthlyAmount = (sub: Subscription) => {
-        if (sub.included === false) return 0;
+        if (sub.included === false || !isSubscriptionActive(sub)) return 0;
         const amount = typeof sub.amount === 'string' ? parseFloat(sub.amount) : sub.amount;
         const intervalValue = sub.interval_value || sub.intervalValue || 1;
         const intervalUnit = sub.interval_unit || sub.intervalUnit || 'months';

@@ -7,6 +7,7 @@ import { Icon } from '@iconify-icon/react';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { parseISO, addDays, addWeeks, addMonths, addYears, format } from 'date-fns';
 import { Subscription } from '@/types';
+import { getSubscriptionEndDate, isSubscriptionEnded } from '@/lib/subscriptionDates';
 
 const Container = styled.div`
   background: transparent;
@@ -161,6 +162,10 @@ interface Props {
 }
 
 function getNextDueDate(subscription: Subscription): Date | null {
+  if (isSubscriptionEnded(subscription)) {
+    return null;
+  }
+
   // Try due_date if dueDate is not available
   const dueDateValue = subscription.dueDate || subscription.due_date;
 
@@ -170,8 +175,8 @@ function getNextDueDate(subscription: Subscription): Date | null {
 
   const today = new Date();
   let dueDate = parseISO(dueDateValue);
-  const intervalValue = subscription.intervalValue ?? 1;
-  const intervalUnit = subscription.intervalUnit ?? 'months';
+  const intervalValue = subscription.intervalValue ?? subscription.interval_value ?? 1;
+  const intervalUnit = subscription.intervalUnit ?? subscription.interval_unit ?? 'months';
 
   while (dueDate <= today) {
     switch (intervalUnit) {
@@ -253,6 +258,13 @@ export default function SubscriptionList({
   );
 
   const sortedSubscriptions = [...filteredSubscriptions].sort((a, b) => {
+    const aEnded = isSubscriptionEnded(a);
+    const bEnded = isSubscriptionEnded(b);
+
+    if (aEnded !== bEnded) {
+      return aEnded ? 1 : -1;
+    }
+
     switch (sortBy) {
       case 'dueDate':
         const dateA = getNextDueDate(a);
@@ -370,7 +382,11 @@ export default function SubscriptionList({
       <ListContainer $maxHeight={maxHeight}>
         <List>
           <AnimatePresence>
-            {sortedSubscriptions.map((sub) => (
+            {sortedSubscriptions.map((sub) => {
+              const isEnded = isSubscriptionEnded(sub);
+              const endDate = getSubscriptionEndDate(sub);
+
+              return (
               <Item
                 key={sub.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -382,7 +398,7 @@ export default function SubscriptionList({
                   <div style={{ position: 'relative' }}>
                     <input
                       type="checkbox"
-                      checked={sub.included}
+                      checked={sub.included !== false}
                       onChange={() => onToggleInclude(sub.id!)}
                       style={{
                         width: '12px',
@@ -392,7 +408,7 @@ export default function SubscriptionList({
                         outline: 'none',
                         border: '2px solid #03DAC6',
                         borderRadius: '50%',
-                        backgroundColor: sub.included ? '#03DAC6' : 'transparent',
+                        backgroundColor: sub.included !== false ? '#03DAC6' : 'transparent',
                       }}
                     />
                   </div>
@@ -435,14 +451,16 @@ export default function SubscriptionList({
                       color: '#fff',
                       order: -1
                     }}>
-                      {(() => {
-                        const nextDueDate = getNextDueDate(sub);
-                        if (nextDueDate) {
-                          return format(nextDueDate, 'MMM d, yyyy');
-                        } else {
-                          return 'No due date';
-                        }
-                      })()}
+                      {isEnded && endDate
+                        ? `Ended ${format(endDate, 'MMM d, yyyy')}`
+                        : (() => {
+                          const nextDueDate = getNextDueDate(sub);
+                          if (nextDueDate) {
+                            return format(nextDueDate, 'MMM d, yyyy');
+                          } else {
+                            return 'No due date';
+                          }
+                        })()}
                     </Badge>
                     {Boolean(sub.autopay) && (
                       <Badge style={{
@@ -515,7 +533,8 @@ export default function SubscriptionList({
                   </Button>
                 </ItemActions>
               </Item>
-            ))}
+              );
+            })}
           </AnimatePresence>
         </List>
       </ListContainer>

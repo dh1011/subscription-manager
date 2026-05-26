@@ -4,6 +4,7 @@ import { parseISO, addDays, addMonths, addYears, isSameMonth, getDate, set } fro
 import { Icon } from '@iconify-icon/react';
 import styles from './CalendarGrid.module.css';
 import { Subscription as AppSubscription } from '@/types';
+import { getSubscriptionEndDate } from '@/lib/subscriptionDates';
 
 interface CalendarSubscription {
   id?: number | string;
@@ -43,7 +44,11 @@ function CalendarGrid({ subscriptions, onDateClick, currentDate }: CalendarGridP
         // Set the currentDate time to noon to avoid timezone issues
         currentDate = set(currentDate, { hours: 12, minutes: 0, seconds: 0, milliseconds: 0 });
 
-        const endDate = set(new Date(year, month + 1, 0), { hours: 12, minutes: 0, seconds: 0, milliseconds: 0 });
+        const subscriptionEndDate = getSubscriptionEndDate(sub);
+        const monthEndDate = set(new Date(year, month + 1, 0), { hours: 12, minutes: 0, seconds: 0, milliseconds: 0 });
+        const endDate = subscriptionEndDate && subscriptionEndDate < monthEndDate
+          ? set(subscriptionEndDate, { hours: 12, minutes: 0, seconds: 0, milliseconds: 0 })
+          : monthEndDate;
 
         // Get interval info - check both camelCase and snake_case properties
         const intervalUnit = sub.intervalUnit || sub.interval_unit || 'months';

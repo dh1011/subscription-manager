@@ -13,6 +13,7 @@ import { faCog } from '@fortawesome/free-solid-svg-icons';
 import ConfigurationModal from '@/components/ConfigurationModal';
 import CostTrendGraph from '@/components/CostTrendGraph';
 import CompositionCharts from '@/components/CompositionCharts';
+import { isSubscriptionActive } from '@/lib/subscriptionDates';
 
 export default function Home() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -49,7 +50,8 @@ export default function Home() {
         const updatedSubs = subs.map((sub: Subscription) => ({
           ...sub,
           included: sub.included !== undefined ? sub.included : true,
-          interval_value: sub.intervalValue?.toString() || '1',
+          endDate: sub.endDate || sub.end_date || null,
+          interval_value: sub.intervalValue || sub.interval_value || 1,
           interval_unit: sub.intervalUnit || 'months'
         }));
 
@@ -153,6 +155,11 @@ export default function Home() {
     );
   }, [subscriptions, selectedTags]);
 
+  const activeVisibleSubscriptions = useMemo(
+    () => visibleSubscriptions.filter(sub => isSubscriptionActive(sub)),
+    [visibleSubscriptions]
+  );
+
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
     setSelectedSubscription(undefined);
@@ -196,6 +203,8 @@ export default function Home() {
             amount: Number(sub.amount),
             due_date: sub.due_date,
             dueDate: dueDate,
+            end_date: sub.end_date || sub.endDate || null,
+            endDate: sub.endDate || sub.end_date || null,
             icon: sub.icon || "",
             color: sub.color || "",
             account: sub.account || "",
@@ -359,7 +368,7 @@ export default function Home() {
           onTagFilterChange={handleTagFilterChange}
         />
         <Totals
-          subscriptions={visibleSubscriptions}
+          subscriptions={activeVisibleSubscriptions}
           currency={userConfig.currency}
           showCurrencySymbol={userConfig.showCurrencySymbol}
           selectedTags={selectedTags}
@@ -373,7 +382,7 @@ export default function Home() {
           showCurrencySymbol={userConfig.showCurrencySymbol}
         />
         <CompositionCharts
-          subscriptions={visibleSubscriptions}
+          subscriptions={activeVisibleSubscriptions}
           currency={userConfig.currency}
         />
       </div>

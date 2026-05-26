@@ -9,6 +9,8 @@ export interface Subscription {
   amount: number;
   dueDate: string;
   due_date?: string;
+  endDate?: string | null;
+  end_date?: string | null;
   icon?: string;
   color?: string;
   account?: string;

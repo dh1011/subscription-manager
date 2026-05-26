@@ -7,7 +7,7 @@ import getSymbolFromCurrency from 'currency-symbol-map';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '@/styles/react-datepicker-dark.css';
-import { parseISO } from 'date-fns';
+import { parseISO, startOfDay } from 'date-fns';
 import { Subscription } from '@/types';
 import { getRandomColor } from '@/lib/utils';
 import styles from './SubscriptionModal.module.css';
@@ -33,6 +33,7 @@ export default function SubscriptionModal({
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [icon, setIcon] = useState('');
   const [iconInput, setIconInput] = useState('');
   const [color, setColor] = useState('');
@@ -56,6 +57,11 @@ export default function SubscriptionModal({
         : (selectedSubscription.due_date
           ? parseISO(selectedSubscription.due_date)
           : null));
+      setEndDate(selectedSubscription.endDate
+        ? parseISO(selectedSubscription.endDate)
+        : (selectedSubscription.end_date
+          ? parseISO(selectedSubscription.end_date)
+          : null));
       setIcon(selectedSubscription.icon || '');
       setIconInput(selectedSubscription.icon || '');
       setColor(selectedSubscription.color || '');
@@ -71,6 +77,7 @@ export default function SubscriptionModal({
       if (selectedDate) {
         setDueDate(selectedDate);
       }
+      setEndDate(null);
       setColor(getRandomColor());
       setIntervalValue(1);
       setIntervalUnit('months');
@@ -93,10 +100,13 @@ export default function SubscriptionModal({
     if (!amount.trim() || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) newErrors.amount = true;
     if (!dueDate) newErrors.dueDate = true;
     if (!icon) newErrors.icon = true;
-    
+    if (endDate && startOfDay(endDate) < startOfDay(new Date())) newErrors.endDate = true;
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      alert('Please fill in all required fields.');
+      alert(newErrors.endDate
+        ? 'End date cannot be in the past.'
+        : 'Please fill in all required fields.');
       return;
     }
     
@@ -105,6 +115,7 @@ export default function SubscriptionModal({
       name,
       amount: parseFloat(amount),
       dueDate: dueDate!.toISOString().split('T')[0],
+      endDate: endDate ? endDate.toISOString().split('T')[0] : null,
       icon,
       color,
       account,
@@ -195,6 +206,39 @@ export default function SubscriptionModal({
               className="dark-theme-datepicker"
               calendarClassName="dark-theme-calendar"
             />
+          </div>
+          <div className={`${styles.formGroup} ${styles.datePickerGroup}`}>
+            <label htmlFor="endDate">End Date</label>
+            <div className={styles.endDateInputContainer}>
+              <DatePicker
+                id="endDate"
+                selected={endDate}
+                onChange={(date: Date | null) => setEndDate(date)}
+                dateFormat="d MMM yyyy"
+                minDate={new Date()}
+                isClearable
+                customInput={
+                  <button
+                    type="button"
+                    className={styles.datePickerButton}
+                    style={errors.endDate ? { border: '1px solid #ff4444', boxShadow: '0 0 5px rgba(255, 68, 68, 0.3)' } : {}}
+                  >
+                    {endDate ? formatDate(endDate) : 'No end date'}
+                  </button>
+                }
+                className="dark-theme-datepicker"
+                calendarClassName="dark-theme-calendar"
+              />
+              {endDate && (
+                <button
+                  type="button"
+                  className={styles.clearDateButton}
+                  onClick={() => setEndDate(null)}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="icon">Icon <span style={{ color: '#ff4444' }}>*</span></label>

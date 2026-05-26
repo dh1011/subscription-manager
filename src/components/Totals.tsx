@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { Subscription as AppSubscription } from '@/types';
+import { isSubscriptionActive } from '@/lib/subscriptionDates';
 
 // Standalone interface for internal use
 interface TotalsSubscription {
@@ -58,7 +59,7 @@ function Totals({ subscriptions, currency, showCurrencySymbol, selectedTags, sel
   const calculateTotal = (period: 'week' | 'month' | 'year') => {
     const totals: { [key: string]: number } = {};
     subscriptions.forEach((sub) => {
-      if (sub.included === false) return; // Skip if explicitly not included
+      if (sub.included === false || !isSubscriptionActive(sub)) return;
 
       // Handle both string and number amounts
       const amount = typeof sub.amount === 'string'
@@ -131,7 +132,7 @@ function Totals({ subscriptions, currency, showCurrencySymbol, selectedTags, sel
   }
 
   const accountTotals = subscriptions.reduce<AccountTotals>((acc, sub) => {
-    if (sub.included === false) return acc;
+    if (sub.included === false || !isSubscriptionActive(sub)) return acc;
 
     const account = sub.account || 'Unspecified';
     // Use the subscription's currency directly

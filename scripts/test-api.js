@@ -101,6 +101,7 @@ async function runTests() {
             intervalUnit: 'months',
             notify: true,
             currency: 'USD',
+            endDate: '2024-12-31',
             tags: ['entertainment']
         };
 
@@ -111,6 +112,7 @@ async function runTests() {
         });
         const data = await res.json();
         assert(data.name === 'Test Netflix', 'Name mismatch');
+        assert(data.endDate === '2024-12-31', 'End date should be saved');
         assert(data.id, 'Should have an ID');
         createdSubId = data.id;
     });
@@ -122,6 +124,7 @@ async function runTests() {
         const data = await res.json();
         assert(data.id === createdSubId, 'ID mismatch');
         assert(data.name === 'Test Netflix', 'Name mismatch');
+        assert(data.endDate === '2024-12-31', 'End date mismatch');
     });
 
     // 7. Update Subscription
@@ -131,6 +134,7 @@ async function runTests() {
             name: 'Updated Netflix',
             amount: 19.99,
             dueDate: '2023-12-25',
+            endDate: '2025-01-31',
             intervalValue: 1,
             intervalUnit: 'months',
             currency: 'USD'
@@ -144,6 +148,7 @@ async function runTests() {
         const data = await res.json();
         assert(data.name === 'Updated Netflix', 'Name should be updated');
         assert(data.amount === 19.99, 'Amount should be updated');
+        assert(data.endDate === '2025-01-31', 'End date should be updated');
     });
 
     // 8. Get All Subscriptions
@@ -154,6 +159,7 @@ async function runTests() {
         const found = data.find(sub => sub.id === createdSubId);
         assert(found, 'Created subscription should be in the list');
         assert(found.name === 'Updated Netflix', 'List item should be updated');
+        assert(found.endDate === '2025-01-31', 'List item should include end date');
     });
 
     // 9. Delete Subscription

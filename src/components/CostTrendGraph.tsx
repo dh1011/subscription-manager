@@ -28,6 +28,7 @@ import {
 import { Subscription } from '@/types';
 import styles from './Charts.module.css';
 import getSymbolFromCurrency from 'currency-symbol-map';
+import { isOnOrBeforeSubscriptionEnd } from '@/lib/subscriptionDates';
 
 interface CostTrendGraphProps {
     subscriptions: Subscription[];
@@ -127,7 +128,7 @@ const CostTrendGraph: React.FC<CostTrendGraphProps> = ({
             while (isAfter(cursor, startDate) || cursor.getTime() === startDate.getTime()) {
                 if (iterations++ > MAX_ITERATIONS) break;
 
-                if (isBefore(cursor, today) || cursor.getTime() === today.getTime()) {
+                if ((isBefore(cursor, today) || cursor.getTime() === today.getTime()) && isOnOrBeforeSubscriptionEnd(cursor, sub)) {
                     const key = pointKeyFn(cursor);
                     if (trendTotals.has(key)) {
                         trendTotals.set(key, (trendTotals.get(key) || 0) + amount);
