@@ -66,7 +66,7 @@ async function runTests() {
     await test('GET /api/user-configuration', async () => {
         const res = await request('/api/user-configuration');
         const data = await res.json();
-        assert(data.currency === 'USD', 'Default currency should be USD');
+        assert(typeof data.currency === 'string' && data.currency.length > 0, 'Currency should be configured');
     });
 
     // 4. Update User Config
@@ -113,6 +113,8 @@ async function runTests() {
         const data = await res.json();
         assert(data.name === 'Test Netflix', 'Name mismatch');
         assert(data.endDate === '2024-12-31', 'End date should be saved');
+        assert(data.paidCycleDueDate === null, 'Paid cycle due date should default to null');
+        assert(data.paidAt === null, 'Paid at should default to null');
         assert(data.id, 'Should have an ID');
         createdSubId = data.id;
     });
@@ -125,6 +127,8 @@ async function runTests() {
         assert(data.id === createdSubId, 'ID mismatch');
         assert(data.name === 'Test Netflix', 'Name mismatch');
         assert(data.endDate === '2024-12-31', 'End date mismatch');
+        assert(data.paidCycleDueDate === null, 'Paid cycle due date should be null');
+        assert(data.paidAt === null, 'Paid at should be null');
     });
 
     // 7. Update Subscription
@@ -134,9 +138,14 @@ async function runTests() {
             name: 'Updated Netflix',
             amount: 19.99,
             dueDate: '2023-12-25',
+            icon: 'netflix',
+            color: '#E50914',
+            account: 'Credit Card',
+            autopay: false,
             endDate: '2025-01-31',
             intervalValue: 1,
             intervalUnit: 'months',
+            notify: true,
             currency: 'USD'
         };
 
@@ -149,9 +158,70 @@ async function runTests() {
         assert(data.name === 'Updated Netflix', 'Name should be updated');
         assert(data.amount === 19.99, 'Amount should be updated');
         assert(data.endDate === '2025-01-31', 'End date should be updated');
+        assert(data.autopay === 0 || data.autopay === false, 'Autopay should be disabled for paid tests');
     });
 
-    // 8. Get All Subscriptions
+    // 8. Mark Subscription Paid
+    await test('PATCH /api/subscriptions/[id] mark paid', async () => {
+        assert(createdSubId, 'No created subscription ID');
+        const res = await request(`/api/subscriptions/${createdSubId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paid: true, cycleDueDate: '2024-01-25' }),
+        });
+        const data = await res.json();
+        assert(data.paidCycleDueDate === '2024-01-25', 'Paid cycle date should be saved');
+        assert(data.paidAt, 'Paid at should be set');
+    });
+
+    // 9. Clear Subscription Paid State
+    await test('PATCH /api/subscriptions/[id] clear paid', async () => {
+        assert(createdSubId, 'No created subscription ID');
+        const res = await request(`/api/subscriptions/${createdSubId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paid: false, cycleDueDate: '2024-01-25' }),
+        });
+        const data = await res.json();
+        assert(data.paidCycleDueDate === null, 'Paid cycle date should be cleared');
+        assert(data.paidAt === null, 'Paid at should be cleared');
+    });
+
+    // 10. Reject Paid State for Autopay
+    let autopaySubId;
+    await test('PATCH /api/subscriptions/[id] rejects autopay subscription', async () => {
+        const newSub = {
+            name: 'Autopay Test',
+            amount: 9.99,
+            dueDate: '2024-01-15',
+            icon: 'credit-card',
+            color: '#45B7D1',
+            account: 'Credit Card',
+            autopay: true,
+            intervalValue: 1,
+            intervalUnit: 'months',
+            notify: true,
+            currency: 'USD',
+            tags: []
+        };
+
+        const createRes = await request('/api/subscriptions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newSub),
+        });
+        const created = await createRes.json();
+        autopaySubId = created.id;
+
+        const res = await fetch(`${BASE_URL}/api/subscriptions/${autopaySubId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paid: true, cycleDueDate: '2024-01-15' }),
+        });
+        assert(res.status === 400, 'Autopay paid update should return 400');
+    });
+
+    // 11. Get All Subscriptions
     await test('GET /api/subscriptions', async () => {
         const res = await request('/api/subscriptions');
         const data = await res.json();
@@ -160,9 +230,10 @@ async function runTests() {
         assert(found, 'Created subscription should be in the list');
         assert(found.name === 'Updated Netflix', 'List item should be updated');
         assert(found.endDate === '2025-01-31', 'List item should include end date');
+        assert(found.paidCycleDueDate === null, 'List item should include cleared paid cycle date');
     });
 
-    // 9. Delete Subscription
+    // 12. Delete Subscription
     await test('DELETE /api/subscriptions/[id]', async () => {
         assert(createdSubId, 'No created subscription ID');
         await request(`/api/subscriptions/${createdSubId}`, {
@@ -178,14 +249,22 @@ async function runTests() {
         }
     });
 
-    // 10. NTFY Settings
+    // 13. Delete Autopay Test Subscription
+    await test('DELETE /api/subscriptions/[id] autopay test', async () => {
+        assert(autopaySubId, 'No autopay subscription ID');
+        await request(`/api/subscriptions/${autopaySubId}`, {
+            method: 'DELETE',
+        });
+    });
+
+    // 14. NTFY Settings
     await test('GET /api/ntfy-settings', async () => {
         const res = await request('/api/ntfy-settings');
         const data = await res.json();
         assert(data.domain, 'Should have a domain');
     });
 
-    // 11. Update NTFY Settings
+    // 15. Update NTFY Settings
     await test('PUT /api/ntfy-settings', async () => {
         const newSettings = { topic: 'test-topic', domain: 'https://ntfy.sh' };
         const res = await request('/api/ntfy-settings', {

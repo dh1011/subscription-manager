@@ -11,6 +11,10 @@ export interface Subscription {
   due_date?: string;
   endDate?: string | null;
   end_date?: string | null;
+  paidCycleDueDate?: string | null;
+  paid_cycle_due_date?: string | null;
+  paidAt?: string | null;
+  paid_at?: string | null;
   icon?: string;
   color?: string;
   account?: string;

@@ -46,6 +46,8 @@ export async function initializeDb() {
       notify INTEGER NOT NULL DEFAULT 0,
       currency TEXT DEFAULT 'default',
       end_date TEXT,
+      paid_cycle_due_date TEXT,
+      paid_at TEXT,
       tags TEXT
     )
   `);
@@ -54,6 +56,14 @@ export async function initializeDb() {
   const hasEndDate = subscriptionColumns.some(column => column.name === 'end_date');
   if (!hasEndDate) {
     await db.exec('ALTER TABLE subscriptions ADD COLUMN end_date TEXT');
+  }
+  const hasPaidCycleDueDate = subscriptionColumns.some(column => column.name === 'paid_cycle_due_date');
+  if (!hasPaidCycleDueDate) {
+    await db.exec('ALTER TABLE subscriptions ADD COLUMN paid_cycle_due_date TEXT');
+  }
+  const hasPaidAt = subscriptionColumns.some(column => column.name === 'paid_at');
+  if (!hasPaidAt) {
+    await db.exec('ALTER TABLE subscriptions ADD COLUMN paid_at TEXT');
   }
 
   // Create ntfy_settings table

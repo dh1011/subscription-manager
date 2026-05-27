@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify-icon/react';
 import getSymbolFromCurrency from 'currency-symbol-map';
-import { parseISO, addDays, addWeeks, addMonths, addYears, format } from 'date-fns';
+import { format } from 'date-fns';
 import { Subscription } from '@/types';
-import { getSubscriptionEndDate, isSubscriptionEnded } from '@/lib/subscriptionDates';
+import { getShownCycleDate, getSubscriptionEndDate, isSubscriptionEnded } from '@/lib/subscriptionDates';
 
 const Container = styled.div`
   background: transparent;
@@ -155,49 +155,11 @@ interface Props {
   onEdit: (subscription: Subscription) => void;
   onDelete: (id: number) => void;
   onToggleInclude: (id: number) => void;
+  onTogglePaid: (id: number, cycleDueDate: string, paid: boolean) => void;
   showCurrencySymbol: boolean;
   selectedTags: string[];
   onTagFilterChange?: (tags: string[]) => void;
   maxHeight?: string;
-}
-
-function getNextDueDate(subscription: Subscription): Date | null {
-  if (isSubscriptionEnded(subscription)) {
-    return null;
-  }
-
-  // Try due_date if dueDate is not available
-  const dueDateValue = subscription.dueDate || subscription.due_date;
-
-  if (!dueDateValue) {
-    return null;
-  }
-
-  const today = new Date();
-  let dueDate = parseISO(dueDateValue);
-  const intervalValue = subscription.intervalValue ?? subscription.interval_value ?? 1;
-  const intervalUnit = subscription.intervalUnit ?? subscription.interval_unit ?? 'months';
-
-  while (dueDate <= today) {
-    switch (intervalUnit) {
-      case 'days':
-        dueDate = addDays(dueDate, intervalValue);
-        break;
-      case 'weeks':
-        dueDate = addWeeks(dueDate, intervalValue);
-        break;
-      case 'months':
-        dueDate = addMonths(dueDate, intervalValue);
-        break;
-      case 'years':
-        dueDate = addYears(dueDate, intervalValue);
-        break;
-      default:
-        return dueDate;
-    }
-  }
-
-  return dueDate;
 }
 
 export default function SubscriptionList({
@@ -205,6 +167,7 @@ export default function SubscriptionList({
   onEdit,
   onDelete,
   onToggleInclude,
+  onTogglePaid,
   showCurrencySymbol,
   selectedTags,
   onTagFilterChange,
@@ -267,8 +230,8 @@ export default function SubscriptionList({
 
     switch (sortBy) {
       case 'dueDate':
-        const dateA = getNextDueDate(a);
-        const dateB = getNextDueDate(b);
+        const dateA = getShownCycleDate(a);
+        const dateB = getShownCycleDate(b);
         if (!dateA && !dateB) return 0;
         if (!dateA) return 1; // null dates come last
         if (!dateB) return -1;
@@ -385,6 +348,12 @@ export default function SubscriptionList({
             {sortedSubscriptions.map((sub) => {
               const isEnded = isSubscriptionEnded(sub);
               const endDate = getSubscriptionEndDate(sub);
+              const shownCycleDate = getShownCycleDate(sub);
+              const shownCycleDateKey = shownCycleDate ? format(shownCycleDate, 'yyyy-MM-dd') : null;
+              const isPaidForShownCycle = Boolean(
+                shownCycleDateKey &&
+                (sub.paidCycleDueDate || sub.paid_cycle_due_date) === shownCycleDateKey
+              );
 
               return (
               <Item
@@ -454,7 +423,7 @@ export default function SubscriptionList({
                       {isEnded && endDate
                         ? `Ended ${format(endDate, 'MMM d, yyyy')}`
                         : (() => {
-                          const nextDueDate = getNextDueDate(sub);
+                          const nextDueDate = shownCycleDate;
                           if (nextDueDate) {
                             return format(nextDueDate, 'MMM d, yyyy');
                           } else {
@@ -478,6 +447,29 @@ export default function SubscriptionList({
                         <Icon icon="mdi:auto-pay" style={{ marginRight: '3px' }} />
                         Autopay
                       </Badge>
+                    )}
+                    {!Boolean(sub.autopay) && shownCycleDateKey && (
+                      <Button
+                        type="button"
+                        onClick={() => onTogglePaid(sub.id!, shownCycleDateKey, !isPaidForShownCycle)}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '3px',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '0.8em',
+                          margin: '2px 5px 2px 0',
+                          whiteSpace: 'nowrap',
+                          height: '24px',
+                          backgroundColor: isPaidForShownCycle ? 'rgba(46, 204, 113, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                          color: isPaidForShownCycle ? '#2ECC71' : '#fff'
+                        }}
+                        title={isPaidForShownCycle ? 'Mark current cycle unpaid' : 'Mark current cycle paid'}
+                      >
+                        <Icon icon={isPaidForShownCycle ? 'mdi:check-circle' : 'mdi:cash-check'} />
+                        {isPaidForShownCycle ? 'Paid' : 'Mark Paid'}
+                      </Button>
                     )}
                     {Boolean(sub.notify) && (
                       <Badge style={{

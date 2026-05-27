@@ -51,6 +51,8 @@ export default function Home() {
           ...sub,
           included: sub.included !== undefined ? sub.included : true,
           endDate: sub.endDate || sub.end_date || null,
+          paidCycleDueDate: sub.paidCycleDueDate || sub.paid_cycle_due_date || null,
+          paidAt: sub.paidAt || sub.paid_at || null,
           interval_value: sub.intervalValue || sub.interval_value || 1,
           interval_unit: sub.intervalUnit || 'months'
         }));
@@ -139,6 +141,33 @@ export default function Home() {
         sub.id === id ? { ...sub, included: !sub.included } : sub
       )
     );
+  };
+
+  const handleTogglePaid = async (id: number, cycleDueDate: string, paid: boolean) => {
+    try {
+      const response = await fetch(`/api/subscriptions/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ paid, cycleDueDate }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update paid status');
+      }
+
+      const updatedSubscription = await response.json();
+      setSubscriptions(prev =>
+        prev.map(sub => (sub.id === id ? {
+          ...updatedSubscription,
+          included: sub.included !== undefined ? sub.included : true
+        } : sub))
+      );
+    } catch (error) {
+      console.error('Error updating paid status:', error);
+      alert('Failed to update paid status. Please try again.');
+    }
   };
 
   const handleTagFilterChange = useCallback((tags: string[]) => {
@@ -363,6 +392,7 @@ export default function Home() {
           }}
           onDelete={handleDeleteSubscription}
           onToggleInclude={handleToggleInclude}
+          onTogglePaid={handleTogglePaid}
           showCurrencySymbol={userConfig.showCurrencySymbol}
           selectedTags={selectedTags}
           onTagFilterChange={handleTagFilterChange}

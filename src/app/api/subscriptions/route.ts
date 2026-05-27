@@ -5,6 +5,21 @@ import { Subscription } from '@/types';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+function mapSubscription(sub: any, defaultCurrency: string, showCurrencySymbol: boolean) {
+  return {
+    ...sub,
+    dueDate: sub.due_date,
+    endDate: sub.end_date,
+    paidCycleDueDate: sub.paid_cycle_due_date,
+    paidAt: sub.paid_at,
+    intervalValue: sub.interval_value,
+    intervalUnit: sub.interval_unit,
+    currency: sub.currency === 'default' ? defaultCurrency : sub.currency,
+    showCurrencySymbol,
+    tags: sub.tags ? JSON.parse(sub.tags) : []
+  };
+}
+
 export async function GET() {
   try {
     const db = await getDb();
@@ -15,16 +30,7 @@ export async function GET() {
     const defaultCurrency = userConfig?.currency || 'USD';
     const showCurrencySymbol = userConfig ? Boolean(userConfig.show_currency_symbol) : true;
 
-    const result = subscriptions.map(sub => ({
-      ...sub,
-      dueDate: sub.due_date,
-      endDate: sub.end_date,
-      intervalValue: sub.interval_value,
-      intervalUnit: sub.interval_unit,
-      currency: sub.currency === 'default' ? defaultCurrency : sub.currency,
-      showCurrencySymbol,
-      tags: sub.tags ? JSON.parse(sub.tags) : []
-    }));
+    const result = subscriptions.map(sub => mapSubscription(sub, defaultCurrency, showCurrencySymbol));
 
     return NextResponse.json(result);
   } catch (error) {
@@ -70,17 +76,7 @@ export async function POST(request: Request) {
     const defaultCurrency = userConfig?.currency || 'USD';
     const showCurrencySymbol = userConfig ? Boolean(userConfig.show_currency_symbol) : true;
 
-    // Map 'default' currency to the user's configured currency
-    const finalSubscription = {
-      ...newSubscription,
-      dueDate: newSubscription.due_date,
-      endDate: newSubscription.end_date,
-      intervalValue: newSubscription.interval_value,
-      intervalUnit: newSubscription.interval_unit,
-      currency: newSubscription.currency === 'default' ? defaultCurrency : newSubscription.currency,
-      showCurrencySymbol,
-      tags: newSubscription.tags ? JSON.parse(newSubscription.tags) : []
-    };
+    const finalSubscription = mapSubscription(newSubscription, defaultCurrency, showCurrencySymbol);
 
     return NextResponse.json(finalSubscription);
   } catch (error) {
