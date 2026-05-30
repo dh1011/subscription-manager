@@ -25,9 +25,14 @@ export interface Subscription {
   tags?: string[];
 }
 
+export type NotificationService = 'ntfy' | 'gotify';
+
 export interface NtfySettings {
+  service: NotificationService;
   topic: string;
   domain?: string;
+  gotifyUrl?: string;
+  gotifyToken?: string;
 }
 
 export interface ApiResponse<T> {

@@ -178,16 +178,17 @@ async function runTests() {
         }
     });
 
-    // 10. NTFY Settings
+    // 10. Notification Settings
     await test('GET /api/ntfy-settings', async () => {
         const res = await request('/api/ntfy-settings');
         const data = await res.json();
+        assert(data.service, 'Should have a notification service');
         assert(data.domain, 'Should have a domain');
     });
 
     // 11. Update NTFY Settings
     await test('PUT /api/ntfy-settings', async () => {
-        const newSettings = { topic: 'test-topic', domain: 'https://ntfy.sh' };
+        const newSettings = { service: 'ntfy', topic: 'test-topic', domain: 'https://ntfy.sh' };
         const res = await request('/api/ntfy-settings', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -195,6 +196,25 @@ async function runTests() {
         });
         const data = await res.json();
         assert(data.topic === 'test-topic', 'Topic should be updated');
+    });
+
+    // 12. Update Gotify Settings
+    await test('PUT /api/ntfy-settings with Gotify', async () => {
+        const newSettings = {
+            service: 'gotify',
+            topic: '',
+            domain: 'https://ntfy.sh',
+            gotifyUrl: 'http://gotify.example.test',
+            gotifyToken: 'test-token',
+        };
+        const res = await request('/api/ntfy-settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newSettings),
+        });
+        const data = await res.json();
+        assert(data.service === 'gotify', 'Service should be updated to Gotify');
+        assert(data.gotifyUrl === 'http://gotify.example.test', 'Gotify URL should be updated');
     });
 
     console.log('\n---------------------------------------------------');

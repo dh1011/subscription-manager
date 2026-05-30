@@ -3,8 +3,8 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import styles from './ConfigurationModal.module.css';
 import getSymbolFromCurrency from 'currency-symbol-map/currency-symbol-map';
+import { NotificationService } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL;
 const currencyList = require('currency-symbol-map/map');
 
 interface ConfigurationModalProps {
@@ -12,12 +12,18 @@ interface ConfigurationModalProps {
   onClose: () => void;
   currency: string;
   showCurrencySymbol: boolean;
+  notificationService: NotificationService;
   ntfyTopic: string;
   ntfyDomain: string;
+  gotifyUrl: string;
+  gotifyToken: string;
   onSave: (config: {
     currency: string;
+    notificationService: NotificationService;
     ntfyTopic: string;
     ntfyDomain: string;
+    gotifyUrl: string;
+    gotifyToken: string;
     showCurrencySymbol: boolean;
   }) => void;
 }
@@ -27,13 +33,19 @@ function ConfigurationModal({
   onClose, 
   currency, 
   showCurrencySymbol, 
+  notificationService,
   ntfyTopic, 
   ntfyDomain, 
+  gotifyUrl,
+  gotifyToken,
   onSave 
 }: ConfigurationModalProps) {
   const [selectedCurrency, setSelectedCurrency] = useState(currency);
+  const [service, setService] = useState<NotificationService>(notificationService);
   const [topic, setTopic] = useState(ntfyTopic);
   const [domain, setDomain] = useState(ntfyDomain);
+  const [selectedGotifyUrl, setSelectedGotifyUrl] = useState(gotifyUrl);
+  const [selectedGotifyToken, setSelectedGotifyToken] = useState(gotifyToken);
   const [searchTerm, setSearchTerm] = useState('');
   const [testStatus, setTestStatus] = useState<'success' | 'error' | null>(null);
   const [selectedShowCurrencySymbol, setSelectedShowCurrencySymbol] = useState(showCurrencySymbol);
@@ -41,32 +53,49 @@ function ConfigurationModal({
   useEffect(() => {
     if (isOpen) {
       setSelectedCurrency(currency);
+      setService(notificationService);
       setTopic(ntfyTopic);
       setDomain(ntfyDomain);
+      setSelectedGotifyUrl(gotifyUrl);
+      setSelectedGotifyToken(gotifyToken);
+      setTestStatus(null);
     }
-  }, [isOpen, currency, ntfyTopic, ntfyDomain]);
+  }, [isOpen, currency, notificationService, ntfyTopic, ntfyDomain, gotifyUrl, gotifyToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
       currency: selectedCurrency,
+      notificationService: service,
       ntfyTopic: topic,
       ntfyDomain: domain,
+      gotifyUrl: selectedGotifyUrl,
+      gotifyToken: selectedGotifyToken,
       showCurrencySymbol: selectedShowCurrencySymbol
     });
   };
 
-  const handleTestNtfy = async () => {
-    if (!topic || !domain) {
+  const handleTestNotification = async () => {
+    if (service === 'ntfy' && (!topic || !domain)) {
       setTestStatus('error');
       console.error('NTFY topic and domain are required');
       return;
     }
+
+    if (service === 'gotify' && (!selectedGotifyUrl || !selectedGotifyToken)) {
+      setTestStatus('error');
+      console.error('Gotify URL and token are required');
+      return;
+    }
     
     try {
-      // Make sure domain doesn't have trailing slash
-      const cleanDomain = domain.endsWith('/') ? domain.slice(0, -1) : domain;
-      await axios.post(`${cleanDomain}/${topic}`, 'Test notification from Subscription Manager');
+      await axios.post('/api/test-notification', {
+        service,
+        topic,
+        domain,
+        gotifyUrl: selectedGotifyUrl,
+        gotifyToken: selectedGotifyToken
+      });
       setTestStatus('success');
     } catch (error) {
       setTestStatus('error');
@@ -151,27 +180,65 @@ function ConfigurationModal({
           <div className={styles.configSection}>
             <h3>Notification Settings</h3>
             <div className={styles.formGroup}>
-              <label htmlFor="ntfyTopic">NTFY Topic</label>
-              <input
-                id="ntfyTopic"
-                type="text"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder="Enter your NTFY topic"
-              />
+              <label htmlFor="notificationService">Service</label>
+              <select
+                id="notificationService"
+                value={service}
+                onChange={(e) => setService(e.target.value as NotificationService)}
+              >
+                <option value="ntfy">NTFY</option>
+                <option value="gotify">Gotify</option>
+              </select>
             </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="ntfyDomain">NTFY Domain</label>
-              <input
-                id="ntfyDomain"
-                type="text"
-                value={domain}
-                onChange={(e) => setDomain(e.target.value)}
-                placeholder="Enter your NTFY domain"
-              />
-            </div>
-            <button type="button" onClick={handleTestNtfy} className={styles.testButton}>
-              Test NTFY
+            {service === 'ntfy' ? (
+              <>
+                <div className={styles.formGroup}>
+                  <label htmlFor="ntfyTopic">NTFY Topic</label>
+                  <input
+                    id="ntfyTopic"
+                    type="text"
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    placeholder="Enter your NTFY topic"
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="ntfyDomain">NTFY Domain</label>
+                  <input
+                    id="ntfyDomain"
+                    type="text"
+                    value={domain}
+                    onChange={(e) => setDomain(e.target.value)}
+                    placeholder="Enter your NTFY domain"
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.formGroup}>
+                  <label htmlFor="gotifyUrl">Gotify URL</label>
+                  <input
+                    id="gotifyUrl"
+                    type="text"
+                    value={selectedGotifyUrl}
+                    onChange={(e) => setSelectedGotifyUrl(e.target.value)}
+                    placeholder="Enter your Gotify server URL"
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="gotifyToken">Gotify Application Token</label>
+                  <input
+                    id="gotifyToken"
+                    type="password"
+                    value={selectedGotifyToken}
+                    onChange={(e) => setSelectedGotifyToken(e.target.value)}
+                    placeholder="Enter your Gotify application token"
+                  />
+                </div>
+              </>
+            )}
+            <button type="button" onClick={handleTestNotification} className={styles.testButton}>
+              Test Notification
             </button>
             {testStatus && (
               <p className={`${styles.testStatus} ${styles[testStatus]}`}>
@@ -194,4 +261,4 @@ function ConfigurationModal({
   );
 }
 
-export default ConfigurationModal; 
+export default ConfigurationModal;

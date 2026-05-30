@@ -1,8 +1,8 @@
 # 📅 Subscription Manager
 
-[![Docker](https://img.shields.io/docker/pulls/dh1011/subscription-manager.svg)](https://hub.docker.com/r/dh1011/subscription-manager)
+[![Docker](https://img.shields.io/docker/pulls/dh1011/subscription-manager.svg)](https://hub.docker.com/r/dh1011/subscription-manager) [![Ko-fi](https://img.shields.io/badge/Ko--fi-D94841?logo=kofi&logoColor=white&style=flat)](https://ko-fi.com/H7K020C473)
 
-This single-page web application lets you keep track of and manage your subscriptions. You can add, edit, delete, and view subscriptions all in one place. You can set up notifications for each subscription using NTFY. The app provides a general summary of all your subscriptions and a detailed summary for each payment account, all within a single, intuitive interface.
+This single-page web application lets you keep track of and manage your subscriptions. You can add, edit, delete, and view subscriptions all in one place. You can set up notifications for each subscription using NTFY or Gotify. The app provides a general summary of all your subscriptions and a detailed summary for each payment account, all within a single, intuitive interface.
 
 ## Demo
 https://github.com/user-attachments/assets/9e7830e1-3c3c-474a-8f48-93ee8f5e440d
@@ -13,7 +13,7 @@ https://github.com/user-attachments/assets/9e7830e1-3c3c-474a-8f48-93ee8f5e440d
 - 💰 Calculate weekly, monthly, and yearly totals
 - 📊 Detailed summaries per payment account
 - 🖼️ Easy to add icons for each subscription
-- 🔔 Notification system integration with NTFY
+- 🔔 Notification system integration with NTFY and Gotify
 - 💱 Support for multiple currencies
 
 ## Tech Stack
@@ -94,11 +94,12 @@ This app uses Iconify icons. To add an icon to your subscription, use the icon n
 
 ## Notifications
 
-The app integrates with NTFY for sending notifications. To set up notifications:
+The app integrates with NTFY and Gotify for sending notifications. To set up notifications:
 
 1. Go to the Settings page
-2. Enter your NTFY topic
-3. Save the settings
+2. Choose NTFY or Gotify
+3. Enter your NTFY topic and domain, or your Gotify server URL and application token
+4. Save the settings
 
 You'll receive notifications for upcoming subscription payments.
 

@@ -60,10 +60,30 @@ export async function initializeDb() {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS ntfy_settings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      service TEXT NOT NULL DEFAULT 'ntfy',
       topic TEXT NOT NULL,
-      domain TEXT DEFAULT 'https://ntfy.sh'
+      domain TEXT DEFAULT 'https://ntfy.sh',
+      gotify_url TEXT,
+      gotify_token TEXT
     )
   `);
+
+  const ntfyColumns = await db.all('PRAGMA table_info(ntfy_settings)');
+  const hasNotificationService = ntfyColumns.some(column => column.name === 'service');
+  const hasGotifyUrl = ntfyColumns.some(column => column.name === 'gotify_url');
+  const hasGotifyToken = ntfyColumns.some(column => column.name === 'gotify_token');
+
+  if (!hasNotificationService) {
+    await db.exec("ALTER TABLE ntfy_settings ADD COLUMN service TEXT NOT NULL DEFAULT 'ntfy'");
+  }
+
+  if (!hasGotifyUrl) {
+    await db.exec('ALTER TABLE ntfy_settings ADD COLUMN gotify_url TEXT');
+  }
+
+  if (!hasGotifyToken) {
+    await db.exec('ALTER TABLE ntfy_settings ADD COLUMN gotify_token TEXT');
+  }
 
   // Check if we need to insert default user configuration
   const config = await db.get('SELECT * FROM user_configuration ORDER BY id DESC LIMIT 1');

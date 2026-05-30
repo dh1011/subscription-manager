@@ -9,12 +9,20 @@ export const revalidate = 0;
 export async function GET() {
   try {
     const db = await getDb();
-    const result = await db.get('SELECT topic, domain FROM ntfy_settings ORDER BY id DESC LIMIT 1');
+    const result = await db.get(`
+      SELECT service, topic, domain, gotify_url, gotify_token
+      FROM ntfy_settings
+      ORDER BY id DESC
+      LIMIT 1
+    `);
     await db.close();
 
     return NextResponse.json({
+      service: result?.service || 'ntfy',
       topic: result?.topic || '',
-      domain: result?.domain || 'https://ntfy.sh'
+      domain: result?.domain || 'https://ntfy.sh',
+      gotifyUrl: result?.gotify_url || '',
+      gotifyToken: result?.gotify_token || ''
     });
   } catch (error) {
     console.error('Error fetching NTFY settings:', error);
@@ -35,13 +43,21 @@ export async function POST(request: Request) {
 
     // Insert new settings
     await db.run(
-      'INSERT INTO ntfy_settings (topic, domain) VALUES (?, ?)',
-      [settings.topic, settings.domain || 'https://ntfy.sh']
+      `INSERT INTO ntfy_settings
+        (service, topic, domain, gotify_url, gotify_token)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        settings.service || 'ntfy',
+        settings.topic || '',
+        settings.domain || 'https://ntfy.sh',
+        settings.gotifyUrl || '',
+        settings.gotifyToken || ''
+      ]
     );
 
     await db.close();
 
-    return NextResponse.json({ message: 'NTFY settings updated successfully' });
+    return NextResponse.json({ message: 'Notification settings updated successfully' });
   } catch (error) {
     console.error('Error updating NTFY settings:', error);
     return NextResponse.json(
@@ -62,8 +78,16 @@ export async function PUT(request: Request) {
 
     // Insert new settings
     await db.run(
-      'INSERT INTO ntfy_settings (topic, domain) VALUES (?, ?)',
-      [settings.topic, settings.domain || 'https://ntfy.sh']
+      `INSERT INTO ntfy_settings
+        (service, topic, domain, gotify_url, gotify_token)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        settings.service || 'ntfy',
+        settings.topic || '',
+        settings.domain || 'https://ntfy.sh',
+        settings.gotifyUrl || '',
+        settings.gotifyToken || ''
+      ]
     );
 
     await db.close();

@@ -22,8 +22,11 @@ export default function Home() {
     showCurrencySymbol: true,
   });
   const [ntfySettings, setNtfySettings] = useState<NtfySettings>({
+    service: 'ntfy',
     topic: '',
     domain: 'https://ntfy.sh',
+    gotifyUrl: '',
+    gotifyToken: '',
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
@@ -262,8 +265,11 @@ export default function Home() {
 
   const handleConfigurationSave = async (config: {
     currency: string;
+    notificationService: 'ntfy' | 'gotify';
     ntfyTopic: string;
     ntfyDomain: string;
+    gotifyUrl: string;
+    gotifyToken: string;
     showCurrencySymbol: boolean;
   }) => {
     try {
@@ -282,8 +288,11 @@ export default function Home() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          service: config.notificationService,
           topic: config.ntfyTopic,
-          domain: config.ntfyDomain
+          domain: config.ntfyDomain,
+          gotifyUrl: config.gotifyUrl,
+          gotifyToken: config.gotifyToken
         })
       });
 
@@ -294,8 +303,11 @@ export default function Home() {
       });
 
       setNtfySettings({
+        service: config.notificationService,
         topic: config.ntfyTopic,
-        domain: config.ntfyDomain
+        domain: config.ntfyDomain,
+        gotifyUrl: config.gotifyUrl,
+        gotifyToken: config.gotifyToken
       });
 
       setIsConfigModalOpen(false);
@@ -405,8 +417,11 @@ export default function Home() {
           onClose={() => setIsConfigModalOpen(false)}
           currency={userConfig.currency}
           showCurrencySymbol={userConfig.showCurrencySymbol}
+          notificationService={ntfySettings.service || 'ntfy'}
           ntfyTopic={ntfySettings.topic || ''}
           ntfyDomain={ntfySettings.domain || 'https://ntfy.sh'}
+          gotifyUrl={ntfySettings.gotifyUrl || ''}
+          gotifyToken={ntfySettings.gotifyToken || ''}
           onSave={handleConfigurationSave}
         />
       )}
