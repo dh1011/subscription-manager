@@ -10,6 +10,10 @@ import '@/styles/react-datepicker-dark.css';
 import { parseISO, startOfDay } from 'date-fns';
 import { Subscription } from '@/types';
 import { getRandomColor } from '@/lib/utils';
+import {
+  MATERIAL_DESIGN_ICON_OPTIONS,
+  MATERIAL_DESIGN_ICON_VALUES
+} from '@/constants/materialDesignIcons';
 import styles from './SubscriptionModal.module.css';
 
 const currencyList = require('currency-symbol-map/map');
@@ -130,7 +134,7 @@ export default function SubscriptionModal({
     onClose();
   };
 
-  const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleIconChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setIconInput(e.target.value);
     setIcon(e.target.value.toLowerCase());
   };
@@ -243,14 +247,22 @@ export default function SubscriptionModal({
           <div className={styles.formGroup}>
             <label htmlFor="icon">Icon <span style={{ color: '#ff4444' }}>*</span></label>
             <div className={styles.iconInputContainer}>
-              <input
+              <select
                 id="icon"
-                type="text"
                 value={iconInput}
                 onChange={handleIconChange}
-                placeholder="Enter Material Design Icon name"
                 style={errors.icon ? { border: '1px solid #ff4444', boxShadow: '0 0 5px rgba(255, 68, 68, 0.3)' } : {}}
-              />
+              >
+                <option value="">Select Material Design icon</option>
+                {!MATERIAL_DESIGN_ICON_VALUES.some((value) => value === iconInput) && iconInput && (
+                  <option value={iconInput}>{iconInput}</option>
+                )}
+                {MATERIAL_DESIGN_ICON_OPTIONS.map((iconOption) => (
+                  <option key={iconOption.value} value={iconOption.value}>
+                    {iconOption.label}
+                  </option>
+                ))}
+              </select>
               <span className={styles.iconPreview}>
                 <Icon icon={`mdi:${icon || 'help-circle'}`} />
               </span>
