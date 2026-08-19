@@ -5,6 +5,9 @@ const nextConfig = {
     styledComponents: true,
   },
   output: 'standalone',
+  experimental: {
+    instrumentationHook: true,
+  },
   async headers() {
     return [
       {
@@ -20,4 +23,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig; 
+module.exports = nextConfig;

@@ -1,5 +1,5 @@
 import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import { Database, open } from 'sqlite';
 import path from 'path';
 import fs from 'fs';
 
@@ -18,9 +18,7 @@ export async function getDb() {
   });
 }
 
-export async function initializeDb() {
-  const db = await getDb();
-
+export async function migrateDb(db: Database) {
   // Create user_configuration table
   await db.exec(`
     CREATE TABLE IF NOT EXISTS user_configuration (
@@ -52,8 +50,14 @@ export async function initializeDb() {
 
   const subscriptionColumns = await db.all('PRAGMA table_info(subscriptions)');
   const hasEndDate = subscriptionColumns.some(column => column.name === 'end_date');
+  const hasTags = subscriptionColumns.some(column => column.name === 'tags');
+
   if (!hasEndDate) {
     await db.exec('ALTER TABLE subscriptions ADD COLUMN end_date TEXT');
+  }
+
+  if (!hasTags) {
+    await db.exec('ALTER TABLE subscriptions ADD COLUMN tags TEXT');
   }
 
   // Create ntfy_settings table
@@ -93,6 +97,14 @@ export async function initializeDb() {
       ['USD', 1]
     );
   }
+}
 
-  await db.close();
+export async function initializeDb() {
+  const db = await getDb();
+
+  try {
+    await migrateDb(db);
+  } finally {
+    await db.close();
+  }
 }

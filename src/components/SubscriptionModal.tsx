@@ -10,6 +10,7 @@ import '@/styles/react-datepicker-dark.css';
 import { parseISO, startOfDay } from 'date-fns';
 import { Subscription } from '@/types';
 import { getRandomColor } from '@/lib/utils';
+import { formatLocalDate } from '@/lib/dateUtils';
 import { MATERIAL_DESIGN_ICON_OPTIONS } from '@/constants/materialDesignIcons';
 import styles from './SubscriptionModal.module.css';
 
@@ -115,8 +116,8 @@ export default function SubscriptionModal({
       id: id || undefined,
       name,
       amount: parseFloat(amount),
-      dueDate: dueDate!.toISOString().split('T')[0],
-      endDate: endDate ? endDate.toISOString().split('T')[0] : null,
+      dueDate: formatLocalDate(dueDate!),
+      endDate: endDate ? formatLocalDate(endDate) : null,
       icon,
       color,
       account,
