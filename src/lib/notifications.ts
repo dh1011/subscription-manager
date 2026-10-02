@@ -228,10 +228,17 @@ export async function sendNotification(
     throw new NotificationDeliveryError('NTFY topic and domain are required', 400);
   }
 
+  const headers: Record<string, string> = {};
+
+  if (settings.ntfyUsername && settings.ntfyPassword) {
+    const encoded = Buffer.from(`${settings.ntfyUsername}:${settings.ntfyPassword}`).toString('base64');
+    headers['Authorization'] = `Basic ${encoded}`;
+  }
   await deliver(
     'NTFY', `${notificationUrl(settings.domain, 'NTFY')}/${encodeURIComponent(settings.topic.trim())}`,
     {
       method: 'POST',
+      headers,
       body: content.message
     }, fetchImplementation, timeoutMs
   );
@@ -248,10 +255,12 @@ export async function loadNotificationCheckData(): Promise<NotificationCheckData
       service: 'ntfy' | 'gotify';
       topic: string;
       domain?: string;
+      ntfy_username?: string;
+      ntfy_password?: string;
       gotify_url?: string;
       gotify_token?: string;
     }>(`
-      SELECT service, topic, domain, gotify_url, gotify_token
+      SELECT service, topic, domain, ntfy_username, ntfy_password, gotify_url, gotify_token
       FROM ntfy_settings
       ORDER BY id DESC
       LIMIT 1
@@ -270,6 +279,8 @@ export async function loadNotificationCheckData(): Promise<NotificationCheckData
             service: settingsRow.service || 'ntfy',
             topic: settingsRow.topic || '',
             domain: settingsRow.domain || 'https://ntfy.sh',
+            ntfyUsername: settingsRow.ntfy_username || '',
+            ntfyPassword: settingsRow.ntfy_password || '',
             gotifyUrl: settingsRow.gotify_url || '',
             gotifyToken: settingsRow.gotify_token || ''
           }
