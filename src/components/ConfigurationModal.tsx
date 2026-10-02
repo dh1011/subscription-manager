@@ -53,6 +53,8 @@ function ConfigurationModal({
   const [selectedNtfyPassword, setSelectedNtfyPassword] = useState(ntfyPassword);
   const [selectedGotifyToken, setSelectedGotifyToken] = useState(gotifyToken);
   const [searchTerm, setSearchTerm] = useState('');
+  const [testError, setTestError] = useState('');
+  const [testing, setTesting] = useState(false);
   const [testStatus, setTestStatus] = useState<'success' | 'error' | null>(null);
   const [selectedShowCurrencySymbol, setSelectedShowCurrencySymbol] = useState(showCurrencySymbol);
 
@@ -67,6 +69,7 @@ function ConfigurationModal({
       setSelectedGotifyUrl(gotifyUrl);
       setSelectedGotifyToken(gotifyToken);
       setTestStatus(null);
+      setTestError('');
     }
   }, [isOpen, currency, notificationService, ntfyTopic, ntfyDomain, ntfyUsername, ntfyPassword, gotifyUrl, gotifyToken]);
 
@@ -86,18 +89,21 @@ function ConfigurationModal({
   };
 
   const handleTestNotification = async () => {
+    setTestStatus(null);
+    setTestError('');
     if (service === 'ntfy' && (!topic || !domain)) {
       setTestStatus('error');
-      console.error('NTFY topic and domain are required');
+      setTestError('NTFY topic and domain are required.');
       return;
     }
 
     if (service === 'gotify' && (!selectedGotifyUrl || !selectedGotifyToken)) {
       setTestStatus('error');
-      console.error('Gotify URL and token are required');
+      setTestError('Gotify URL and token are required.');
       return;
     }
     
+    setTesting(true);
     try {
       await axios.post('/api/test-notification', {
         service,
@@ -111,7 +117,11 @@ function ConfigurationModal({
       setTestStatus('success');
     } catch (error) {
       setTestStatus('error');
-      console.error('Failed to send test notification:', error);
+      setTestError(axios.isAxiosError(error) && typeof error.response?.data?.error === 'string'
+        ? error.response.data.error
+        : 'Failed to send test notification. Check the application logs.');
+    } finally {
+      setTesting(false);
     }
   };
 
@@ -269,12 +279,12 @@ function ConfigurationModal({
                 </div>
               </>
             )}
-            <button type="button" onClick={handleTestNotification} className={styles.testButton}>
-              Test Notification
+            <button type="button" onClick={handleTestNotification} disabled={testing} className={styles.testButton}>
+              {testing ? 'Sending…' : 'Test Notification'}
             </button>
             {testStatus && (
-              <p className={`${styles.testStatus} ${styles[testStatus]}`}>
-                {testStatus === 'success' ? 'Test notification sent successfully!' : 'Failed to send test notification.'}
+              <p role="status" className={`${styles.testStatus} ${styles[testStatus]}`}>
+                {testStatus === 'success' ? 'Test notification sent successfully!' : testError}
               </p>
             )}
           </div>

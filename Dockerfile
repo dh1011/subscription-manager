@@ -22,7 +22,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 # Increase memory limit for build
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-RUN npm run build
+RUN npm test && npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner

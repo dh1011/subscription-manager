@@ -104,3 +104,41 @@ The app integrates with NTFY and Gotify for sending notifications. To set up not
 You'll receive notifications for upcoming subscription payments.
 
 Enjoy 🎉!
+
+
+### Notification timing and troubleshooting
+
+Automatic NTFY and Gotify alerts run at midnight in the application's local time zone,
+for subscriptions with Notify enabled and a payment due that day. Recurring intervals
+and end dates are respected. The container uses UTC unless you configure `TZ`, for
+example `TZ=America/Los_Angeles`. The scheduler logs its next run as a UTC timestamp.
+
+The Test Notification button sends from the application server, using the same delivery
+code as automatic alerts. A successful test confirms delivery connectivity; it does not
+save settings. Save your settings and enable Notify on the subscription as well.
+
+For Docker Compose, inspect startup and delivery logs with:
+
+```bash
+docker compose logs --tail=100 app
+```
+
+Look for `Notification scheduler initialized`, individual delivery outcomes, and the
+notification check summary. Delivery requests have a 15-second deadline. The settings
+window reports DNS, connection timeout/refusal, TLS, and HTTP rejection errors.
+
+The notification URL must be reachable **from the application container**. A URL that
+works in your browser may fail inside Docker because of DNS, firewall, or reverse-proxy
+routing. If both containers share a Docker network, you can use an internal server URL
+such as `http://ntfy:80`; `localhost` inside the application container refers to that
+container itself. Keep TLS certificate verification enabled for HTTPS servers.
+
+Container tags are separate from GitHub release tags. `latest` tracks stable releases;
+3.2.10 is a prerelease for testing the notification fixes and does not update `latest`.
+To try the explicit prerelease:
+
+```bash
+docker pull dh1011/subscription-manager:3.2.10
+```
+
+Then recreate your container with that image while keeping the existing data volume.

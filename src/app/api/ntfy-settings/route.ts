@@ -74,7 +74,6 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const settings: NtfySettings = await request.json();
-    console.log('PUT ntfy-settings:', settings);
     const db = await getDb();
 
     // Delete existing settings

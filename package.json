@@ -1,6 +1,6 @@
 {
   "name": "subscription-manager",
-  "version": "2.0.0",
+  "version": "3.2.10",
   "private": true,
   "scripts": {
     "dev": "NODE_OPTIONS='--max-old-space-size=4096' NEXT_TELEMETRY_DISABLED=1 next dev",
@@ -26,7 +26,8 @@
     "recharts": "^3.6.0",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
-    "styled-components": "^6.1.13"
+    "styled-components": "^6.1.13",
+    "undici": "^6.29.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
