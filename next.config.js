@@ -7,6 +7,7 @@ const nextConfig = {
   output: 'standalone',
   experimental: {
     instrumentationHook: true,
+    serverComponentsExternalPackages: ['undici'],
   },
   async headers() {
     return [

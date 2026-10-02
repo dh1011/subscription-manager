@@ -7,8 +7,13 @@ export const fetchCache = 'force-no-store';
 export const revalidate = 0;
 
 export async function POST(request: Request) {
+  let settings: NtfySettings;
   try {
-    const settings: NtfySettings = await request.json();
+    settings = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid notification settings JSON.' }, { status: 400 });
+  }
+  try {
     await sendNotification(settings, {
       title: 'Test Notification',
       message: 'Test notification from Subscription Manager',
@@ -18,6 +23,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'Test notification sent successfully' });
   } catch (error) {
     if (error instanceof NotificationDeliveryError) {
+      console.error(`Test notification failed: ${error.message}`);
       return NextResponse.json(
         { error: error.message },
         { status: error.status }

@@ -1,3 +1,4 @@
+import { Agent, fetch as undiciFetch } from 'undici';
 import {
   addDays,
   addMonths,
@@ -14,7 +15,66 @@ import { getDb } from '@/lib/db';
 import { formatLocalDate } from '@/lib/dateUtils';
 import { NtfySettings, Subscription } from '@/types';
 
-type FetchImplementation = typeof fetch;
+type NotificationRequest = { method: string; headers?: Record<string, string>; body: string; signal?: AbortSignal };
+type FetchImplementation = (input: string, init: NotificationRequest) => Promise<Pick<Response, 'ok' | 'status' | 'arrayBuffer'>>;
+
+// Race IPv6 and IPv4 candidates instead of waiting on an unreachable family.
+const notificationDispatcher = new Agent({
+  autoSelectFamily: true, autoSelectFamilyAttemptTimeout: 250
+});
+const notificationFetch: FetchImplementation = (input, init) =>
+  undiciFetch(input, { ...init, dispatcher: notificationDispatcher });
+const DELIVERY_TIMEOUT_MS = 15_000;
+
+function deliveryFailure(service: string, error: unknown): NotificationDeliveryError {
+  const cause = error as { name?: string; code?: string; cause?: { code?: string } };
+  const code = cause?.cause?.code || cause?.code;
+  if (cause?.name === 'TimeoutError' || code === 'UND_ERR_CONNECT_TIMEOUT') {
+    return new NotificationDeliveryError(
+      `${service} connection timed out. Check that the application container can reach the notification server, including DNS and reverse-proxy routing.`, 504
+    );
+  }
+  if (code === 'ENOTFOUND' || code === 'EAI_AGAIN') {
+    return new NotificationDeliveryError(`${service} server could not be resolved. Check DNS inside the application container.`, 502);
+  }
+  if (code === 'ECONNREFUSED') {
+    return new NotificationDeliveryError(`${service} connection was refused. Check the server address, port, and container network.`, 502);
+  }
+  if (code && /CERT|TLS|SSL|SELF_SIGNED/.test(code)) {
+    return new NotificationDeliveryError(`${service} TLS verification failed. Check the server certificate and the container's trusted certificates.`, 502);
+  }
+  return new NotificationDeliveryError(`${service} could not be reached from the application container. Check the server address, DNS, and container network.`, 502);
+}
+
+async function deliver(
+  service: string, url: string, init: NotificationRequest,
+  fetchImplementation: FetchImplementation, timeoutMs: number
+): Promise<void> {
+  let response: Pick<Response, 'ok' | 'status' | 'arrayBuffer'>;
+  const signal = AbortSignal.timeout(timeoutMs);
+  try {
+    response = await fetchImplementation(url, { ...init, signal });
+    // Consume the response within the same deadline to release pooled connections.
+    await response.arrayBuffer();
+  } catch (error) {
+    throw deliveryFailure(service, signal.aborted ? signal.reason : error);
+  }
+  if (!response.ok) {
+    throw new NotificationDeliveryError(`${service} rejected the notification (HTTP ${response.status}).`, response.status);
+  }
+}
+
+function notificationUrl(value: string, service: string): string {
+  try {
+    const url = new URL(value.trim());
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.search || url.hash) {
+      throw new Error('Invalid URL');
+    }
+    return trimTrailingSlashes(url.toString());
+  } catch {
+    throw new NotificationDeliveryError(`${service} server must be a valid HTTP or HTTPS URL without credentials, query parameters, or a fragment.`, 400);
+  }
+}
 
 export interface NotificationContent {
   title: string;
@@ -137,14 +197,18 @@ export function shouldNotifyOnDate(subscription: Subscription, referenceDate: Da
 export async function sendNotification(
   settings: NtfySettings,
   content: NotificationContent,
-  fetchImplementation: FetchImplementation = fetch
+  fetchImplementation: FetchImplementation = notificationFetch,
+  timeoutMs = DELIVERY_TIMEOUT_MS
 ): Promise<void> {
+  if (!settings || (settings.service && !['ntfy', 'gotify'].includes(settings.service))) {
+    throw new NotificationDeliveryError('Select a supported notification service.', 400);
+  }
   if ((settings.service || 'ntfy') === 'gotify') {
-    if (!settings.gotifyUrl || !settings.gotifyToken) {
+    if (typeof settings.gotifyUrl !== 'string' || !settings.gotifyUrl.trim() || typeof settings.gotifyToken !== 'string' || !settings.gotifyToken.trim()) {
       throw new NotificationDeliveryError('Gotify URL and token are required', 400);
     }
 
-    const response = await fetchImplementation(`${trimTrailingSlashes(settings.gotifyUrl)}/message`, {
+    await deliver('Gotify', `${notificationUrl(settings.gotifyUrl, 'Gotify')}/message`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -155,30 +219,22 @@ export async function sendNotification(
         message: content.message,
         priority: content.priority ?? 5
       })
-    });
-
-    if (!response.ok) {
-      throw new NotificationDeliveryError('Gotify rejected the notification', response.status);
-    }
+    }, fetchImplementation, timeoutMs);
 
     return;
   }
 
-  if (!settings.topic || !settings.domain) {
+  if (typeof settings.topic !== 'string' || !settings.topic.trim() || typeof settings.domain !== 'string' || !settings.domain.trim()) {
     throw new NotificationDeliveryError('NTFY topic and domain are required', 400);
   }
 
-  const response = await fetchImplementation(
-    `${trimTrailingSlashes(settings.domain)}/${settings.topic}`,
+  await deliver(
+    'NTFY', `${notificationUrl(settings.domain, 'NTFY')}/${encodeURIComponent(settings.topic.trim())}`,
     {
       method: 'POST',
       body: content.message
-    }
+    }, fetchImplementation, timeoutMs
   );
-
-  if (!response.ok) {
-    throw new NotificationDeliveryError('NTFY rejected the notification', response.status);
-  }
 }
 
 export async function loadNotificationCheckData(): Promise<NotificationCheckData> {
@@ -264,10 +320,11 @@ export async function runDueNotificationCheck(
       dependencies.logger.info(`Notification sent for subscription ${subscription.name} due on ${dueDate}`);
     } catch (error) {
       result.failed += 1;
-      dependencies.logger.error(`Failed to send notification for subscription ${subscription.name}:`, error);
+      dependencies.logger.error(`Failed to send notification for subscription ${subscription.name}:`, error instanceof Error ? error.message : 'Unknown delivery error');
     }
   }
 
+  dependencies.logger.info(`Notification check complete: ${result.attempted} attempted, ${result.sent} sent, ${result.failed} failed.`);
   return result;
 }
 

@@ -152,3 +152,35 @@ test('millisecondsUntilNextMidnight follows local daylight-saving transitions', 
     process.env.TZ = previousTimezone;
   }
 });
+
+for (const [code, status, message] of [
+  ['UND_ERR_CONNECT_TIMEOUT', 504, /timed out/],
+  ['ENOTFOUND', 502, /DNS/],
+  ['EAI_AGAIN', 502, /DNS/],
+  ['ECONNREFUSED', 502, /refused/],
+  ['DEPTH_ZERO_SELF_SIGNED_CERT', 502, /TLS verification/]
+] as const) {
+  test(`delivery explains ${code} without exposing credentials`, async () => {
+    await assert.rejects(sendNotification(
+      { service: 'gotify', topic: '', gotifyUrl: 'http://localhost:9876', gotifyToken: 'private-token' },
+      { title: 'Test', message: 'Test' },
+      async () => { throw new TypeError('secret URL private-token', { cause: { code } }); }
+    ), (error: unknown) => {
+      assert(error instanceof NotificationDeliveryError);
+      assert.equal(error.status, status);
+      assert.match(error.message, message);
+      assert(!error.message.includes('private-token'));
+      return true;
+    });
+  });
+}
+
+test('delivery validates URL and topic before making a request', async () => {
+  for (const domain of ['not-a-url', 'ftp://localhost', 'http://user:secret@localhost', 'http://localhost?token=secret']) {
+    await assert.rejects(sendNotification(
+      { service: 'ntfy', topic: 'billing', domain },
+      { title: 'Test', message: 'Test' },
+      async () => { assert.fail('Invalid settings must not make a network request'); }
+    ), (error: unknown) => error instanceof NotificationDeliveryError && error.status === 400);
+  }
+});
