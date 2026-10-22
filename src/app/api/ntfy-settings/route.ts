@@ -10,7 +10,7 @@ export async function GET() {
   try {
     const db = await getDb();
     const result = await db.get(`
-      SELECT service, topic, domain, gotify_url, gotify_token
+      SELECT service, topic, domain, ntfy_username, ntfy_password, gotify_url, gotify_token
       FROM ntfy_settings
       ORDER BY id DESC
       LIMIT 1
@@ -21,6 +21,8 @@ export async function GET() {
       service: result?.service || 'ntfy',
       topic: result?.topic || '',
       domain: result?.domain || 'https://ntfy.sh',
+      ntfyUsername: result?.ntfy_username || '',
+      ntfyPassword: result?.ntfy_password || '',
       gotifyUrl: result?.gotify_url || '',
       gotifyToken: result?.gotify_token || ''
     });
@@ -44,12 +46,14 @@ export async function POST(request: Request) {
     // Insert new settings
     await db.run(
       `INSERT INTO ntfy_settings
-        (service, topic, domain, gotify_url, gotify_token)
-       VALUES (?, ?, ?, ?, ?)`,
+        (service, topic, domain, ntfy_username, ntfy_password, gotify_url, gotify_token)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         settings.service || 'ntfy',
         settings.topic || '',
         settings.domain || 'https://ntfy.sh',
+        settings.ntfyUsername || '',
+        settings.ntfyPassword || '',
         settings.gotifyUrl || '',
         settings.gotifyToken || ''
       ]
@@ -78,12 +82,14 @@ export async function PUT(request: Request) {
     // Insert new settings
     await db.run(
       `INSERT INTO ntfy_settings
-        (service, topic, domain, gotify_url, gotify_token)
-       VALUES (?, ?, ?, ?, ?)`,
+        (service, topic, domain, ntfy_username, ntfy_password, gotify_url, gotify_token)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         settings.service || 'ntfy',
         settings.topic || '',
         settings.domain || 'https://ntfy.sh',
+        settings.ntfyUsername || '',
+        settings.ntfyPassword || '',
         settings.gotifyUrl || '',
         settings.gotifyToken || ''
       ]
