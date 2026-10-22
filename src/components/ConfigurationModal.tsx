@@ -15,6 +15,8 @@ interface ConfigurationModalProps {
   notificationService: NotificationService;
   ntfyTopic: string;
   ntfyDomain: string;
+  ntfyUsername: string;
+  ntfyPassword: string;
   gotifyUrl: string;
   gotifyToken: string;
   onSave: (config: {
