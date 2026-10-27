@@ -134,6 +134,7 @@ such as `http://ntfy:80`; `localhost` inside the application container refers to
 container itself. Keep TLS certificate verification enabled for HTTPS servers.
 
 Container tags are separate from GitHub release tags. `latest` tracks stable releases;
+3.2.11 includes username/password authentication for access-controlled ntfy topics.
 3.2.10 is a prerelease for testing the notification fixes and does not update `latest`.
 To try the explicit prerelease:
 
