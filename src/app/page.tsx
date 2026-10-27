@@ -25,6 +25,8 @@ export default function Home() {
     service: 'ntfy',
     topic: '',
     domain: 'https://ntfy.sh',
+    ntfyUsername: '',
+    ntfyPassword: '',
     gotifyUrl: '',
     gotifyToken: '',
   });
@@ -268,6 +270,8 @@ export default function Home() {
     notificationService: 'ntfy' | 'gotify';
     ntfyTopic: string;
     ntfyDomain: string;
+    ntfyUsername: string;
+    ntfyPassword: string;
     gotifyUrl: string;
     gotifyToken: string;
     showCurrencySymbol: boolean;
@@ -291,6 +295,8 @@ export default function Home() {
           service: config.notificationService,
           topic: config.ntfyTopic,
           domain: config.ntfyDomain,
+          ntfyUsername: config.ntfyUsername,
+          ntfyPassword: config.ntfyPassword,
           gotifyUrl: config.gotifyUrl,
           gotifyToken: config.gotifyToken
         })
@@ -306,6 +312,8 @@ export default function Home() {
         service: config.notificationService,
         topic: config.ntfyTopic,
         domain: config.ntfyDomain,
+        ntfyUsername: config.ntfyUsername,
+        ntfyPassword: config.ntfyPassword,
         gotifyUrl: config.gotifyUrl,
         gotifyToken: config.gotifyToken
       });
@@ -420,6 +428,8 @@ export default function Home() {
           notificationService={ntfySettings.service || 'ntfy'}
           ntfyTopic={ntfySettings.topic || ''}
           ntfyDomain={ntfySettings.domain || 'https://ntfy.sh'}
+          ntfyUsername={ntfySettings.ntfyUsername ?? ''}
+          ntfyPassword={ntfySettings.ntfyPassword ?? ''}
           gotifyUrl={ntfySettings.gotifyUrl || ''}
           gotifyToken={ntfySettings.gotifyToken || ''}
           onSave={handleConfigurationSave}

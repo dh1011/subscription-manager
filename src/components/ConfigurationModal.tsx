@@ -15,6 +15,8 @@ interface ConfigurationModalProps {
   notificationService: NotificationService;
   ntfyTopic: string;
   ntfyDomain: string;
+  ntfyUsername: string;
+  ntfyPassword: string;
   gotifyUrl: string;
   gotifyToken: string;
   onSave: (config: {
@@ -22,6 +24,8 @@ interface ConfigurationModalProps {
     notificationService: NotificationService;
     ntfyTopic: string;
     ntfyDomain: string;
+    ntfyUsername: string;
+    ntfyPassword: string;
     gotifyUrl: string;
     gotifyToken: string;
     showCurrencySymbol: boolean;
@@ -36,6 +40,8 @@ function ConfigurationModal({
   notificationService,
   ntfyTopic, 
   ntfyDomain, 
+  ntfyUsername,
+  ntfyPassword,
   gotifyUrl,
   gotifyToken,
   onSave 
@@ -45,6 +51,8 @@ function ConfigurationModal({
   const [topic, setTopic] = useState(ntfyTopic);
   const [domain, setDomain] = useState(ntfyDomain);
   const [selectedGotifyUrl, setSelectedGotifyUrl] = useState(gotifyUrl);
+  const [selectedNtfyUsername, setSelectedNtfyUsername] = useState(ntfyUsername);
+  const [selectedNtfyPassword, setSelectedNtfyPassword] = useState(ntfyPassword);
   const [selectedGotifyToken, setSelectedGotifyToken] = useState(gotifyToken);
   const [searchTerm, setSearchTerm] = useState('');
   const [testError, setTestError] = useState('');
@@ -58,12 +66,14 @@ function ConfigurationModal({
       setService(notificationService);
       setTopic(ntfyTopic);
       setDomain(ntfyDomain);
+      setSelectedNtfyUsername(ntfyUsername);
+      setSelectedNtfyPassword(ntfyPassword);
       setSelectedGotifyUrl(gotifyUrl);
       setSelectedGotifyToken(gotifyToken);
       setTestStatus(null);
       setTestError('');
     }
-  }, [isOpen, currency, notificationService, ntfyTopic, ntfyDomain, gotifyUrl, gotifyToken]);
+  }, [isOpen, currency, notificationService, ntfyTopic, ntfyDomain, ntfyUsername, ntfyPassword, gotifyUrl, gotifyToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +82,8 @@ function ConfigurationModal({
       notificationService: service,
       ntfyTopic: topic,
       ntfyDomain: domain,
+      ntfyUsername: selectedNtfyUsername,
+      ntfyPassword: selectedNtfyPassword,
       gotifyUrl: selectedGotifyUrl,
       gotifyToken: selectedGotifyToken,
       showCurrencySymbol: selectedShowCurrencySymbol
@@ -99,6 +111,8 @@ function ConfigurationModal({
         service,
         topic,
         domain,
+        ntfyUsername: selectedNtfyUsername,
+        ntfyPassword: selectedNtfyPassword,
         gotifyUrl: selectedGotifyUrl,
         gotifyToken: selectedGotifyToken
       });
@@ -220,6 +234,26 @@ function ConfigurationModal({
                     value={domain}
                     onChange={(e) => setDomain(e.target.value)}
                     placeholder="Enter your NTFY domain"
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="ntfyUsername">Username (optional)</label>
+                  <input
+                    id="ntfyUsername"
+                    type="text"
+                    value={selectedNtfyUsername}
+                    onChange={(e) => setSelectedNtfyUsername(e.target.value)}
+                    placeholder="For access-controlled topics"
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="ntfyPassword">Password (optional)</label>
+                  <input
+                    id="ntfyPassword"
+                    type="password"
+                    value={selectedNtfyPassword}
+                    onChange={(e) => setSelectedNtfyPassword(e.target.value)}
+                    placeholder="For access-controlled topics"
                   />
                 </div>
               </>

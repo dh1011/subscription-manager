@@ -67,6 +67,8 @@ export async function migrateDb(db: Database) {
       service TEXT NOT NULL DEFAULT 'ntfy',
       topic TEXT NOT NULL,
       domain TEXT DEFAULT 'https://ntfy.sh',
+      ntfy_username TEXT,
+      ntfy_password TEXT,
       gotify_url TEXT,
       gotify_token TEXT
     )
@@ -76,6 +78,16 @@ export async function migrateDb(db: Database) {
   const hasNotificationService = ntfyColumns.some(column => column.name === 'service');
   const hasGotifyUrl = ntfyColumns.some(column => column.name === 'gotify_url');
   const hasGotifyToken = ntfyColumns.some(column => column.name === 'gotify_token');
+  const hasNtfyUsername = ntfyColumns.some(column => column.name === 'ntfy_username');
+  const hasNtfyPassword = ntfyColumns.some(column => column.name === 'ntfy_password');
+
+  if (!hasNtfyUsername) {
+    await db.exec('ALTER TABLE ntfy_settings ADD COLUMN ntfy_username TEXT');
+  }
+
+  if (!hasNtfyPassword) {
+    await db.exec('ALTER TABLE ntfy_settings ADD COLUMN ntfy_password TEXT');
+  }
 
   if (!hasNotificationService) {
     await db.exec("ALTER TABLE ntfy_settings ADD COLUMN service TEXT NOT NULL DEFAULT 'ntfy'");

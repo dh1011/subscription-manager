@@ -33,6 +33,8 @@ export interface NtfySettings {
   domain?: string;
   gotifyUrl?: string;
   gotifyToken?: string;
+  ntfyUsername?: string;
+  ntfyPassword?: string;
 }
 
 export interface ApiResponse<T> {
