@@ -58,6 +58,9 @@ https://github.com/user-attachments/assets/9e7830e1-3c3c-474a-8f48-93ee8f5e440d
 
 ### Manual Setup
 
+Use Node.js 24.22.2 (see `.nvmrc`) to match the Docker build and production runtime.
+With nvm installed, run `nvm install` and `nvm use` after cloning the repository.
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/your-repo/subscription-manager.git
