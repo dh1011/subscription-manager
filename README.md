@@ -136,7 +136,8 @@ routing. If both containers share a Docker network, you can use an internal serv
 such as `http://ntfy:80`; `localhost` inside the application container refers to that
 container itself. Keep TLS certificate verification enabled for HTTPS servers.
 
-Container tags are separate from GitHub release tags. `latest` tracks stable releases;
+Container tags are separate from GitHub release tags. `latest` and `stable` track stable releases;
+3.2.12 upgrades the Docker build and production runtime to patched Node.js 24.22.2.
 3.2.11 includes username/password authentication for access-controlled ntfy topics.
 3.2.10 is a prerelease for testing the notification fixes and does not update `latest`.
 To try the explicit prerelease:
@@ -146,3 +147,11 @@ docker pull dh1011/subscription-manager:3.2.10
 ```
 
 Then recreate your container with that image while keeping the existing data volume.
+
+### Publishing a stable release
+
+Update `package.json` and add `.github/release-notes/<version>.md`, then merge after CI passes.
+Push a matching `<major>.<minor>.<patch>` Git tag at the merged commit. The release workflow
+builds and tests native amd64 and arm64 images, verifies the Node runtime, publishes the
+version plus `latest` and `stable` Docker tags, and creates the GitHub release from those notes.
+Published GitHub prereleases still build versioned images without changing the stable aliases.

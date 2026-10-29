@@ -1,6 +1,6 @@
 {
   "name": "subscription-manager",
-  "version": "3.2.11",
+  "version": "3.2.12",
   "private": true,
   "scripts": {
     "dev": "NODE_OPTIONS='--max-old-space-size=4096' NEXT_TELEMETRY_DISABLED=1 next dev",
