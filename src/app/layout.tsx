@@ -1,18 +1,24 @@
 import type { Metadata } from 'next';
-import { Poppins, Montserrat } from 'next/font/google';
+import localFont from 'next/font/local';
 import StyledComponentsRegistry from '@/lib/registry';
 import './globals.css';
 
-const poppins = Poppins({ 
-  weight: ['300', '400', '500', '600', '700'],
-  subsets: ['latin'],
+const poppins = localFont({
+  src: [
+    { path: './fonts/poppins/Poppins-Light.woff2', weight: '300', style: 'normal' },
+    { path: './fonts/poppins/Poppins-Regular.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/poppins/Poppins-Medium.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/poppins/Poppins-SemiBold.woff2', weight: '600', style: 'normal' },
+    { path: './fonts/poppins/Poppins-Bold.woff2', weight: '700', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-poppins',
 });
 
-const montserrat = Montserrat({
-  weight: ['400', '500', '600', '700'],
-  subsets: ['latin'],
+const montserrat = localFont({
+  src: './fonts/montserrat/Montserrat.woff2',
+  weight: '400 700',
+  style: 'normal',
   display: 'swap',
   variable: '--font-montserrat',
 });
@@ -59,4 +65,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-} 
+}
