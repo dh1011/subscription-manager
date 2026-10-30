@@ -14,6 +14,7 @@ export interface Subscription {
   icon?: string;
   color?: string;
   account?: string;
+  description?: string | null;
   autopay: boolean;
   intervalValue: number;
   intervalUnit: string;
