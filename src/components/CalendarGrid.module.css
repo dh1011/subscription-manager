@@ -4,6 +4,44 @@
   padding: 0 20px;
 }
 
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.monthTitle {
+  min-width: 180px;
+  text-align: center;
+  font-size: 1.4em;
+  font-weight: bold;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border: 1px solid #03DAC6;
+  border-radius: 8px;
+  background: transparent;
+  color: #03DAC6;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.navButton:hover {
+  background: rgba(3, 218, 198, 0.2);
+}
+
+.todayButton {
+  font-size: 1em;
+}
+
 .calendarGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

@@ -34,6 +34,7 @@ export default function Home() {
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | undefined>();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [viewDate, setViewDate] = useState<Date>(new Date());
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
@@ -373,7 +374,8 @@ export default function Home() {
         <CalendarGrid
           subscriptions={subscriptions}
           onDateClick={handleDateClick}
-          currentDate={selectedDate}
+          currentDate={viewDate}
+          onMonthChange={setViewDate}
         />
         <SubscriptionList
           subscriptions={subscriptions}
