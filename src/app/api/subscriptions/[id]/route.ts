@@ -15,7 +15,7 @@ export async function PUT(
       `UPDATE subscriptions SET
         name = ?, amount = ?, due_date = ?, icon = ?, color = ?,
         account = ?, autopay = ?, interval_value = ?, interval_unit = ?,
-        notify = ?, currency = ?, end_date = ?, tags = ?
+        notify = ?, currency = ?, end_date = ?, tags = ?, description = ?
       WHERE id = ?`,
       [
         subscription.name,
@@ -31,6 +31,7 @@ export async function PUT(
         subscription.currency || 'default',
         subscription.endDate || subscription.end_date || null,
         subscription.tags ? JSON.stringify(subscription.tags) : null,
+        subscription.description?.trim() || null,
         id
       ]
     );

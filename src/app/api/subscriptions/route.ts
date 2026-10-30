@@ -44,8 +44,8 @@ export async function POST(request: Request) {
     const result = await db.run(
       `INSERT INTO subscriptions (
         name, amount, due_date, icon, color, account, autopay,
-        interval_value, interval_unit, notify, currency, end_date, tags
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        interval_value, interval_unit, notify, currency, end_date, tags, description
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         subscription.name,
         subscription.amount,
@@ -59,7 +59,8 @@ export async function POST(request: Request) {
         subscription.notify ? 1 : 0,
         subscription.currency || 'default',
         subscription.endDate || subscription.end_date || null,
-        subscription.tags ? JSON.stringify(subscription.tags) : null
+        subscription.tags ? JSON.stringify(subscription.tags) : null,
+        subscription.description?.trim() || null
       ]
     );
 

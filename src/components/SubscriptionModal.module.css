@@ -50,13 +50,20 @@
 }
 
 .formGroup input,
-.formGroup select {
+.formGroup select,
+.formGroup textarea {
   width: 100%;
   padding: 10px;
   border: 1px solid #444;
   border-radius: 5px;
   background-color: #2c2c2c;
   color: #fff;
+}
+
+.formGroup textarea {
+  font-family: inherit;
+  font-size: inherit;
+  resize: vertical;
 }
 
 .modalActions {

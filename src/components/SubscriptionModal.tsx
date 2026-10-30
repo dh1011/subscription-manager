@@ -40,6 +40,7 @@ export default function SubscriptionModal({
   const [iconInput, setIconInput] = useState('');
   const [color, setColor] = useState('');
   const [account, setAccount] = useState('');
+  const [description, setDescription] = useState('');
   const [autopay, setAutopay] = useState(false);
   const [intervalValue, setIntervalValue] = useState(1);
   const [intervalUnit, setIntervalUnit] = useState('months');
@@ -68,6 +69,7 @@ export default function SubscriptionModal({
       setIconInput(selectedSubscription.icon || '');
       setColor(selectedSubscription.color || '');
       setAccount(selectedSubscription.account || '');
+      setDescription(selectedSubscription.description || '');
       setAutopay(selectedSubscription.autopay);
       setIntervalValue(selectedSubscription.intervalValue || selectedSubscription.interval_value || 1);
       setIntervalUnit(selectedSubscription.intervalUnit || selectedSubscription.interval_unit || 'months');
@@ -84,6 +86,7 @@ export default function SubscriptionModal({
       setIntervalValue(1);
       setIntervalUnit('months');
       setAccount('');
+      setDescription('');
       setCurrency(defaultCurrency);
       setTags([]);
       setTagInput('');
@@ -121,6 +124,7 @@ export default function SubscriptionModal({
       icon,
       color,
       account,
+      description: description.trim() || null,
       autopay,
       intervalValue: intervalValue ? parseInt(String(intervalValue)) : 1,
       intervalUnit: intervalUnit || 'months',
@@ -297,6 +301,16 @@ export default function SubscriptionModal({
               value={account}
               onChange={(e) => setAccount(e.target.value)}
               placeholder="Enter account or card name"
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="description">Notes</label>
+            <textarea
+              id="description"
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Optional notes about this subscription"
             />
           </div>
           <div className={`${styles.formGroup} ${styles.autopayToggle}`}>

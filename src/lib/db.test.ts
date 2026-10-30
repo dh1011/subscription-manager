@@ -52,6 +52,7 @@ test('migrateDb upgrades a legacy database without losing subscriptions', async 
 
     assert(subscriptionColumns.some(column => column.name === 'end_date'));
     assert(subscriptionColumns.some(column => column.name === 'tags'));
+    assert(subscriptionColumns.some(column => column.name === 'description'));
     assert(notificationColumns.some(column => column.name === 'service'));
     assert(notificationColumns.some(column => column.name === 'gotify_url'));
     assert(notificationColumns.some(column => column.name === 'gotify_token'));

@@ -44,13 +44,15 @@ export async function migrateDb(db: Database) {
       notify INTEGER NOT NULL DEFAULT 0,
       currency TEXT DEFAULT 'default',
       end_date TEXT,
-      tags TEXT
+      tags TEXT,
+      description TEXT
     )
   `);
 
   const subscriptionColumns = await db.all('PRAGMA table_info(subscriptions)');
   const hasEndDate = subscriptionColumns.some(column => column.name === 'end_date');
   const hasTags = subscriptionColumns.some(column => column.name === 'tags');
+  const hasDescription = subscriptionColumns.some(column => column.name === 'description');
 
   if (!hasEndDate) {
     await db.exec('ALTER TABLE subscriptions ADD COLUMN end_date TEXT');
@@ -58,6 +60,10 @@ export async function migrateDb(db: Database) {
 
   if (!hasTags) {
     await db.exec('ALTER TABLE subscriptions ADD COLUMN tags TEXT');
+  }
+
+  if (!hasDescription) {
+    await db.exec('ALTER TABLE subscriptions ADD COLUMN description TEXT');
   }
 
   // Create ntfy_settings table

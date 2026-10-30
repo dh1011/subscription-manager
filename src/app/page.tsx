@@ -213,6 +213,7 @@ export default function Home() {
             icon: sub.icon || "",
             color: sub.color || "",
             account: sub.account || "",
+            description: sub.description || null,
             autopay: Boolean(sub.autopay),
             interval_value: Number(sub.interval_value || 1),
             interval_unit: sub.interval_unit || "months",
