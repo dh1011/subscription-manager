@@ -6,6 +6,7 @@
 
 .calendarHeader {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 12px;
@@ -114,6 +115,11 @@
 }
 
 @media (max-width: 480px) {
+  .todayButton {
+    flex: 0 0 100%;
+    order: 1;
+  }
+
   .calendarGrid {
     grid-template-columns: repeat(7, 1fr);
   }
