@@ -1,6 +1,6 @@
 import React from 'react';
 import { getDaysInMonth, getFirstDayOfMonth } from '../lib/dateUtils';
-import { parseISO, addDays, addMonths, addYears, isSameMonth, getDate, set } from 'date-fns';
+import { parseISO, addDays, addMonths, addYears, subMonths, isSameMonth, getDate, set, format } from 'date-fns';
 import { Icon } from '@iconify-icon/react';
 import styles from './CalendarGrid.module.css';
 import { Subscription as AppSubscription } from '@/types';
@@ -19,9 +19,11 @@ interface CalendarGridProps {
   subscriptions: AppSubscription[];
   onDateClick: (date: Date) => void;
   currentDate: Date;
+  /** When provided, a month header with previous/next/today controls is shown. */
+  onMonthChange?: (date: Date) => void;
 }
 
-function CalendarGrid({ subscriptions, onDateClick, currentDate }: CalendarGridProps) {
+function CalendarGrid({ subscriptions, onDateClick, currentDate, onMonthChange }: CalendarGridProps) {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const today = new Date();
@@ -100,8 +102,40 @@ function CalendarGrid({ subscriptions, onDateClick, currentDate }: CalendarGridP
     }
   });
 
+  const isCurrentMonth = isSameMonth(currentDate, today);
+
   return (
     <div className={styles.calendarContainer}>
+      {onMonthChange && (
+        <div className={styles.calendarHeader}>
+          <button
+            type="button"
+            className={styles.navButton}
+            onClick={() => onMonthChange(subMonths(currentDate, 1))}
+            aria-label="Previous month"
+          >
+            <Icon icon="mdi:chevron-left" />
+          </button>
+          <span className={styles.monthTitle}>{format(currentDate, 'MMMM yyyy')}</span>
+          <button
+            type="button"
+            className={styles.navButton}
+            onClick={() => onMonthChange(addMonths(currentDate, 1))}
+            aria-label="Next month"
+          >
+            <Icon icon="mdi:chevron-right" />
+          </button>
+          {!isCurrentMonth && (
+            <button
+              type="button"
+              className={`${styles.navButton} ${styles.todayButton}`}
+              onClick={() => onMonthChange(new Date())}
+            >
+              Today
+            </button>
+          )}
+        </div>
+      )}
       <div className={styles.calendarGrid}>
         {daysOfWeek.map((day) => (
           <div key={day} className={styles.calendarDayHeader}>
